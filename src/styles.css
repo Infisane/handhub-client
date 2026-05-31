@@ -1150,3 +1150,19 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
   color: #22C55E;
 }
 
+/* ── Scoped Dashboard Page CSS ────────────────────────────────────────────── */
+.hh-dashboard {
+  --dashboard-bg: #F7F5F2;
+  --dashboard-card: #FFFFFF;
+  --dashboard-text: #1A1714;
+  --dashboard-muted: #6B6760;
+  --dashboard-border: #E3DDD7;
+  --dashboard-orange: #E8500A;
+  --dashboard-orange-light: #FEF0E8;
+  --dashboard-orange-mid: #FAC8AB;
+  --dashboard-purple: #6b21a8;
+  --dashboard-purple-light: #f5f3ff;
+  --dashboard-purple-mid: #d8b4fe;
+}
+
+

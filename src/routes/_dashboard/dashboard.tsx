@@ -1,0 +1,498 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { motion } from "framer-motion";
+import {
+	Sparkles,
+	Droplets,
+	Zap,
+	Hammer,
+	Wind,
+	Paintbrush,
+	Star,
+	Check,
+	Receipt,
+	Briefcase,
+	Users,
+	CreditCard,
+	ArrowUpRight,
+	MessageSquare,
+	Menu,
+} from "lucide-react";
+import { useState, useRef, useEffect, useContext } from "react";
+import { DashboardContext } from "../_dashboard";
+
+export const Route = createFileRoute("/_dashboard/dashboard")({
+	component: DashboardPage,
+});
+
+interface Artisan {
+	id: string;
+	name: string;
+	trade: string;
+	location: string;
+	rating: number;
+	jobs: number;
+	availClass: "now" | "sched";
+	availText: string;
+	rate: string;
+	avatarInitials: string;
+	avatarBgClass: string;
+}
+
+function DashboardPage() {
+	const { hasActiveChat, setHasActiveChat, setIsMobileSidebarOpen } = useContext(DashboardContext);
+	const [searchValue, setSearchValue] = useState("");
+	const [isSearching, setIsSearching] = useState(false);
+	const [hiredArtisans, setHiredArtisans] = useState<Record<string, boolean>>({});
+	const searchTimerRef = useRef<NodeJS.Timeout | null>(null);
+	const searchInputRef = useRef<HTMLInputElement>(null);
+
+	// Suggestion pills data
+	const pills = [
+		{ label: "Plumber near me", icon: Droplets },
+		{ label: "Electrical emergency", icon: Zap },
+		{ label: "Carpentry", icon: Hammer },
+		{ label: "AC repair", icon: Wind },
+		{ label: "Painting", icon: Paintbrush },
+	];
+
+	// Artisans data
+	const artisans: Artisan[] = [
+		{
+			id: "artisan-1",
+			name: "Taiwo Johnson",
+			trade: "Licensed Electrician",
+			location: "Ikeja",
+			rating: 4.9,
+			jobs: 83,
+			availClass: "now",
+			availText: "Available now",
+			rate: "₦8,500/hr",
+			avatarInitials: "TJ",
+			avatarBgClass: "bg-[#FEE9E1] text-[#C2410C]",
+		},
+		{
+			id: "artisan-2",
+			name: "Emeka Nwosu",
+			trade: "Master Plumber",
+			location: "Yaba",
+			rating: 4.8,
+			jobs: 61,
+			availClass: "now",
+			availText: "Available now",
+			rate: "₦7,200/hr",
+			avatarInitials: "EM",
+			avatarBgClass: "bg-[#E0F2FE] text-[#0369A1]",
+		},
+		{
+			id: "artisan-3",
+			name: "Fatima Abubakar",
+			trade: "Carpenter",
+			location: "Surulere",
+			rating: 4.7,
+			jobs: 45,
+			availClass: "sched",
+			availText: "Sched. only",
+			rate: "₦6,000/hr",
+			avatarInitials: "FA",
+			avatarBgClass: "bg-[#FDF4E3] text-[#B7791F]",
+		},
+		{
+			id: "artisan-4",
+			name: "Biodun Kareem",
+			trade: "AC Technician",
+			location: "VI",
+			rating: 4.9,
+			jobs: 102,
+			availClass: "now",
+			availText: "Available now",
+			rate: "₦9,000/hr",
+			avatarInitials: "BK",
+			avatarBgClass: "bg-[#E2FBF0] text-[#0F766E]",
+		},
+	];
+
+	// Handle typing search
+	const handleSearchChange = (value: string) => {
+		setSearchValue(value);
+
+		if (searchTimerRef.current) {
+			clearTimeout(searchTimerRef.current);
+		}
+
+		if (value.trim().length > 4) {
+			setIsSearching(true);
+			searchTimerRef.current = setTimeout(() => {
+				setIsSearching(false);
+			}, 3000);
+		} else {
+			setIsSearching(false);
+		}
+	};
+
+	// Handle suggestion pill click
+	const handlePillClick = (label: string) => {
+		setSearchValue(label);
+		if (searchInputRef.current) {
+			searchInputRef.current.focus();
+		}
+
+		if (searchTimerRef.current) {
+			clearTimeout(searchTimerRef.current);
+		}
+
+		setIsSearching(true);
+		searchTimerRef.current = setTimeout(() => {
+			setIsSearching(false);
+		}, 3000);
+	};
+
+	// Cleanup timer on unmount
+	useEffect(() => {
+		return () => {
+			if (searchTimerRef.current) {
+				clearTimeout(searchTimerRef.current);
+			}
+		};
+	}, []);
+
+	// Handle artisan hire click
+	const handleHireClick = (artisanId: string) => {
+		setHiredArtisans((prev) => ({
+			...prev,
+			[artisanId]: true,
+		}));
+		setHasActiveChat(true);
+	};
+
+	// Framer motion variants for cards entrance
+	const containerVariants = {
+		hidden: { opacity: 0 },
+		show: {
+			opacity: 1,
+			transition: {
+				staggerChildren: 0.08,
+			},
+		},
+	};
+
+	const itemVariants = {
+		hidden: { opacity: 0, y: 15 },
+		show: {
+			opacity: 1,
+			y: 0,
+			transition: {
+				type: "spring" as const,
+				stiffness: 100,
+				damping: 15,
+			},
+		},
+	};
+
+	return (
+		<main className="flex-1 p-5 sm:p-6 md:p-8 pb-24 md:pb-8 flex flex-col gap-5 md:gap-7 overflow-y-auto h-full max-h-screen bg-[var(--dashboard-bg)]">
+			{/* Top Bar Header */}
+			<div className="flex items-center justify-between gap-3">
+				{/* Hamburger trigger — mobile only */}
+				<button
+					type="button"
+					onClick={() => setIsMobileSidebarOpen(true)}
+					className="md:hidden w-9 h-9 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] flex items-center justify-center text-[var(--dashboard-text)] hover:bg-[var(--dashboard-orange-light)] hover:border-[var(--dashboard-orange-mid)] hover:text-[var(--dashboard-orange)] transition-all duration-150 shrink-0 shadow-sm"
+					aria-label="Open navigation"
+				>
+					<Menu size={18} />
+				</button>
+
+				<div className="min-w-0">
+					<h2 className="font-syne font-extrabold text-[22px] sm:text-[27px] tracking-[-0.7px] text-[var(--dashboard-text)] leading-none mb-1.5 truncate">
+						Good morning, Adeola
+					</h2>
+					<div className="flex items-center gap-2 text-xs text-[var(--dashboard-muted)] font-medium flex-wrap">
+						<span className="hidden sm:inline">Saturday, 30 May 2026</span>
+						<span className="text-neutral-300 select-none hidden sm:inline">·</span>
+						<div className="flex items-center gap-1.5 bg-green-50 border border-green-200/50 rounded-full px-2.5 py-0.5 text-[10px] text-green-700 font-semibold shadow-sm select-none">
+							<span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+							Lagos State · Live
+						</div>
+					</div>
+				</div>
+			</div>
+
+			{/* Statistics widgets grid */}
+			<section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+				{/* Active Jobs (Orange Gradient Theme) */}
+				<div className="bg-gradient-to-br from-[var(--dashboard-orange)] to-[#B33D07] border border-[#B33D07]/20 rounded-2xl p-5 shadow-lg shadow-orange-500/10 text-white relative overflow-hidden group hover:shadow-xl transition-all duration-300">
+					<div className="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-xl group-hover:scale-110 transition-transform duration-500" />
+					<div className="absolute right-4 bottom-4 text-white/15">
+						<Briefcase size={44} className="stroke-[1.5]" />
+					</div>
+					
+					<div className="relative z-10">
+						<div className="text-[10px] uppercase font-bold tracking-wider text-white/70 mb-2">
+							Active jobs
+						</div>
+						<div className="font-syne text-4xl font-extrabold mb-1">3</div>
+						<div className="text-[11px] text-white/85 font-semibold flex items-center gap-1">
+							<span className="flex h-1.5 w-1.5 relative shrink-0">
+								<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+								<span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
+							</span>
+							↑ 1 new today
+						</div>
+					</div>
+				</div>
+
+				{/* Artisans Nearby */}
+				<div className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 text-[var(--dashboard-text)] relative overflow-hidden group">
+					<div className="absolute -right-6 -top-6 w-24 h-24 bg-neutral-100 rounded-full blur-xl group-hover:scale-110 transition-transform duration-500" />
+					<div className="absolute right-4 bottom-4 text-neutral-200/50">
+						<Users size={44} className="stroke-[1.5]" />
+					</div>
+					
+					<div className="relative z-10">
+						<div className="text-[10px] uppercase font-bold tracking-wider text-[var(--dashboard-muted)] mb-2">
+							Artisans nearby
+						</div>
+						<div className="font-syne text-4xl font-extrabold mb-1 text-[var(--dashboard-text)]">48</div>
+						<div className="text-[11px] text-[var(--dashboard-muted)] font-medium">
+							Within 5 km radius
+						</div>
+					</div>
+				</div>
+
+				{/* Total Spent */}
+				<div className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 text-[var(--dashboard-text)] relative overflow-hidden group">
+					<div className="absolute -right-6 -top-6 w-24 h-24 bg-neutral-100 rounded-full blur-xl group-hover:scale-110 transition-transform duration-500" />
+					<div className="absolute right-4 bottom-4 text-neutral-200/50">
+						<CreditCard size={44} className="stroke-[1.5]" />
+					</div>
+					
+					<div className="relative z-10">
+						<div className="text-[10px] uppercase font-bold tracking-wider text-[var(--dashboard-muted)] mb-2">
+							Total spent
+						</div>
+						<div className="font-syne text-4xl font-extrabold mb-1 text-[var(--dashboard-text)]">₦64k</div>
+						<div className="text-[11px] text-green-600 font-bold flex items-center gap-0.5">
+							This month <ArrowUpRight size={12} className="stroke-[2.5]" />
+						</div>
+					</div>
+				</div>
+			</section>
+
+			{/* AI Search input block */}
+			<section className="bg-[var(--dashboard-card)] border-2 border-[var(--dashboard-purple-mid)] rounded-2xl p-5 shadow-sm relative focus-within:ring-4 focus-within:ring-[var(--dashboard-purple-mid)]/15 focus-within:border-[var(--dashboard-purple)] transition-all duration-200 shadow-purple-50/30">
+				<div className="flex items-center gap-3">
+					<Sparkles size={18} className="text-[var(--dashboard-purple)] shrink-0" />
+					<input
+						ref={searchInputRef}
+						type="text"
+						className="flex-1 border-none outline-none font-dm text-sm text-[var(--dashboard-text)] bg-transparent placeholder-[var(--dashboard-muted)]"
+						placeholder='Try "Emergency plumber in Ikeja right now…"'
+						value={searchValue}
+						onChange={(e) => handleSearchChange(e.target.value)}
+						aria-label="AI-powered artisan search"
+					/>
+					<div className="flex items-center gap-1 bg-[var(--dashboard-purple-light)] border border-[var(--dashboard-purple-mid)] rounded-full px-2.5 py-1 text-[11px] text-[var(--dashboard-purple)] font-semibold shrink-0 select-none animate-pulse">
+						<Zap size={10} className="stroke-[3]" /> AI Search
+					</div>
+				</div>
+
+				{/* Quick Suggestion Pills */}
+				<div className="flex gap-2 mt-4 overflow-x-auto scrollbar-none pb-0.5 flex-wrap">
+					{pills.map((pill) => {
+						const IconComponent = pill.icon;
+						return (
+							<button
+								key={pill.label}
+								type="button"
+								onClick={() => handlePillClick(pill.label)}
+								className="flex items-center gap-1.5 bg-[var(--dashboard-purple-light)] border border-[var(--dashboard-purple-mid)]/30 rounded-full px-3 py-1.5 text-xs text-[var(--dashboard-purple)] cursor-pointer hover:bg-[var(--dashboard-purple)] hover:text-white hover:border-[var(--dashboard-purple)] hover:translate-y-[-1px] hover:shadow-md hover:shadow-purple-500/10 transition-all duration-200 whitespace-nowrap font-medium"
+							>
+								<IconComponent size={12} />
+								{pill.label}
+							</button>
+						);
+					})}
+				</div>
+
+				{/* Computing Matches Loading Bar */}
+				{isSearching && (
+					<div
+						className="flex items-center gap-2 mt-4 p-2.5 bg-[var(--dashboard-purple-light)] rounded-xl border border-[var(--dashboard-purple-mid)]/20 animate-fade-in"
+						role="status"
+						aria-live="polite"
+					>
+						<div className="flex gap-1 shrink-0 pl-1">
+							<span className="w-1.5 h-1.5 bg-[var(--dashboard-purple)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+							<span className="w-1.5 h-1.5 bg-[var(--dashboard-purple)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+							<span className="w-1.5 h-1.5 bg-[var(--dashboard-purple)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+						</div>
+						<span className="text-xs text-[var(--dashboard-purple)] font-bold">
+							Finding best artisan matches in your area…
+						</span>
+					</div>
+				)}
+			</section>
+
+			{/* Recommended Artisans Grid Section */}
+			<section>
+				<h3 className="font-syne font-bold text-sm text-[var(--dashboard-text)] mb-3.5 select-none">
+					Recommended artisans near you
+				</h3>
+				<motion.div
+					variants={containerVariants}
+					initial="hidden"
+					animate="show"
+					className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+				>
+					{artisans.map((artisan) => {
+						const isHired = hiredArtisans[artisan.id];
+						return (
+							<motion.div
+								key={artisan.id}
+								variants={itemVariants}
+								className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-2xl p-5 flex flex-col justify-between hover:border-[var(--dashboard-orange-mid)] hover:translate-y-[-4px] hover:shadow-xl hover:shadow-orange-500/5 transition-all duration-300 cursor-pointer group relative overflow-hidden"
+							>
+								<div>
+									{/* Artisan Header info */}
+									<div className="flex items-center gap-3 mb-4">
+										<div className={`w-11 h-11 rounded-full flex items-center justify-center font-extrabold text-sm shrink-0 border border-white/10 shadow-sm relative group-hover:scale-105 transition-transform duration-300 ${artisan.avatarBgClass}`}>
+											{artisan.avatarInitials}
+											<div className="absolute inset-0 rounded-full ring-2 ring-current opacity-10" />
+										</div>
+										<div className="min-w-0">
+											<div className="text-[14.5px] font-extrabold text-[var(--dashboard-text)] truncate leading-snug">
+												{artisan.name}
+											</div>
+											<div className="text-[11.5px] text-[var(--dashboard-muted)] truncate font-medium">
+												{artisan.trade} · <span className="font-semibold text-neutral-500">{artisan.location}</span>
+											</div>
+										</div>
+									</div>
+
+									{/* Rating and Availability */}
+									<div className="flex items-center justify-between mb-5">
+										<div className="flex items-center gap-1.5 text-xs text-[var(--dashboard-muted)] font-medium">
+											<Star size={13} className="fill-amber-500 text-amber-500 stroke-[2]" />
+											<span className="text-[var(--dashboard-text)] font-extrabold">{artisan.rating}</span> 
+											<span className="text-neutral-300 select-none">|</span> 
+											<span>{artisan.jobs} jobs</span>
+										</div>
+
+										<span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+											artisan.availClass === "now"
+												? "bg-green-50 text-green-700 border-green-200/50"
+												: "bg-amber-50 text-amber-800 border-amber-200/50"
+										}`}>
+											{artisan.availText}
+										</span>
+									</div>
+								</div>
+
+								{/* Hired Actions Trigger */}
+								<button
+									type="button"
+									onClick={() => !isHired && handleHireClick(artisan.id)}
+									className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold font-dm cursor-pointer transition-all duration-300 hover:translate-y-[-1px] active:translate-y-0 ${
+										isHired
+											? "bg-green-600 text-white cursor-default shadow-md shadow-green-500/10 hover:translate-y-0"
+											: "bg-[#1A1714] text-white hover:bg-[var(--dashboard-orange)] hover:shadow-md hover:shadow-orange-500/10"
+									}`}
+									disabled={isHired}
+								>
+									{isHired ? (
+										<span className="flex items-center justify-center gap-1.5 font-bold">
+											<Check size={14} className="stroke-[3]" /> Requested ✓
+										</span>
+									) : `Hire · ${artisan.rate}`}
+								</button>
+							</motion.div>
+						);
+					})}
+				</motion.div>
+			</section>
+
+			{/* Recent Activities Section */}
+			<section>
+				<h3 className="font-syne font-bold text-sm text-[var(--dashboard-text)] mb-3.5 select-none">
+					Recent activity
+				</h3>
+				<div className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-2xl p-5 flex flex-col relative shadow-sm">
+					{/* Vertical line indicator */}
+					<div className="absolute left-[39px] top-6 bottom-6 w-[1.5px] bg-neutral-100" />
+					
+					{/* Activity Item 1 */}
+					<div className="relative flex items-start gap-4 pb-5 last:pb-0">
+						<div className="w-8.5 h-8.5 rounded-xl bg-[var(--dashboard-orange-light)] border border-[var(--dashboard-orange-mid)]/40 flex items-center justify-center text-[var(--dashboard-orange)] shrink-0 z-10 shadow-sm">
+							<Check size={14} className="stroke-[3]" />
+						</div>
+						<div className="min-w-0 pt-0.5">
+							<p className="text-[13.5px] font-bold text-[var(--dashboard-text)] leading-snug">
+								Taiwo Johnson accepted your booking
+							</p>
+							<span className="text-[11px] text-[var(--dashboard-muted)] font-medium">
+								Inverter panel inspection · Today
+							</span>
+						</div>
+						<span className="ml-auto text-[11px] text-[var(--dashboard-muted)] whitespace-nowrap font-semibold pl-2 pt-0.5">
+							09:14
+						</span>
+					</div>
+
+					{/* Activity Item 2 */}
+					<div className="relative flex items-start gap-4 pb-5 last:pb-0">
+						<div className="w-8.5 h-8.5 rounded-xl bg-[var(--dashboard-purple-light)] border border-[var(--dashboard-purple-mid)]/40 flex items-center justify-center text-[var(--dashboard-purple)] shrink-0 z-10 shadow-sm">
+							<Sparkles size={14} />
+						</div>
+						<div className="min-w-0 pt-0.5">
+							<p className="text-[13.5px] font-bold text-[var(--dashboard-text)] leading-snug">
+								AI matched 3 plumbers for your pipe request
+							</p>
+							<span className="text-[11px] text-[var(--dashboard-muted)] font-medium">
+								Based on location + urgency
+							</span>
+						</div>
+						<span className="ml-auto text-[11px] text-[var(--dashboard-muted)] whitespace-nowrap font-semibold pl-2 pt-0.5">
+							08:50
+						</span>
+					</div>
+
+					{/* Activity Item 3 */}
+					<div className="relative flex items-start gap-4 last:pb-0">
+						<div className="w-8.5 h-8.5 rounded-xl bg-green-50 border border-green-200/50 flex items-center justify-center text-green-700 shrink-0 z-10 shadow-sm">
+							<Receipt size={14} />
+						</div>
+						<div className="min-w-0 pt-0.5">
+							<p className="text-[13.5px] font-bold text-[var(--dashboard-text)] leading-snug">
+								Payment confirmed — ₦45,000
+							</p>
+							<span className="text-[11px] text-[var(--dashboard-muted)] font-medium">
+								Fatima Abubakar · Carpentry work
+							</span>
+						</div>
+						<span className="ml-auto text-[11px] text-[var(--dashboard-muted)] whitespace-nowrap font-semibold pl-2 pt-0.5">
+							Yesterday
+						</span>
+					</div>
+				</div>
+			</section>
+
+			{/* Floating Chat Drawer Re-opener Toggle */}
+			{!hasActiveChat && (
+				<button
+					type="button"
+					onClick={() => setHasActiveChat(true)}
+					className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[var(--dashboard-orange)] hover:bg-[var(--dashboard-orange-mid)] text-white flex items-center justify-center cursor-pointer shadow-lg shadow-orange-500/30 transition-all duration-300 hover:scale-105 active:scale-95 animate-in zoom-in-50 duration-200"
+					aria-label="Open chat panel"
+				>
+					<div className="relative">
+						<MessageSquare size={22} className="stroke-[2.2]" />
+						{/* Double pulsing unread badge */}
+						<span className="absolute -top-2.5 -right-2.5 bg-red-500 text-white text-[9px] font-extrabold w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white shadow-sm ring-2 ring-red-500/10">
+							5
+						</span>
+					</div>
+				</button>
+			)}
+		</main>
+	);
+}
