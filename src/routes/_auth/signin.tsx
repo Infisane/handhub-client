@@ -57,7 +57,7 @@ function SignInPage() {
 			opacity: 1,
 			y: 0,
 			transition: {
-				type: "spring",
+				type: "spring" as const,
 				stiffness: 100,
 				damping: 15,
 			},
@@ -179,7 +179,7 @@ function SignInPage() {
 							<div className="tabs relative overflow-hidden">
 								<button
 									type="button"
-									className={`tab relative z-10 ${activeTab === "cust" ? "text-white font-semibold" : "text-[var(--txt3)]"}`}
+									className={`tab relative z-10 ${activeTab === "cust" ? "!text-white !font-semibold" : "text-[var(--txt3)]"}`}
 									onClick={() => setActiveTab("cust")}
 								>
 									{activeTab === "cust" && (
@@ -197,7 +197,7 @@ function SignInPage() {
 								</button>
 								<button
 									type="button"
-									className={`tab relative z-10 ${activeTab === "art" ? "text-white font-semibold" : "text-[var(--txt3)]"}`}
+									className={`tab relative z-10 ${activeTab === "art" ? "!text-white !font-semibold" : "text-[var(--txt3)]"}`}
 									onClick={() => setActiveTab("art")}
 								>
 									{activeTab === "art" && (

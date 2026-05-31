@@ -20,8 +20,9 @@ export function Nav({ showLinks = true, rightElement }: NavProps) {
 			}}
 		>
 			<div
-				className="text-[22px] font-extrabold tracking-[-0.5px]"
+				className="text-[22px] font-extrabold tracking-[-0.5px] hover:cursor-pointer"
 				style={{ fontFamily: "var(--font-syne)", color: "var(--hh-txt)" }}
+				onClick={() => navigate({ to: "/" })}
 			>
 				Hand<O>hub</O>
 			</div>
