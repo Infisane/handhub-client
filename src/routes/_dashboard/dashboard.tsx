@@ -189,7 +189,7 @@ function DashboardPage() {
 	};
 
 	return (
-		<main className="flex-1 p-5 sm:p-6 md:p-8 pb-24 md:pb-8 flex flex-col gap-5 md:gap-7 overflow-y-auto h-full max-h-screen bg-[var(--dashboard-bg)]">
+		<main className="flex-1 p-4 sm:p-5 md:p-6 pb-24 md:pb-6 flex flex-col gap-4 md:gap-5 overflow-y-auto h-full max-h-screen bg-[var(--dashboard-bg)]">
 			{/* Top Bar Header */}
 			<div className="flex items-center justify-between gap-3">
 				{/* Hamburger trigger — mobile only */}
@@ -203,14 +203,14 @@ function DashboardPage() {
 				</button>
 
 				<div className="min-w-0">
-					<h2 className="font-syne font-extrabold text-[22px] sm:text-[27px] tracking-[-0.7px] text-[var(--dashboard-text)] leading-none mb-1.5 truncate">
+					<h2 className="font-syne font-extrabold text-[20px] sm:text-[25px] tracking-[-0.6px] text-[var(--dashboard-text)] leading-none mb-1 mt-0.5 truncate">
 						Good morning, Adeola
 					</h2>
-					<div className="flex items-center gap-2 text-xs text-[var(--dashboard-muted)] font-medium flex-wrap">
+					<div className="flex items-center gap-2 text-[11px] text-[var(--dashboard-muted)] font-medium flex-wrap">
 						<span className="hidden sm:inline">Saturday, 30 May 2026</span>
 						<span className="text-neutral-300 select-none hidden sm:inline">·</span>
-						<div className="flex items-center gap-1.5 bg-green-50 border border-green-200/50 rounded-full px-2.5 py-0.5 text-[10px] text-green-700 font-semibold shadow-sm select-none">
-							<span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+						<div className="flex items-center gap-1.5 bg-green-50 border border-green-200/50 rounded-full px-2.5 py-0.5 text-[9.5px] text-green-700 font-semibold shadow-sm select-none">
+							<span className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
 							Lagos State · Live
 						</div>
 					</div>
@@ -218,20 +218,20 @@ function DashboardPage() {
 			</div>
 
 			{/* Statistics widgets grid */}
-			<section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+			<section className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
 				{/* Active Jobs (Orange Gradient Theme) */}
-				<div className="bg-gradient-to-br from-[var(--dashboard-orange)] to-[#B33D07] border border-[#B33D07]/20 rounded-2xl p-5 shadow-lg shadow-orange-500/10 text-white relative overflow-hidden group hover:shadow-xl transition-all duration-300">
-					<div className="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-xl group-hover:scale-110 transition-transform duration-500" />
-					<div className="absolute right-4 bottom-4 text-white/15">
-						<Briefcase size={44} className="stroke-[1.5]" />
+				<div className="bg-gradient-to-br from-[var(--dashboard-orange)] to-[#B33D07] border border-[#B33D07]/20 rounded-xl p-4 shadow-md shadow-orange-500/5 text-white relative overflow-hidden group hover:shadow-lg transition-all duration-350">
+					<div className="absolute -right-6 -top-6 w-20 h-20 bg-white/10 rounded-full blur-xl group-hover:scale-110 transition-transform duration-500" />
+					<div className="absolute right-3.5 bottom-3.5 text-white/12">
+						<Briefcase size={36} className="stroke-[1.5]" />
 					</div>
 					
 					<div className="relative z-10">
-						<div className="text-[10px] uppercase font-bold tracking-wider text-white/70 mb-2">
+						<div className="text-[9px] uppercase font-extrabold tracking-wider text-white/70 mb-1.5">
 							Active jobs
 						</div>
-						<div className="font-syne text-4xl font-extrabold mb-1">3</div>
-						<div className="text-[11px] text-white/85 font-semibold flex items-center gap-1">
+						<div className="font-syne text-3xl font-black mb-0.5 leading-none">3</div>
+						<div className="text-[10.5px] text-white/85 font-semibold flex items-center gap-1 mt-1">
 							<span className="flex h-1.5 w-1.5 relative shrink-0">
 								<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
 								<span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
@@ -242,62 +242,62 @@ function DashboardPage() {
 				</div>
 
 				{/* Artisans Nearby */}
-				<div className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 text-[var(--dashboard-text)] relative overflow-hidden group">
-					<div className="absolute -right-6 -top-6 w-24 h-24 bg-neutral-100 rounded-full blur-xl group-hover:scale-110 transition-transform duration-500" />
-					<div className="absolute right-4 bottom-4 text-neutral-200/50">
-						<Users size={44} className="stroke-[1.5]" />
+				<div className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-xl p-4 shadow-xs hover:shadow-sm transition-all duration-300 text-[var(--dashboard-text)] relative overflow-hidden group">
+					<div className="absolute -right-6 -top-6 w-20 h-20 bg-neutral-100 rounded-full blur-xl group-hover:scale-110 transition-transform duration-500" />
+					<div className="absolute right-3.5 bottom-3.5 text-neutral-200/40">
+						<Users size={36} className="stroke-[1.5]" />
 					</div>
 					
 					<div className="relative z-10">
-						<div className="text-[10px] uppercase font-bold tracking-wider text-[var(--dashboard-muted)] mb-2">
+						<div className="text-[9px] uppercase font-extrabold tracking-wider text-[var(--dashboard-muted)] mb-1.5">
 							Artisans nearby
 						</div>
-						<div className="font-syne text-4xl font-extrabold mb-1 text-[var(--dashboard-text)]">48</div>
-						<div className="text-[11px] text-[var(--dashboard-muted)] font-medium">
+						<div className="font-syne text-3xl font-black mb-0.5 text-[var(--dashboard-text)] leading-none">48</div>
+						<div className="text-[10.5px] text-[var(--dashboard-muted)] font-semibold mt-1">
 							Within 5 km radius
 						</div>
 					</div>
 				</div>
 
 				{/* Total Spent */}
-				<div className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 text-[var(--dashboard-text)] relative overflow-hidden group">
-					<div className="absolute -right-6 -top-6 w-24 h-24 bg-neutral-100 rounded-full blur-xl group-hover:scale-110 transition-transform duration-500" />
-					<div className="absolute right-4 bottom-4 text-neutral-200/50">
-						<CreditCard size={44} className="stroke-[1.5]" />
+				<div className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-xl p-4 shadow-xs hover:shadow-sm transition-all duration-300 text-[var(--dashboard-text)] relative overflow-hidden group">
+					<div className="absolute -right-6 -top-6 w-20 h-20 bg-neutral-100 rounded-full blur-xl group-hover:scale-110 transition-transform duration-500" />
+					<div className="absolute right-3.5 bottom-3.5 text-neutral-200/40">
+						<CreditCard size={36} className="stroke-[1.5]" />
 					</div>
 					
 					<div className="relative z-10">
-						<div className="text-[10px] uppercase font-bold tracking-wider text-[var(--dashboard-muted)] mb-2">
+						<div className="text-[9px] uppercase font-extrabold tracking-wider text-[var(--dashboard-muted)] mb-1.5">
 							Total spent
 						</div>
-						<div className="font-syne text-4xl font-extrabold mb-1 text-[var(--dashboard-text)]">₦64k</div>
-						<div className="text-[11px] text-green-600 font-bold flex items-center gap-0.5">
-							This month <ArrowUpRight size={12} className="stroke-[2.5]" />
+						<div className="font-syne text-3xl font-black mb-0.5 text-[var(--dashboard-text)] leading-none">₦64k</div>
+						<div className="text-[10.5px] text-green-600 font-bold flex items-center gap-0.5 mt-1">
+							This month <ArrowUpRight size={11} className="stroke-[2.5]" />
 						</div>
 					</div>
 				</div>
 			</section>
 
 			{/* AI Search input block */}
-			<section className="bg-[var(--dashboard-card)] border-2 border-[var(--dashboard-purple-mid)] rounded-2xl p-5 shadow-sm relative focus-within:ring-4 focus-within:ring-[var(--dashboard-purple-mid)]/15 focus-within:border-[var(--dashboard-purple)] transition-all duration-200 shadow-purple-50/30">
-				<div className="flex items-center gap-3">
-					<Sparkles size={18} className="text-[var(--dashboard-purple)] shrink-0" />
+			<section className="bg-[var(--dashboard-card)] border-2 border-[var(--dashboard-purple-mid)] rounded-xl p-4 shadow-xs relative focus-within:ring-4 focus-within:ring-[var(--dashboard-purple-mid)]/15 focus-within:border-[var(--dashboard-purple)] transition-all duration-200 shadow-purple-50/15">
+				<div className="flex items-center gap-2.5">
+					<Sparkles size={16} className="text-[var(--dashboard-purple)] shrink-0" />
 					<input
 						ref={searchInputRef}
 						type="text"
-						className="flex-1 border-none outline-none font-dm text-sm text-[var(--dashboard-text)] bg-transparent placeholder-[var(--dashboard-muted)]"
+						className="flex-1 border-none outline-none font-dm text-[13.5px] text-[var(--dashboard-text)] bg-transparent placeholder-[var(--dashboard-muted)]"
 						placeholder='Try "Emergency plumber in Ikeja right now…"'
 						value={searchValue}
 						onChange={(e) => handleSearchChange(e.target.value)}
 						aria-label="AI-powered artisan search"
 					/>
-					<div className="flex items-center gap-1 bg-[var(--dashboard-purple-light)] border border-[var(--dashboard-purple-mid)] rounded-full px-2.5 py-1 text-[11px] text-[var(--dashboard-purple)] font-semibold shrink-0 select-none animate-pulse">
-						<Zap size={10} className="stroke-[3]" /> AI Search
+					<div className="flex items-center gap-1 bg-[var(--dashboard-purple-light)] border border-[var(--dashboard-purple-mid)] rounded-full px-2.5 py-0.5 text-[10px] text-[var(--dashboard-purple)] font-bold shrink-0 select-none animate-pulse">
+						<Zap size={9} className="stroke-[3]" /> AI Search
 					</div>
 				</div>
 
 				{/* Quick Suggestion Pills */}
-				<div className="flex gap-2 mt-4 overflow-x-auto scrollbar-none pb-0.5 flex-wrap">
+				<div className="flex gap-1.5 mt-3 overflow-x-auto scrollbar-none pb-0.5 flex-wrap">
 					{pills.map((pill) => {
 						const IconComponent = pill.icon;
 						return (
@@ -305,9 +305,9 @@ function DashboardPage() {
 								key={pill.label}
 								type="button"
 								onClick={() => handlePillClick(pill.label)}
-								className="flex items-center gap-1.5 bg-[var(--dashboard-purple-light)] border border-[var(--dashboard-purple-mid)]/30 rounded-full px-3 py-1.5 text-xs text-[var(--dashboard-purple)] cursor-pointer hover:bg-[var(--dashboard-purple)] hover:text-white hover:border-[var(--dashboard-purple)] hover:translate-y-[-1px] hover:shadow-md hover:shadow-purple-500/10 transition-all duration-200 whitespace-nowrap font-medium"
+								className="flex items-center gap-1 bg-[var(--dashboard-purple-light)] border border-[var(--dashboard-purple-mid)]/20 rounded-full px-2.5 py-1 text-[11px] text-[var(--dashboard-purple)] cursor-pointer hover:bg-[var(--dashboard-purple)] hover:text-white hover:border-[var(--dashboard-purple)] hover:translate-y-[-1px] transition-all duration-200 whitespace-nowrap font-semibold"
 							>
-								<IconComponent size={12} />
+								<IconComponent size={10.5} />
 								{pill.label}
 							</button>
 						);
@@ -342,7 +342,7 @@ function DashboardPage() {
 					variants={containerVariants}
 					initial="hidden"
 					animate="show"
-					className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+					className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-3.5"
 				>
 					{artisans.map((artisan) => {
 						const isHired = hiredArtisans[artisan.id];
@@ -350,35 +350,35 @@ function DashboardPage() {
 							<motion.div
 								key={artisan.id}
 								variants={itemVariants}
-								className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-2xl p-5 flex flex-col justify-between hover:border-[var(--dashboard-orange-mid)] hover:translate-y-[-4px] hover:shadow-xl hover:shadow-orange-500/5 transition-all duration-300 cursor-pointer group relative overflow-hidden"
+								className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-xl p-4 flex flex-col justify-between hover:border-[var(--dashboard-orange-mid)] hover:translate-y-[-2px] hover:shadow-md hover:shadow-orange-500/5 transition-all duration-300 cursor-pointer group relative overflow-hidden"
 							>
 								<div>
 									{/* Artisan Header info */}
-									<div className="flex items-center gap-3 mb-4">
-										<div className={`w-11 h-11 rounded-full flex items-center justify-center font-extrabold text-sm shrink-0 border border-white/10 shadow-sm relative group-hover:scale-105 transition-transform duration-300 ${artisan.avatarBgClass}`}>
+									<div className="flex items-center gap-2.5 mb-3">
+										<div className={`w-9.5 h-9.5 rounded-full flex items-center justify-center font-extrabold text-[12.5px] shrink-0 border border-white/10 shadow-sm relative group-hover:scale-105 transition-transform duration-300 ${artisan.avatarBgClass}`}>
 											{artisan.avatarInitials}
 											<div className="absolute inset-0 rounded-full ring-2 ring-current opacity-10" />
 										</div>
 										<div className="min-w-0">
-											<div className="text-[14.5px] font-extrabold text-[var(--dashboard-text)] truncate leading-snug">
+											<div className="text-[13.5px] font-extrabold text-[var(--dashboard-text)] truncate leading-snug">
 												{artisan.name}
 											</div>
-											<div className="text-[11.5px] text-[var(--dashboard-muted)] truncate font-medium">
-												{artisan.trade} · <span className="font-semibold text-neutral-500">{artisan.location}</span>
+											<div className="text-[11px] text-[var(--dashboard-muted)] truncate font-semibold">
+												{artisan.trade}
 											</div>
 										</div>
 									</div>
 
 									{/* Rating and Availability */}
-									<div className="flex items-center justify-between mb-5">
-										<div className="flex items-center gap-1.5 text-xs text-[var(--dashboard-muted)] font-medium">
-											<Star size={13} className="fill-amber-500 text-amber-500 stroke-[2]" />
+									<div className="flex items-center justify-between mb-4">
+										<div className="flex items-center gap-1 text-[11px] text-[var(--dashboard-muted)] font-semibold">
+											<Star size={11} className="fill-amber-500 text-amber-500 stroke-[2.5]" />
 											<span className="text-[var(--dashboard-text)] font-extrabold">{artisan.rating}</span> 
-											<span className="text-neutral-300 select-none">|</span> 
+											<span className="text-neutral-300 select-none">·</span> 
 											<span>{artisan.jobs} jobs</span>
 										</div>
 
-										<span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+										<span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
 											artisan.availClass === "now"
 												? "bg-green-50 text-green-700 border-green-200/50"
 												: "bg-amber-50 text-amber-800 border-amber-200/50"
@@ -392,16 +392,16 @@ function DashboardPage() {
 								<button
 									type="button"
 									onClick={() => !isHired && handleHireClick(artisan.id)}
-									className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold font-dm cursor-pointer transition-all duration-300 hover:translate-y-[-1px] active:translate-y-0 ${
+									className={`w-full py-2 px-3 rounded-xl text-[11px] font-extrabold font-dm cursor-pointer transition-all duration-300 hover:translate-y-[-1px] active:translate-y-0 ${
 										isHired
-											? "bg-green-600 text-white cursor-default shadow-md shadow-green-500/10 hover:translate-y-0"
-											: "bg-[#1A1714] text-white hover:bg-[var(--dashboard-orange)] hover:shadow-md hover:shadow-orange-500/10"
+											? "bg-green-600 text-white cursor-default shadow-sm shadow-green-500/10 hover:translate-y-0"
+											: "bg-[#1A1714] text-white hover:bg-[var(--dashboard-orange)] hover:shadow-sm"
 									}`}
 									disabled={isHired}
 								>
 									{isHired ? (
-										<span className="flex items-center justify-center gap-1.5 font-bold">
-											<Check size={14} className="stroke-[3]" /> Requested ✓
+										<span className="flex items-center justify-center gap-1 font-bold">
+											<Check size={12} className="stroke-[3]" /> Requested
 										</span>
 									) : `Hire · ${artisan.rate}`}
 								</button>
