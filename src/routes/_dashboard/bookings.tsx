@@ -392,16 +392,17 @@ function BookingsPage() {
 									</div>
 
 									{/* Hires / pay invoices action buttons */}
-									<div className="px-5 pb-5 pt-0 flex gap-2 border-t border-[var(--dashboard-border)]/40 pt-4">
+									<div className="px-5 pb-5 pt-0 flex gap-2.5 border-t border-[var(--dashboard-border)]/40 pt-4 items-center">
 										
-										{/* Chat context button */}
+										{/* Chat icon button */}
 										<button
 											type="button"
 											onClick={() => setHasActiveChat(true)}
-											className="flex-1 py-2.5 rounded-xl border border-[var(--dashboard-border)] text-[12px] font-bold text-[var(--dashboard-text)] hover:bg-[var(--dashboard-bg)] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+											className="size-10 rounded-xl border border-[var(--dashboard-border)] text-[var(--dashboard-text)] hover:bg-[var(--dashboard-bg)] transition-colors flex items-center justify-center shrink-0 cursor-pointer"
+											title="Chat with Artisan"
+											aria-label="Chat with Artisan"
 										>
-											<MessageSquare size={13} />
-											<span>Chat</span>
+											<MessageSquare size={14} className="text-[var(--dashboard-text)]" />
 										</button>
 
 										{/* Action CTAs based on status */}
@@ -409,7 +410,7 @@ function BookingsPage() {
 											<button
 												type="button"
 												onClick={() => setHasActiveChat(true)}
-												className="flex-1.5 py-2.5 rounded-xl bg-[var(--dashboard-orange)] text-white text-[12px] font-extrabold text-center hover:bg-orange-600 active:scale-95 shadow-md shadow-orange-500/10 flex items-center justify-center gap-1.5 cursor-pointer"
+												className="flex-1 h-10 rounded-xl bg-[var(--dashboard-orange)] text-white text-[12px] font-extrabold text-center hover:bg-orange-600 active:scale-95 shadow-md shadow-orange-500/10 flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
 											>
 												<Zap size={11} className="stroke-[2.5]" />
 												<span>Pay Proposal</span>
@@ -417,14 +418,14 @@ function BookingsPage() {
 										) : booking.status === "scheduled" ? (
 											<button
 												type="button"
-												className="flex-1.5 py-2.5 rounded-xl border border-[var(--dashboard-border)] text-[12px] font-bold text-[var(--dashboard-text)] hover:bg-[var(--dashboard-bg)] transition-colors text-center cursor-pointer"
+												className="flex-1 h-10 rounded-xl border border-[var(--dashboard-border)] text-[12px] font-bold text-[var(--dashboard-text)] hover:bg-[var(--dashboard-bg)] transition-colors text-center cursor-pointer flex items-center justify-center shrink-0"
 											>
 												<span>Reschedule</span>
 											</button>
 										) : booking.status === "completed" ? (
 											<button
 												type="button"
-												className="flex-1.5 py-2.5 rounded-xl bg-[var(--dashboard-text)] hover:bg-[var(--dashboard-orange)] text-white text-[12px] font-extrabold text-center transition-colors flex items-center justify-center gap-1 cursor-pointer"
+												className="flex-1 h-10 rounded-xl bg-[var(--dashboard-text)] hover:bg-[var(--dashboard-orange)] text-white text-[12px] font-extrabold text-center transition-colors flex items-center justify-center gap-1 cursor-pointer shrink-0"
 											>
 												<ThumbsUp size={11} />
 												<span>Review Job</span>
@@ -432,7 +433,7 @@ function BookingsPage() {
 										) : (
 											<button
 												type="button"
-												className="flex-1.5 py-2.5 rounded-xl border border-[var(--dashboard-border)] text-[12px] font-bold text-[var(--dashboard-text)] hover:bg-[var(--dashboard-bg)] transition-colors text-center cursor-pointer"
+												className="flex-1 h-10 rounded-xl border border-[var(--dashboard-border)] text-[12px] font-bold text-[var(--dashboard-text)] hover:bg-[var(--dashboard-bg)] transition-colors text-center cursor-pointer flex items-center justify-center shrink-0"
 											>
 												<span>Rebook Job</span>
 											</button>

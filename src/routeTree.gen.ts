@@ -13,6 +13,11 @@ import { Route as PublicRouteImport } from './routes/_public'
 import { Route as DashboardRouteImport } from './routes/_dashboard'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as PublicFindRouteImport } from './routes/_public/find'
+import { Route as DashboardSettingsRouteImport } from './routes/_dashboard/settings'
+import { Route as DashboardReviewsRouteImport } from './routes/_dashboard/reviews'
+import { Route as DashboardPaymentsRouteImport } from './routes/_dashboard/payments'
+import { Route as DashboardMyAreaRouteImport } from './routes/_dashboard/my-area'
+import { Route as DashboardMessagesRouteImport } from './routes/_dashboard/messages'
 import { Route as DashboardDashboardRouteImport } from './routes/_dashboard/dashboard'
 import { Route as DashboardBookingsRouteImport } from './routes/_dashboard/bookings'
 import { Route as DashboardArtisansRouteImport } from './routes/_dashboard/artisans'
@@ -36,6 +41,31 @@ const PublicFindRoute = PublicFindRouteImport.update({
   id: '/find',
   path: '/find',
   getParentRoute: () => PublicRoute,
+} as any)
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardReviewsRoute = DashboardReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardPaymentsRoute = DashboardPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardMyAreaRoute = DashboardMyAreaRouteImport.update({
+  id: '/my-area',
+  path: '/my-area',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardMessagesRoute = DashboardMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardDashboardRoute = DashboardDashboardRouteImport.update({
   id: '/dashboard',
@@ -70,6 +100,11 @@ export interface FileRoutesByFullPath {
   '/artisans': typeof DashboardArtisansRoute
   '/bookings': typeof DashboardBookingsRoute
   '/dashboard': typeof DashboardDashboardRoute
+  '/messages': typeof DashboardMessagesRoute
+  '/my-area': typeof DashboardMyAreaRoute
+  '/payments': typeof DashboardPaymentsRoute
+  '/reviews': typeof DashboardReviewsRoute
+  '/settings': typeof DashboardSettingsRoute
   '/find': typeof PublicFindRoute
 }
 export interface FileRoutesByTo {
@@ -79,6 +114,11 @@ export interface FileRoutesByTo {
   '/artisans': typeof DashboardArtisansRoute
   '/bookings': typeof DashboardBookingsRoute
   '/dashboard': typeof DashboardDashboardRoute
+  '/messages': typeof DashboardMessagesRoute
+  '/my-area': typeof DashboardMyAreaRoute
+  '/payments': typeof DashboardPaymentsRoute
+  '/reviews': typeof DashboardReviewsRoute
+  '/settings': typeof DashboardSettingsRoute
   '/find': typeof PublicFindRoute
 }
 export interface FileRoutesById {
@@ -90,6 +130,11 @@ export interface FileRoutesById {
   '/_dashboard/artisans': typeof DashboardArtisansRoute
   '/_dashboard/bookings': typeof DashboardBookingsRoute
   '/_dashboard/dashboard': typeof DashboardDashboardRoute
+  '/_dashboard/messages': typeof DashboardMessagesRoute
+  '/_dashboard/my-area': typeof DashboardMyAreaRoute
+  '/_dashboard/payments': typeof DashboardPaymentsRoute
+  '/_dashboard/reviews': typeof DashboardReviewsRoute
+  '/_dashboard/settings': typeof DashboardSettingsRoute
   '/_public/find': typeof PublicFindRoute
   '/_public/': typeof PublicIndexRoute
 }
@@ -102,6 +147,11 @@ export interface FileRouteTypes {
     | '/artisans'
     | '/bookings'
     | '/dashboard'
+    | '/messages'
+    | '/my-area'
+    | '/payments'
+    | '/reviews'
+    | '/settings'
     | '/find'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -111,6 +161,11 @@ export interface FileRouteTypes {
     | '/artisans'
     | '/bookings'
     | '/dashboard'
+    | '/messages'
+    | '/my-area'
+    | '/payments'
+    | '/reviews'
+    | '/settings'
     | '/find'
   id:
     | '__root__'
@@ -121,6 +176,11 @@ export interface FileRouteTypes {
     | '/_dashboard/artisans'
     | '/_dashboard/bookings'
     | '/_dashboard/dashboard'
+    | '/_dashboard/messages'
+    | '/_dashboard/my-area'
+    | '/_dashboard/payments'
+    | '/_dashboard/reviews'
+    | '/_dashboard/settings'
     | '/_public/find'
     | '/_public/'
   fileRoutesById: FileRoutesById
@@ -161,6 +221,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/find'
       preLoaderRoute: typeof PublicFindRouteImport
       parentRoute: typeof PublicRoute
+    }
+    '/_dashboard/settings': {
+      id: '/_dashboard/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/reviews': {
+      id: '/_dashboard/reviews'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof DashboardReviewsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/payments': {
+      id: '/_dashboard/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof DashboardPaymentsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/my-area': {
+      id: '/_dashboard/my-area'
+      path: '/my-area'
+      fullPath: '/my-area'
+      preLoaderRoute: typeof DashboardMyAreaRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/messages': {
+      id: '/_dashboard/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof DashboardMessagesRouteImport
+      parentRoute: typeof DashboardRoute
     }
     '/_dashboard/dashboard': {
       id: '/_dashboard/dashboard'
@@ -204,12 +299,22 @@ interface DashboardRouteChildren {
   DashboardArtisansRoute: typeof DashboardArtisansRoute
   DashboardBookingsRoute: typeof DashboardBookingsRoute
   DashboardDashboardRoute: typeof DashboardDashboardRoute
+  DashboardMessagesRoute: typeof DashboardMessagesRoute
+  DashboardMyAreaRoute: typeof DashboardMyAreaRoute
+  DashboardPaymentsRoute: typeof DashboardPaymentsRoute
+  DashboardReviewsRoute: typeof DashboardReviewsRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardArtisansRoute: DashboardArtisansRoute,
   DashboardBookingsRoute: DashboardBookingsRoute,
   DashboardDashboardRoute: DashboardDashboardRoute,
+  DashboardMessagesRoute: DashboardMessagesRoute,
+  DashboardMyAreaRoute: DashboardMyAreaRoute,
+  DashboardPaymentsRoute: DashboardPaymentsRoute,
+  DashboardReviewsRoute: DashboardReviewsRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(

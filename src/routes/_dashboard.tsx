@@ -15,7 +15,25 @@ import {
 	Check,
 	X,
 	Menu,
+	ChevronUp,
+	User,
+	HelpCircle,
+	LogOut,
 } from "lucide-react";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "#/components/ui/dropdown-menu.tsx";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from "#/components/ui/dialog.tsx";
 import { useState, useRef, useEffect, createContext } from "react";
 
 export interface DashboardContextType {
@@ -53,6 +71,7 @@ function DashboardLayout() {
 	
 	const [hasActiveChat, setHasActiveChat] = useState(true);
 	const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+	const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 	
 	// Real-time chat states
 	const [messages, setMessages] = useState<Message[]>([
@@ -217,9 +236,6 @@ function DashboardLayout() {
 										key={item.name}
 										to={item.path}
 										onClick={() => {
-											if (item.name === "Messages") {
-												setHasActiveChat(true);
-											}
 											onNavClick?.();
 										}}
 										className={`relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] cursor-pointer transition-all duration-150 border ${
@@ -256,20 +272,114 @@ function DashboardLayout() {
 
 			{/* Sidebar Footer User Info */}
 			<div className="p-4 border-t border-white/5 bg-white/[0.01]">
-				<div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all duration-200 cursor-pointer shadow-inner">
-					<div className="w-8.5 h-8.5 rounded-full bg-[var(--dashboard-orange)] flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-sm border border-white/10 ring-2 ring-[var(--dashboard-orange-light)]/10">
-						AK
-					</div>
-					<div className="flex flex-col min-w-0">
-						<p className="text-[13px] font-semibold text-white/90 leading-none mb-1 truncate">
-							Adeola Kamara
-						</p>
-						<span className="text-[10px] text-white/30 font-medium truncate">
-							Lekki, Lagos
-						</span>
-					</div>
-				</div>
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<button
+							type="button"
+							className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all duration-200 cursor-pointer shadow-inner group"
+						>
+							<div className="w-8 h-8 rounded-full bg-[var(--dashboard-orange)] flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-sm border border-white/10 ring-2 ring-[var(--dashboard-orange-light)]/10">
+								AK
+							</div>
+							<div className="flex flex-col min-w-0 flex-1 text-left">
+								<p className="text-[13px] font-semibold text-white/90 leading-none mb-1 truncate">
+									Adeola Kamara
+								</p>
+								<span className="text-[10px] text-white/30 font-medium truncate">
+									Lekki, Lagos
+								</span>
+							</div>
+							<ChevronUp size={13} className="text-white/20 group-hover:text-white/40 transition-colors shrink-0" />
+						</button>
+					</DropdownMenuTrigger>
+
+					<DropdownMenuContent
+						side="top"
+						align="start"
+						sideOffset={8}
+						className="w-56 mb-1"
+					>
+						<DropdownMenuLabel className="flex items-center gap-2.5 pb-2">
+							<div className="w-7 h-7 rounded-full bg-[var(--dashboard-orange)] flex items-center justify-center text-[11px] font-bold text-white shrink-0">
+								AK
+							</div>
+							<div className="flex flex-col min-w-0">
+								<span className="text-xs font-semibold text-foreground truncate">Adeola Kamara</span>
+								<span className="text-[10px] text-muted-foreground truncate">adeola@example.com</span>
+							</div>
+						</DropdownMenuLabel>
+
+						<DropdownMenuSeparator />
+
+						<DropdownMenuItem
+							className="gap-2.5 cursor-pointer"
+							onClick={() => navigate({ to: "/settings" })}
+						>
+							<User size={14} className="text-muted-foreground" />
+							View Profile
+						</DropdownMenuItem>
+
+						<DropdownMenuItem
+							className="gap-2.5 cursor-pointer"
+							onClick={() => navigate({ to: "/settings" })}
+						>
+							<Settings size={14} className="text-muted-foreground" />
+							Settings
+						</DropdownMenuItem>
+
+						<DropdownMenuItem className="gap-2.5 cursor-pointer">
+							<HelpCircle size={14} className="text-muted-foreground" />
+							Help & Support
+						</DropdownMenuItem>
+
+						<DropdownMenuSeparator />
+
+						<DropdownMenuItem
+							className="gap-2.5 cursor-pointer text-red-400 focus:text-red-400 focus:bg-red-500/10"
+							onClick={() => setShowLogoutDialog(true)}
+						>
+							<LogOut size={14} />
+							Log out
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</div>
+
+			{/* ── Logout Confirmation Dialog ───────────────────────────────────── */}
+			<Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+				<DialogContent className="max-w-sm p-5 bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] shadow-2xl rounded-2xl">
+					<DialogHeader>
+						<DialogTitle className="flex items-center gap-3 text-[16px] font-extrabold text-[var(--dashboard-text)] font-syne">
+							<div className="w-9 h-9 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center shrink-0">
+								<LogOut size={15} className="text-red-500" />
+							</div>
+							Log out of Handhub?
+						</DialogTitle>
+					</DialogHeader>
+					<div className="mt-2 space-y-4">
+						<p className="text-[12.5px] leading-relaxed text-[var(--dashboard-muted)]">
+							You'll be signed out of your session. Any unsaved modifications in your workspace will be lost.
+						</p>
+						<div className="flex gap-2.5 pt-1">
+							<button
+								type="button"
+								onClick={() => setShowLogoutDialog(false)}
+								className="flex-1 py-2.5 border border-[var(--dashboard-border)] hover:bg-[var(--dashboard-bg)] text-[var(--dashboard-text)] rounded-xl text-xs font-extrabold transition-all duration-150 cursor-pointer"
+							>
+								Cancel
+							</button>
+							<button
+								type="button"
+								onClick={() => { setShowLogoutDialog(false); navigate({ to: "/" }); }}
+								className="flex-1 py-2.5 bg-red-600 hover:bg-red-750 text-white border border-red-700/10 rounded-xl text-xs font-extrabold transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+							>
+								<LogOut size={13} />
+								Yes, log out
+							</button>
+						</div>
+					</div>
+				</DialogContent>
+			</Dialog>
 		</>
 	);
 
@@ -309,7 +419,7 @@ function DashboardLayout() {
 			</div>
 
 			{/* ── Chat Panel (Right Side) ─────────────────────────────────────── */}
-			{hasActiveChat && (
+			{hasActiveChat && pathname !== "/messages" && pathname !== "/payments" && pathname !== "/reviews" && pathname !== "/settings" && pathname !== "/my-area" && (
 				<aside className="hidden lg:flex flex-col w-[320px] bg-[var(--dashboard-card)] border-l border-[var(--dashboard-border)] h-full overflow-hidden shrink-0 animate-in slide-in-from-right duration-250">
 					{/* Chat Header */}
 					<div className="p-4 border-b border-[var(--dashboard-border)] flex items-center gap-3 bg-[var(--dashboard-card)]">
@@ -516,9 +626,6 @@ function DashboardLayout() {
 							onClick={() => {
 								if (item.path === null) {
 									setIsMobileSidebarOpen(true);
-								} else if (item.name === "Messages") {
-									setHasActiveChat(true);
-									navigate({ to: item.path });
 								} else {
 									navigate({ to: item.path });
 								}
