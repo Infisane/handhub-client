@@ -14,6 +14,7 @@ import { Route as DashboardRouteImport } from './routes/_dashboard'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as PublicFindRouteImport } from './routes/_public/find'
 import { Route as DashboardDashboardRouteImport } from './routes/_dashboard/dashboard'
+import { Route as DashboardBookingsRouteImport } from './routes/_dashboard/bookings'
 import { Route as DashboardArtisansRouteImport } from './routes/_dashboard/artisans'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AuthSigninRouteImport } from './routes/_auth/signin'
@@ -41,6 +42,11 @@ const DashboardDashboardRoute = DashboardDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardBookingsRoute = DashboardBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardArtisansRoute = DashboardArtisansRouteImport.update({
   id: '/artisans',
   path: '/artisans',
@@ -62,6 +68,7 @@ export interface FileRoutesByFullPath {
   '/signin': typeof AuthSigninRoute
   '/signup': typeof AuthSignupRoute
   '/artisans': typeof DashboardArtisansRoute
+  '/bookings': typeof DashboardBookingsRoute
   '/dashboard': typeof DashboardDashboardRoute
   '/find': typeof PublicFindRoute
 }
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/signin': typeof AuthSigninRoute
   '/signup': typeof AuthSignupRoute
   '/artisans': typeof DashboardArtisansRoute
+  '/bookings': typeof DashboardBookingsRoute
   '/dashboard': typeof DashboardDashboardRoute
   '/find': typeof PublicFindRoute
 }
@@ -80,15 +88,30 @@ export interface FileRoutesById {
   '/_auth/signin': typeof AuthSigninRoute
   '/_auth/signup': typeof AuthSignupRoute
   '/_dashboard/artisans': typeof DashboardArtisansRoute
+  '/_dashboard/bookings': typeof DashboardBookingsRoute
   '/_dashboard/dashboard': typeof DashboardDashboardRoute
   '/_public/find': typeof PublicFindRoute
   '/_public/': typeof PublicIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/signin' | '/signup' | '/artisans' | '/dashboard' | '/find'
+  fullPaths:
+    | '/'
+    | '/signin'
+    | '/signup'
+    | '/artisans'
+    | '/bookings'
+    | '/dashboard'
+    | '/find'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/signin' | '/signup' | '/artisans' | '/dashboard' | '/find'
+  to:
+    | '/'
+    | '/signin'
+    | '/signup'
+    | '/artisans'
+    | '/bookings'
+    | '/dashboard'
+    | '/find'
   id:
     | '__root__'
     | '/_dashboard'
@@ -96,6 +119,7 @@ export interface FileRouteTypes {
     | '/_auth/signin'
     | '/_auth/signup'
     | '/_dashboard/artisans'
+    | '/_dashboard/bookings'
     | '/_dashboard/dashboard'
     | '/_public/find'
     | '/_public/'
@@ -145,6 +169,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardDashboardRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/_dashboard/bookings': {
+      id: '/_dashboard/bookings'
+      path: '/bookings'
+      fullPath: '/bookings'
+      preLoaderRoute: typeof DashboardBookingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/_dashboard/artisans': {
       id: '/_dashboard/artisans'
       path: '/artisans'
@@ -171,11 +202,13 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardArtisansRoute: typeof DashboardArtisansRoute
+  DashboardBookingsRoute: typeof DashboardBookingsRoute
   DashboardDashboardRoute: typeof DashboardDashboardRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardArtisansRoute: DashboardArtisansRoute,
+  DashboardBookingsRoute: DashboardBookingsRoute,
   DashboardDashboardRoute: DashboardDashboardRoute,
 }
 
