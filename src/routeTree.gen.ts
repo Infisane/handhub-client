@@ -14,6 +14,7 @@ import { Route as DashboardRouteImport } from './routes/_dashboard'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as PublicFindRouteImport } from './routes/_public/find'
 import { Route as DashboardDashboardRouteImport } from './routes/_dashboard/dashboard'
+import { Route as DashboardArtisansRouteImport } from './routes/_dashboard/artisans'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AuthSigninRouteImport } from './routes/_auth/signin'
 
@@ -40,6 +41,11 @@ const DashboardDashboardRoute = DashboardDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardArtisansRoute = DashboardArtisansRouteImport.update({
+  id: '/artisans',
+  path: '/artisans',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
   id: '/_auth/signup',
   path: '/signup',
@@ -55,6 +61,7 @@ export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/signin': typeof AuthSigninRoute
   '/signup': typeof AuthSignupRoute
+  '/artisans': typeof DashboardArtisansRoute
   '/dashboard': typeof DashboardDashboardRoute
   '/find': typeof PublicFindRoute
 }
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/signin': typeof AuthSigninRoute
   '/signup': typeof AuthSignupRoute
+  '/artisans': typeof DashboardArtisansRoute
   '/dashboard': typeof DashboardDashboardRoute
   '/find': typeof PublicFindRoute
 }
@@ -71,21 +79,23 @@ export interface FileRoutesById {
   '/_public': typeof PublicRouteWithChildren
   '/_auth/signin': typeof AuthSigninRoute
   '/_auth/signup': typeof AuthSignupRoute
+  '/_dashboard/artisans': typeof DashboardArtisansRoute
   '/_dashboard/dashboard': typeof DashboardDashboardRoute
   '/_public/find': typeof PublicFindRoute
   '/_public/': typeof PublicIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/signin' | '/signup' | '/dashboard' | '/find'
+  fullPaths: '/' | '/signin' | '/signup' | '/artisans' | '/dashboard' | '/find'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/signin' | '/signup' | '/dashboard' | '/find'
+  to: '/' | '/signin' | '/signup' | '/artisans' | '/dashboard' | '/find'
   id:
     | '__root__'
     | '/_dashboard'
     | '/_public'
     | '/_auth/signin'
     | '/_auth/signup'
+    | '/_dashboard/artisans'
     | '/_dashboard/dashboard'
     | '/_public/find'
     | '/_public/'
@@ -135,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardDashboardRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/_dashboard/artisans': {
+      id: '/_dashboard/artisans'
+      path: '/artisans'
+      fullPath: '/artisans'
+      preLoaderRoute: typeof DashboardArtisansRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/_auth/signup': {
       id: '/_auth/signup'
       path: '/signup'
@@ -153,10 +170,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface DashboardRouteChildren {
+  DashboardArtisansRoute: typeof DashboardArtisansRoute
   DashboardDashboardRoute: typeof DashboardDashboardRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardArtisansRoute: DashboardArtisansRoute,
   DashboardDashboardRoute: DashboardDashboardRoute,
 }
 

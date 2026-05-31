@@ -158,7 +158,7 @@ function DashboardLayout() {
 	const navItems = [
 		{ section: "Main", items: [
 			{ name: "Dashboard", icon: LayoutDashboard, path: "/dashboard", badge: null },
-			{ name: "Find Artisans", icon: Search, path: "/find", badge: 48 },
+			{ name: "Find Artisans", icon: Search, path: "/artisans", badge: 48 },
 			{ name: "Bookings", icon: Calendar, path: "/bookings", badge: 3 },
 			{ name: "Messages", icon: MessageSquare, path: "/messages", badge: 5 },
 		]},
@@ -502,7 +502,7 @@ function DashboardLayout() {
 			<nav className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-[#13110F] border-t border-white/10 flex items-center px-2 py-1 safe-area-bottom">
 				{[
 					{ name: "Home", icon: LayoutDashboard, path: "/dashboard" },
-					{ name: "Find", icon: Search, path: "/find" },
+					{ name: "Find", icon: Search, path: "/artisans" },
 					{ name: "Bookings", icon: Calendar, path: "/bookings" },
 					{ name: "Messages", icon: MessageSquare, path: "/messages", badge: 5 },
 					{ name: "More", icon: Menu, path: null },
