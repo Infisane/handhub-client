@@ -549,7 +549,7 @@ function Home() {
 						className="font-extrabold leading-[1.05] tracking-[-2px] mb-5"
 						style={{
 							fontFamily: "var(--font-syne)",
-							fontSize: "clamp(42px,7vw,80px)",
+							fontSize: "clamp(40px,5vw,78px)",
 							color: "var(--hh-txt)",
 							animation: "fadeUp .7s .1s ease both",
 						}}

@@ -68,7 +68,7 @@ function Layout() {
 				<Separator style={{ background: "var(--hh-border)" }} />
 				<div className="flex items-center justify-between pt-6">
 					<p className="text-[12px]" style={{ color: "var(--hh-txt3)" }}>
-						© 2026 Handhub Technologies Ltd. All rights reserved.
+						© {new Date().getFullYear()} Handhub Technologies Ltd. All rights reserved.
 					</p>
 					<div className="flex gap-2.5">
 						{["X", "IG", "in"].map((label) => (
