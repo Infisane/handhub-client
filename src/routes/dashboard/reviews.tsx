@@ -14,7 +14,7 @@ import {
 	Award,
 } from "lucide-react";
 import { useState, useContext, useMemo } from "react";
-import { DashboardContext } from "../_dashboard";
+import { DashboardContext } from "./route";
 import { cn } from "#/lib/utils.ts";
 import {
 	Dialog,
@@ -23,7 +23,7 @@ import {
 	DialogTitle,
 } from "#/components/ui/dialog.tsx";
 
-export const Route = createFileRoute("/_dashboard/reviews")({
+export const Route = createFileRoute("/dashboard/reviews")({ 
 	component: ReviewsPage,
 });
 

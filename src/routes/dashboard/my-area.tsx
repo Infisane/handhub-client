@@ -22,7 +22,7 @@ import {
 	Map as MapIcon,
 } from "lucide-react";
 import { useState, useContext, useMemo, useRef, useEffect } from "react";
-import { DashboardContext } from "../_dashboard";
+import { DashboardContext } from "./route";
 import { cn } from "#/lib/utils.ts";
 import {
 	Dialog,
@@ -31,7 +31,7 @@ import {
 	DialogTitle,
 } from "#/components/ui/dialog.tsx";
 
-export const Route = createFileRoute("/_dashboard/my-area")({
+export const Route = createFileRoute("/dashboard/my-area")({
 	component: MyAreaPage,
 });
 
@@ -832,8 +832,10 @@ function MyAreaPage() {
 				initial="hidden"
 				animate="show"
 				variants={{ hidden: {}, show: { transition: { staggerChildren: 0.05 } } }}
-				className="p-5 sm:p-6 md:p-8 space-y-6 min-h-full bg-[var(--dashboard-bg)]"
+				className="flex flex-col h-full overflow-hidden bg-[var(--dashboard-bg)]"
 			>
+				{/* ── Pinned top: header + stats ──────────────────────────────── */}
+				<div className="px-5 sm:px-6 md:px-8 pt-5 sm:pt-6 md:pt-8 pb-5 shrink-0 space-y-6">
 				{/* Header Section */}
 				<motion.div variants={fadeUp} className="flex items-center justify-between gap-4 flex-wrap pb-2 border-b border-[var(--dashboard-border)]/60">
 					<div>
@@ -899,12 +901,13 @@ function MyAreaPage() {
 						</div>
 					))}
 				</motion.div>
+				</div>{/* /pinned top */}
 
+				{/* ── Scrollable content below stats ─────────────────────────── */}
+				<div className="flex-1 overflow-y-auto px-5 sm:px-6 md:px-8 pb-8 pt-5">
 				{/* Main Content Layout Grid */}
-				<motion.div variants={fadeUp} className="grid gap-5 grid-cols-1" style={{
-					gridTemplateColumns: hasActiveChat
-						? "1fr"
-						: "1fr 310px 290px",
+				<motion.div variants={fadeUp} className="grid gap-5 grid-cols-1 lg:grid-cols-3" style={{
+					gridTemplateColumns: "1fr 310px 290px",
 				}}>
 					{/* Left Panel: Maps & Global Controls */}
 					<div className="space-y-4">
@@ -1080,9 +1083,8 @@ function MyAreaPage() {
 						</div>
 					</div>
 
-					{/* Right Panel: Zone detail panel (Only visible when chat is closed) */}
-					{!hasActiveChat && (
-						<div className="rounded-2xl border border-[var(--dashboard-border)] bg-[var(--dashboard-card)] p-5 overflow-y-auto shadow-xs">
+					{/* Right Panel: Zone detail panel */}
+					<div className="rounded-2xl border border-[var(--dashboard-border)] bg-[var(--dashboard-card)] p-5 overflow-y-auto shadow-xs">
 							<AnimatePresence mode="wait">
 								{selectedZone ? (
 									<ZoneDetailPanel
@@ -1106,8 +1108,8 @@ function MyAreaPage() {
 								)}
 							</AnimatePresence>
 						</div>
-					)}
 				</motion.div>
+				</div>{/* /scrollable */}
 			</motion.div>
 
 			{/* Add Zone Modal Component wrapper */}

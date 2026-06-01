@@ -27,8 +27,8 @@ function SignInPage() {
 
 	const handleSignIn = (e: React.FormEvent) => {
 		e.preventDefault();
-		// Mock authentication action - navigate to home
-		navigate({ to: "/" });
+		// Mock authentication action - navigate to dashboard
+		navigate({ to: "/dashboard" });
 	};
 
 	const rightElement = (

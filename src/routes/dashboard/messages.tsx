@@ -14,7 +14,7 @@ import {
 import { useState, useMemo, useRef, useEffect } from "react";
 import { cn } from "#/lib/utils.ts";
 
-export const Route = createFileRoute("/_dashboard/messages")({
+export const Route = createFileRoute("/dashboard/messages")({ 
 	component: MessagesPage,
 });
 

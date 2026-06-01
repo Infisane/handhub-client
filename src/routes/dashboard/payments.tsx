@@ -17,7 +17,7 @@ import {
 	EyeOff,
 } from "lucide-react";
 import { useState, useContext, useMemo } from "react";
-import { DashboardContext } from "../_dashboard";
+import { DashboardContext } from "./route";
 import { cn } from "#/lib/utils.ts";
 import {
 	Dialog,
@@ -26,7 +26,7 @@ import {
 	DialogTitle,
 } from "#/components/ui/dialog.tsx";
 
-export const Route = createFileRoute("/_dashboard/payments")({
+export const Route = createFileRoute("/dashboard/payments")({
 	component: PaymentsPage,
 });
 

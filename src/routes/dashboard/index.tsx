@@ -18,9 +18,9 @@ import {
 	Menu,
 } from "lucide-react";
 import { useState, useRef, useEffect, useContext } from "react";
-import { DashboardContext } from "../_dashboard";
+import { DashboardContext } from "./route";
 
-export const Route = createFileRoute("/_dashboard/dashboard")({
+export const Route = createFileRoute("/dashboard/")({
 	component: DashboardPage,
 });
 

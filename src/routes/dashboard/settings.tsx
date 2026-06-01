@@ -15,10 +15,10 @@ import {
 	Sliders,
 } from "lucide-react";
 import { useState, useContext } from "react";
-import { DashboardContext } from "../_dashboard";
+import { DashboardContext } from "./route";
 import { cn } from "#/lib/utils.ts";
 
-export const Route = createFileRoute("/_dashboard/settings")({
+export const Route = createFileRoute("/dashboard/settings")({ 
 	component: SettingsPage,
 });
 

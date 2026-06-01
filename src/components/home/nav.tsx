@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { HHButton } from "#/components/hh/button";
-import { O } from "#/components/hh/primitives";
+import { HHLogo } from "#/components/hh/logo";
 
 interface NavProps {
 	showLinks?: boolean;
@@ -19,13 +19,14 @@ export function Nav({ showLinks = true, rightElement }: NavProps) {
 				borderColor: "var(--hh-border)",
 			}}
 		>
-			<div
-				className="text-[22px] font-extrabold tracking-[-0.5px] hover:cursor-pointer"
-				style={{ fontFamily: "var(--font-syne)", color: "var(--hh-txt)" }}
+			<button
+				type="button"
+				className="cursor-pointer"
 				onClick={() => navigate({ to: "/" })}
+				aria-label="HandHub home"
 			>
-				Hand<O>hub</O>
-			</div>
+				<HHLogo theme="dark" height={28} />
+			</button>
 
 			{showLinks && (
 				<nav

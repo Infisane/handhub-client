@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
-import { O } from "#/components/hh/primitives";
+import { HHLogo } from "#/components/hh/logo";
 import { Nav } from "#/components/home/nav";
 import { Separator } from "#/components/ui/separator";
 
@@ -33,11 +33,8 @@ function Layout() {
 			>
 				<div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
 					<div className="lg:col-span-1">
-						<div
-							className="text-[22px] font-extrabold tracking-[-0.5px] mb-3"
-							style={{ fontFamily: "var(--font-syne)", color: "var(--hh-txt)" }}
-						>
-							Hand<O>hub</O>
+						<div className="mb-3">
+							<HHLogo theme="dark" height={28} />
 						</div>
 						<p
 							className="text-[13px] leading-[1.7] max-w-[260px]"

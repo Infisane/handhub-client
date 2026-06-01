@@ -10,17 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PublicRouteImport } from './routes/_public'
-import { Route as DashboardRouteImport } from './routes/_dashboard'
+import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
+import { Route as DashboardReviewsRouteImport } from './routes/dashboard/reviews'
+import { Route as DashboardPaymentsRouteImport } from './routes/dashboard/payments'
+import { Route as DashboardMyAreaRouteImport } from './routes/dashboard/my-area'
+import { Route as DashboardMessagesRouteImport } from './routes/dashboard/messages'
+import { Route as DashboardBookingsRouteImport } from './routes/dashboard/bookings'
+import { Route as DashboardArtisansRouteImport } from './routes/dashboard/artisans'
 import { Route as PublicFindRouteImport } from './routes/_public/find'
-import { Route as DashboardSettingsRouteImport } from './routes/_dashboard/settings'
-import { Route as DashboardReviewsRouteImport } from './routes/_dashboard/reviews'
-import { Route as DashboardPaymentsRouteImport } from './routes/_dashboard/payments'
-import { Route as DashboardMyAreaRouteImport } from './routes/_dashboard/my-area'
-import { Route as DashboardMessagesRouteImport } from './routes/_dashboard/messages'
-import { Route as DashboardDashboardRouteImport } from './routes/_dashboard/dashboard'
-import { Route as DashboardBookingsRouteImport } from './routes/_dashboard/bookings'
-import { Route as DashboardArtisansRouteImport } from './routes/_dashboard/artisans'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AuthSigninRouteImport } from './routes/_auth/signin'
 
@@ -28,59 +28,60 @@ const PublicRoute = PublicRouteImport.update({
   id: '/_public',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/_dashboard',
+const DashboardRouteRoute = DashboardRouteRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 const PublicIndexRoute = PublicIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PublicRoute,
 } as any)
-const PublicFindRoute = PublicFindRouteImport.update({
-  id: '/find',
-  path: '/find',
-  getParentRoute: () => PublicRoute,
-} as any)
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => DashboardRoute,
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 const DashboardReviewsRoute = DashboardReviewsRouteImport.update({
   id: '/reviews',
   path: '/reviews',
-  getParentRoute: () => DashboardRoute,
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 const DashboardPaymentsRoute = DashboardPaymentsRouteImport.update({
   id: '/payments',
   path: '/payments',
-  getParentRoute: () => DashboardRoute,
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 const DashboardMyAreaRoute = DashboardMyAreaRouteImport.update({
   id: '/my-area',
   path: '/my-area',
-  getParentRoute: () => DashboardRoute,
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 const DashboardMessagesRoute = DashboardMessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardDashboardRoute = DashboardDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => DashboardRoute,
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 const DashboardBookingsRoute = DashboardBookingsRouteImport.update({
   id: '/bookings',
   path: '/bookings',
-  getParentRoute: () => DashboardRoute,
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 const DashboardArtisansRoute = DashboardArtisansRouteImport.update({
   id: '/artisans',
   path: '/artisans',
-  getParentRoute: () => DashboardRoute,
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const PublicFindRoute = PublicFindRouteImport.update({
+  id: '/find',
+  path: '/find',
+  getParentRoute: () => PublicRoute,
 } as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
   id: '/_auth/signup',
@@ -94,99 +95,101 @@ const AuthSigninRoute = AuthSigninRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/': typeof PublicIndexRoute
   '/signin': typeof AuthSigninRoute
   '/signup': typeof AuthSignupRoute
-  '/artisans': typeof DashboardArtisansRoute
-  '/bookings': typeof DashboardBookingsRoute
-  '/dashboard': typeof DashboardDashboardRoute
-  '/messages': typeof DashboardMessagesRoute
-  '/my-area': typeof DashboardMyAreaRoute
-  '/payments': typeof DashboardPaymentsRoute
-  '/reviews': typeof DashboardReviewsRoute
-  '/settings': typeof DashboardSettingsRoute
   '/find': typeof PublicFindRoute
+  '/dashboard/artisans': typeof DashboardArtisansRoute
+  '/dashboard/bookings': typeof DashboardBookingsRoute
+  '/dashboard/messages': typeof DashboardMessagesRoute
+  '/dashboard/my-area': typeof DashboardMyAreaRoute
+  '/dashboard/payments': typeof DashboardPaymentsRoute
+  '/dashboard/reviews': typeof DashboardReviewsRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof PublicIndexRoute
   '/signin': typeof AuthSigninRoute
   '/signup': typeof AuthSignupRoute
-  '/artisans': typeof DashboardArtisansRoute
-  '/bookings': typeof DashboardBookingsRoute
-  '/dashboard': typeof DashboardDashboardRoute
-  '/messages': typeof DashboardMessagesRoute
-  '/my-area': typeof DashboardMyAreaRoute
-  '/payments': typeof DashboardPaymentsRoute
-  '/reviews': typeof DashboardReviewsRoute
-  '/settings': typeof DashboardSettingsRoute
   '/find': typeof PublicFindRoute
+  '/dashboard/artisans': typeof DashboardArtisansRoute
+  '/dashboard/bookings': typeof DashboardBookingsRoute
+  '/dashboard/messages': typeof DashboardMessagesRoute
+  '/dashboard/my-area': typeof DashboardMyAreaRoute
+  '/dashboard/payments': typeof DashboardPaymentsRoute
+  '/dashboard/reviews': typeof DashboardReviewsRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/': typeof PublicIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_dashboard': typeof DashboardRouteWithChildren
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
   '/_auth/signin': typeof AuthSigninRoute
   '/_auth/signup': typeof AuthSignupRoute
-  '/_dashboard/artisans': typeof DashboardArtisansRoute
-  '/_dashboard/bookings': typeof DashboardBookingsRoute
-  '/_dashboard/dashboard': typeof DashboardDashboardRoute
-  '/_dashboard/messages': typeof DashboardMessagesRoute
-  '/_dashboard/my-area': typeof DashboardMyAreaRoute
-  '/_dashboard/payments': typeof DashboardPaymentsRoute
-  '/_dashboard/reviews': typeof DashboardReviewsRoute
-  '/_dashboard/settings': typeof DashboardSettingsRoute
   '/_public/find': typeof PublicFindRoute
+  '/dashboard/artisans': typeof DashboardArtisansRoute
+  '/dashboard/bookings': typeof DashboardBookingsRoute
+  '/dashboard/messages': typeof DashboardMessagesRoute
+  '/dashboard/my-area': typeof DashboardMyAreaRoute
+  '/dashboard/payments': typeof DashboardPaymentsRoute
+  '/dashboard/reviews': typeof DashboardReviewsRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/_public/': typeof PublicIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/dashboard'
     | '/'
     | '/signin'
     | '/signup'
-    | '/artisans'
-    | '/bookings'
-    | '/dashboard'
-    | '/messages'
-    | '/my-area'
-    | '/payments'
-    | '/reviews'
-    | '/settings'
     | '/find'
+    | '/dashboard/artisans'
+    | '/dashboard/bookings'
+    | '/dashboard/messages'
+    | '/dashboard/my-area'
+    | '/dashboard/payments'
+    | '/dashboard/reviews'
+    | '/dashboard/settings'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/signin'
     | '/signup'
-    | '/artisans'
-    | '/bookings'
-    | '/dashboard'
-    | '/messages'
-    | '/my-area'
-    | '/payments'
-    | '/reviews'
-    | '/settings'
     | '/find'
+    | '/dashboard/artisans'
+    | '/dashboard/bookings'
+    | '/dashboard/messages'
+    | '/dashboard/my-area'
+    | '/dashboard/payments'
+    | '/dashboard/reviews'
+    | '/dashboard/settings'
+    | '/'
+    | '/dashboard'
   id:
     | '__root__'
-    | '/_dashboard'
+    | '/dashboard'
     | '/_public'
     | '/_auth/signin'
     | '/_auth/signup'
-    | '/_dashboard/artisans'
-    | '/_dashboard/bookings'
-    | '/_dashboard/dashboard'
-    | '/_dashboard/messages'
-    | '/_dashboard/my-area'
-    | '/_dashboard/payments'
-    | '/_dashboard/reviews'
-    | '/_dashboard/settings'
     | '/_public/find'
+    | '/dashboard/artisans'
+    | '/dashboard/bookings'
+    | '/dashboard/messages'
+    | '/dashboard/my-area'
+    | '/dashboard/payments'
+    | '/dashboard/reviews'
+    | '/dashboard/settings'
     | '/_public/'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  DashboardRoute: typeof DashboardRouteWithChildren
+  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   PublicRoute: typeof PublicRouteWithChildren
   AuthSigninRoute: typeof AuthSigninRoute
   AuthSignupRoute: typeof AuthSignupRoute
@@ -201,12 +204,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_dashboard': {
-      id: '/_dashboard'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof DashboardRouteImport
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
     }
     '/_public/': {
       id: '/_public/'
@@ -215,68 +225,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicIndexRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/reviews': {
+      id: '/dashboard/reviews'
+      path: '/reviews'
+      fullPath: '/dashboard/reviews'
+      preLoaderRoute: typeof DashboardReviewsRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/payments': {
+      id: '/dashboard/payments'
+      path: '/payments'
+      fullPath: '/dashboard/payments'
+      preLoaderRoute: typeof DashboardPaymentsRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/my-area': {
+      id: '/dashboard/my-area'
+      path: '/my-area'
+      fullPath: '/dashboard/my-area'
+      preLoaderRoute: typeof DashboardMyAreaRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/messages': {
+      id: '/dashboard/messages'
+      path: '/messages'
+      fullPath: '/dashboard/messages'
+      preLoaderRoute: typeof DashboardMessagesRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/bookings': {
+      id: '/dashboard/bookings'
+      path: '/bookings'
+      fullPath: '/dashboard/bookings'
+      preLoaderRoute: typeof DashboardBookingsRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/artisans': {
+      id: '/dashboard/artisans'
+      path: '/artisans'
+      fullPath: '/dashboard/artisans'
+      preLoaderRoute: typeof DashboardArtisansRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
     '/_public/find': {
       id: '/_public/find'
       path: '/find'
       fullPath: '/find'
       preLoaderRoute: typeof PublicFindRouteImport
       parentRoute: typeof PublicRoute
-    }
-    '/_dashboard/settings': {
-      id: '/_dashboard/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof DashboardSettingsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/_dashboard/reviews': {
-      id: '/_dashboard/reviews'
-      path: '/reviews'
-      fullPath: '/reviews'
-      preLoaderRoute: typeof DashboardReviewsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/_dashboard/payments': {
-      id: '/_dashboard/payments'
-      path: '/payments'
-      fullPath: '/payments'
-      preLoaderRoute: typeof DashboardPaymentsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/_dashboard/my-area': {
-      id: '/_dashboard/my-area'
-      path: '/my-area'
-      fullPath: '/my-area'
-      preLoaderRoute: typeof DashboardMyAreaRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/_dashboard/messages': {
-      id: '/_dashboard/messages'
-      path: '/messages'
-      fullPath: '/messages'
-      preLoaderRoute: typeof DashboardMessagesRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/_dashboard/dashboard': {
-      id: '/_dashboard/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardDashboardRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/_dashboard/bookings': {
-      id: '/_dashboard/bookings'
-      path: '/bookings'
-      fullPath: '/bookings'
-      preLoaderRoute: typeof DashboardBookingsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/_dashboard/artisans': {
-      id: '/_dashboard/artisans'
-      path: '/artisans'
-      fullPath: '/artisans'
-      preLoaderRoute: typeof DashboardArtisansRouteImport
-      parentRoute: typeof DashboardRoute
     }
     '/_auth/signup': {
       id: '/_auth/signup'
@@ -295,30 +298,30 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface DashboardRouteChildren {
+interface DashboardRouteRouteChildren {
   DashboardArtisansRoute: typeof DashboardArtisansRoute
   DashboardBookingsRoute: typeof DashboardBookingsRoute
-  DashboardDashboardRoute: typeof DashboardDashboardRoute
   DashboardMessagesRoute: typeof DashboardMessagesRoute
   DashboardMyAreaRoute: typeof DashboardMyAreaRoute
   DashboardPaymentsRoute: typeof DashboardPaymentsRoute
   DashboardReviewsRoute: typeof DashboardReviewsRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
-const DashboardRouteChildren: DashboardRouteChildren = {
+const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardArtisansRoute: DashboardArtisansRoute,
   DashboardBookingsRoute: DashboardBookingsRoute,
-  DashboardDashboardRoute: DashboardDashboardRoute,
   DashboardMessagesRoute: DashboardMessagesRoute,
   DashboardMyAreaRoute: DashboardMyAreaRoute,
   DashboardPaymentsRoute: DashboardPaymentsRoute,
   DashboardReviewsRoute: DashboardReviewsRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
 }
 
-const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
-  DashboardRouteChildren,
+const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
+  DashboardRouteRouteChildren,
 )
 
 interface PublicRouteChildren {
@@ -335,7 +338,7 @@ const PublicRouteWithChildren =
   PublicRoute._addFileChildren(PublicRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  DashboardRoute: DashboardRouteWithChildren,
+  DashboardRouteRoute: DashboardRouteRouteWithChildren,
   PublicRoute: PublicRouteWithChildren,
   AuthSigninRoute: AuthSigninRoute,
   AuthSignupRoute: AuthSignupRoute,

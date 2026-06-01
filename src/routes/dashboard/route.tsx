@@ -35,6 +35,7 @@ import {
 	DialogTitle,
 } from "#/components/ui/dialog.tsx";
 import { useState, useRef, useEffect, createContext } from "react";
+import { HHLogo } from "#/components/hh/logo";
 
 export interface DashboardContextType {
 	hasActiveChat: boolean;
@@ -50,7 +51,7 @@ export const DashboardContext = createContext<DashboardContextType>({
 	setIsMobileSidebarOpen: () => {},
 });
 
-export const Route = createFileRoute("/_dashboard")({ component: DashboardLayout });
+export const Route = createFileRoute("/dashboard")({ component: DashboardLayout });
 
 interface Message {
 	id: number;
@@ -177,17 +178,17 @@ function DashboardLayout() {
 	const navItems = [
 		{ section: "Main", items: [
 			{ name: "Dashboard", icon: LayoutDashboard, path: "/dashboard", badge: null },
-			{ name: "Find Artisans", icon: Search, path: "/artisans", badge: 48 },
-			{ name: "Bookings", icon: Calendar, path: "/bookings", badge: 3 },
-			{ name: "Messages", icon: MessageSquare, path: "/messages", badge: 5 },
+			{ name: "Find Artisans", icon: Search, path: "/dashboard/artisans", badge: 48 },
+			{ name: "Bookings", icon: Calendar, path: "/dashboard/bookings", badge: 3 },
+			{ name: "Messages", icon: MessageSquare, path: "/dashboard/messages", badge: 5 },
 		]},
 		{ section: "Manage", items: [
-			{ name: "Payments", icon: CreditCard, path: "/payments", badge: null },
-			{ name: "Reviews", icon: Star, path: "/reviews", badge: null },
-			{ name: "My Area", icon: MapPin, path: "/my-area", badge: null },
+			{ name: "Payments", icon: CreditCard, path: "/dashboard/payments", badge: null },
+			{ name: "Reviews", icon: Star, path: "/dashboard/reviews", badge: null },
+			{ name: "My Area", icon: MapPin, path: "/dashboard/my-area", badge: null },
 		]},
 		{ section: "Account", items: [
-			{ name: "Settings", icon: Settings, path: "/settings", badge: null },
+			{ name: "Settings", icon: Settings, path: "/dashboard/settings", badge: null },
 		]}
 	];
 
@@ -200,9 +201,7 @@ function DashboardLayout() {
 				onClick={() => { navigate({ to: "/" }); onNavClick?.(); }}
 			>
 				<div>
-					<h1 className="font-syne font-extrabold text-[23px] text-white tracking-[-0.6px] leading-none">
-						Hand<span className="text-[var(--dashboard-orange)]">hub</span>
-					</h1>
+					<HHLogo theme="dark" height={28} />
 					<p className="text-[9.5px] text-white/30 tracking-[0.8px] uppercase mt-1.5 font-bold">
 						Marketplace OS
 					</p>
@@ -313,7 +312,7 @@ function DashboardLayout() {
 
 						<DropdownMenuItem
 							className="gap-2.5 cursor-pointer"
-							onClick={() => navigate({ to: "/settings" })}
+							onClick={() => navigate({ to: "/dashboard/settings" })}
 						>
 							<User size={14} className="text-muted-foreground" />
 							View Profile
@@ -321,7 +320,7 @@ function DashboardLayout() {
 
 						<DropdownMenuItem
 							className="gap-2.5 cursor-pointer"
-							onClick={() => navigate({ to: "/settings" })}
+							onClick={() => navigate({ to: "/dashboard/settings" })}
 						>
 							<Settings size={14} className="text-muted-foreground" />
 							Settings
@@ -419,7 +418,7 @@ function DashboardLayout() {
 			</div>
 
 			{/* ── Chat Panel (Right Side) ─────────────────────────────────────── */}
-			{hasActiveChat && pathname !== "/messages" && pathname !== "/payments" && pathname !== "/reviews" && pathname !== "/settings" && pathname !== "/my-area" && (
+			{hasActiveChat && pathname !== "/dashboard/messages" && pathname !== "/dashboard/payments" && pathname !== "/dashboard/reviews" && pathname !== "/dashboard/settings" && pathname !== "/dashboard/my-area" && (
 				<aside className="hidden lg:flex flex-col w-[320px] bg-[var(--dashboard-card)] border-l border-[var(--dashboard-border)] h-full overflow-hidden shrink-0 animate-in slide-in-from-right duration-250">
 					{/* Chat Header */}
 					<div className="p-4 border-b border-[var(--dashboard-border)] flex items-center gap-3 bg-[var(--dashboard-card)]">

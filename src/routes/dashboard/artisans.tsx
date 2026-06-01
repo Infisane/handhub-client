@@ -24,7 +24,7 @@ import {
 	Clock,
 } from "lucide-react";
 import { useState, useRef, useCallback } from "react";
-import { DashboardContext } from "../_dashboard";
+import { DashboardContext } from "./route";
 import { useContext } from "react";
 import {
 	Dialog,
@@ -32,7 +32,7 @@ import {
 } from "#/components/ui/dialog.tsx";
 import { cn } from "#/lib/utils.ts";
 
-export const Route = createFileRoute("/_dashboard/artisans")({
+export const Route = createFileRoute("/dashboard/artisans")({
 	component: FindPage,
 });
 

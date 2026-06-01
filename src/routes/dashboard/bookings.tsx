@@ -13,10 +13,10 @@ import {
 	Zap,
 } from "lucide-react";
 import { useState, useContext, useMemo } from "react";
-import { DashboardContext } from "../_dashboard";
+import { DashboardContext } from "./route";
 import { cn } from "#/lib/utils.ts";
 
-export const Route = createFileRoute("/_dashboard/bookings")({
+export const Route = createFileRoute("/dashboard/bookings")({ 
 	component: BookingsPage,
 });
 
