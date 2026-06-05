@@ -34,7 +34,7 @@ function Layout() {
 				<div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
 					<div className="lg:col-span-1">
 						<div className="mb-3">
-							<HHLogo theme="dark" height={28} />
+							<HHLogo theme="light" height={28} />
 						</div>
 						<p
 							className="text-[13px] leading-[1.7] max-w-[260px]"
@@ -85,8 +85,8 @@ function Layout() {
 								}}
 								onMouseEnter={(e) => {
 									const el = e.currentTarget;
-									el.style.background = "rgba(232,80,10,0.1)";
-									el.style.borderColor = "rgba(232,80,10,0.3)";
+									el.style.background = "rgba(59,130,246,0.1)";
+									el.style.borderColor = "rgba(59,130,246,0.3)";
 									el.style.color = "var(--hh-or)";
 								}}
 								onMouseLeave={(e) => {

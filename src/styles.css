@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap');
+/* Plus Jakarta Sans — humanist UI font, app-wide. Syne — display font for the brand wordmark only. */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Syne:wght@700;800&display=swap');
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 
@@ -7,27 +8,30 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Handhub brand */
-  --hh-or: #E8500A;
-  --hh-or-l: #FEF0E8;
-  --hh-or-m: #FAC8AB;
-  --hh-or-d: #B33D07;
-  --hh-bg: #0E0C0A;
-  --hh-bg2: #1A1714;
-  --hh-bg3: #242018;
-  --hh-card: #1E1B17;
-  --hh-card2: #252118;
-  --hh-txt: #F5F0EA;
-  --hh-txt2: #A09890;
-  --hh-txt3: #6B6358;
-  --hh-border: rgba(255, 255, 255, 0.07);
-  --hh-border2: rgba(255, 255, 255, 0.12);
+  /* Handhub brand — Midnight Blue theme.
+     Primary accent var name kept as --hh-or* for backward-compat; values are Signal Blue. */
+  --hh-or: #1E3A8A;        /* Friendly Handhub Midnight Blue — primary / CTA */
+  --hh-or-l: #EFF6FF;      /* Midnight Blue 50 — tint surfaces */
+  --hh-or-m: #93C5FD;      /* Midnight Blue 300 — mid accent / borders */
+  --hh-or-d: #172554;      /* Midnight Blue 950 — hover / pressed */
+  --hh-gold: #F59E0B;      /* gold — ratings & badges */
+  --hh-gold-l: #FEF3C7;    /* gold tint */
+  --hh-bg: #FAF9F6;        /* humanist bone white / warm sand background */
+  --hh-bg2: #FFFFFF;       /* white card surface */
+  --hh-bg3: #F3EFE9;       /* soft warm grey hover highlight */
+  --hh-card: #FFFFFF;      /* white card */
+  --hh-card2: #FBFBF9;     /* card raised */
+  --hh-txt: #1A1714;       /* dark humanist charcoal */
+  --hh-txt2: #5C564E;      /* warm slate text */
+  --hh-txt3: #8E867C;      /* muted bronze-grey text */
+  --hh-border: #EBE5DC;    /* soft warm border */
+  --hh-border2: #DFD8CD;   /* accented border */
 
-  /* AI-Native theme layer */
-  --ai-gradient: linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%);
-  --ai-bubble: #f3e8ff;
-  --ai-primary: #6b21a8;
-  --ai-border: #d8b4fe;
+  /* AI-Native theme layer — Signal Blue (no purple per Midnight Blue spec) */
+  --ai-gradient: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  --ai-bubble: #dbeafe;
+  --ai-primary: #2563EB;
+  --ai-border: #93C5FD;
   --ai-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 
   --sea-ink: #173a40;
@@ -86,10 +90,10 @@
 }
 
 .dark {
-  --ai-gradient: linear-gradient(135deg, #1e1b4b 0%, #2e1065 100%);
-  --ai-bubble: #3b0764;
-  --ai-primary: #c084fc;
-  --ai-border: #7c3aed;
+  --ai-gradient: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+  --ai-bubble: #1e3a8a;
+  --ai-primary: #60A5FA;
+  --ai-border: #2563EB;
 
   --sea-ink: #d7ece8;
   --sea-ink-soft: #afcdc8;
@@ -146,13 +150,15 @@
 }
 
 @theme inline {
-  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
   --color-ai-bubble: var(--ai-bubble);
   --color-ai-primary: var(--ai-primary);
   --color-ai-border: var(--ai-border);
-  --font-syne: 'Syne', sans-serif;
-  --font-dm: 'DM Sans', sans-serif;
+  /* Font aliases kept for the font-syne / font-dm utility classes; both map to Plus Jakarta Sans */
+  --font-syne: 'Plus Jakarta Sans', sans-serif;
+  --font-dm: 'Plus Jakarta Sans', sans-serif;
   --color-hh-or: var(--hh-or);
+  --color-hh-gold: var(--hh-gold);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -280,7 +286,7 @@ pre code {
 }
 
 .display-title {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .island-shell {
@@ -370,9 +376,13 @@ a {
   background: color-mix(in oklab, var(--header-bg) 84%, transparent 16%);
 }
 
-/* Handhub dark page shell */
+/* Handhub dark page shell — navy base + warm gold/blue glows so the dark feels inviting, not clinical */
 .hh-page {
-  background: var(--hh-bg);
+  background:
+    radial-gradient(900px 500px at 8% -8%, rgba(245, 158, 11, 0.08), transparent 60%),
+    radial-gradient(900px 520px at 100% 0%, rgba(232, 80, 10, 0.04), transparent 58%),
+    radial-gradient(600px 400px at 50% 60%, rgba(16, 185, 129, 0.03), transparent 60%),
+    var(--hh-bg);
   color: var(--hh-txt);
   font-family: var(--font-dm);
   min-height: 100dvh;
@@ -391,7 +401,7 @@ a {
 .hh-btn-primary:not(:disabled):hover { background: var(--hh-or-d); transform: translateY(-1px); }
 
 .hh-btn-ghost { background: transparent; border: 1px solid var(--hh-border2); color: var(--hh-txt2); }
-.hh-btn-ghost:not(:disabled):hover { color: var(--hh-txt); border-color: rgba(255,255,255,0.25); }
+.hh-btn-ghost:not(:disabled):hover { color: var(--hh-txt); border-color: var(--hh-txt3); }
 
 .hh-btn-white { background: #fff; color: var(--hh-or); border: none; }
 .hh-btn-white:not(:disabled):hover { background: #f9f9f9; transform: translateY(-1px); }
@@ -418,9 +428,16 @@ input[type='number'].hh-num::-webkit-outer-spin-button,
 input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: none; }
 
 .hh-spill:hover {
-  background: rgba(232, 80, 10, 0.1) !important;
-  border-color: rgba(232, 80, 10, 0.3) !important;
+  background: var(--hh-or-l) !important;
+  border-color: var(--hh-or-m) !important;
   color: var(--hh-or) !important;
+}
+
+.hh-service-card:hover {
+  background: var(--hh-card2) !important;
+  border-color: var(--hh-or-m) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(26, 23, 20, 0.05);
 }
 
 .hh-feat-item:hover,
@@ -430,8 +447,8 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 }
 
 .hh-feat-item.active .hh-feat-icon {
-  background: rgba(232, 80, 10, 0.15);
-  border-color: rgba(232, 80, 10, 0.3);
+  background: var(--hh-or-l);
+  border-color: var(--hh-or-m);
 }
 
 .hh-feat-item.active .hh-feat-icon svg { color: var(--hh-or); }
@@ -473,23 +490,24 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 
 /* ── Scoped Auth Page CSS ─────────────────────────────────────────────────── */
 .hh-auth {
-  --or: #E8500A;
-  --or-l: #FEF0E8;
-  --or-m: #FAC8AB;
-  --or-d: #B33D07;
-  --bg: #0E0C0A;
-  --bg2: #1A1714;
-  --bg3: #201D19;
-  --card: #1E1B17;
-  --txt: #F5F0EA;
-  --txt2: #A09890;
-  --txt3: #6B6358;
-  --bdr: rgba(255,255,255,0.08);
-  --bdr2: rgba(255,255,255,0.14);
+  --or: var(--hh-or);
+  --or-l: var(--hh-or-l);
+  --or-m: var(--hh-or-m);
+  --or-d: var(--hh-or-d);
+  --gold: var(--hh-gold);
+  --bg: var(--hh-bg);
+  --bg2: var(--hh-bg2);
+  --bg3: var(--hh-bg3);
+  --card: var(--hh-card);
+  --txt: var(--hh-txt);
+  --txt2: var(--hh-txt2);
+  --txt3: var(--hh-txt3);
+  --bdr: var(--hh-border);
+  --bdr2: var(--hh-border2);
   --r: 14px;
   --rs: 8px;
 
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   background: var(--bg);
   color: var(--txt);
   min-height: 100vh;
@@ -561,7 +579,8 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 .hh-auth .orb1 {
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(232,80,10,0.10) 0%, transparent 70%);
+  /* warm gold glow — humanises the cool navy panel */
+  background: radial-gradient(circle, rgba(245,158,11,0.16) 0%, transparent 70%);
   top: -80px;
   left: -80px;
 }
@@ -569,7 +588,7 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 .hh-auth .orb2 {
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(107,33,168,0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(30,58,138,0.08) 0%, transparent 70%);
   bottom: -60px;
   right: -60px;
 }
@@ -585,18 +604,18 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(232,80,10,0.1);
-  border: 1px solid rgba(232,80,10,0.25);
+  background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(245,158,11,0.30);
   border-radius: 20px;
   padding: 4px 12px;
   font-size: 11.5px;
-  color: var(--or);
-  font-weight: 500;
+  color: var(--gold);
+  font-weight: 600;
   margin-bottom: 20px;
 }
 
 .hh-auth .left-h {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 30px;
   font-weight: 800;
   letter-spacing: -1px;
@@ -637,8 +656,8 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
   width: 34px;
   height: 34px;
   border-radius: var(--rs);
-  background: rgba(232,80,10,0.1);
-  border: 1px solid rgba(232,80,10,0.2);
+  background: var(--or-l);
+  border: 1px solid var(--or-m);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -682,13 +701,13 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #3D1F0D;
+  background: var(--or-l);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 10px;
   font-weight: 500;
-  color: #F97316;
+  color: var(--or-d);
 }
 
 .hh-auth .test-name {
@@ -722,7 +741,7 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 }
 
 .hh-auth .form-h {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 24px;
   font-weight: 800;
   letter-spacing: -.8px;
@@ -768,7 +787,7 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
   transition: all .15s;
   border: none;
   background: transparent;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .hh-auth .tab.active {
@@ -798,7 +817,7 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
   padding: 11px 14px;
   font-size: 14px;
   color: var(--txt);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   outline: none;
   transition: border-color .15s;
 }
@@ -808,7 +827,7 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 }
 
 .hh-auth .inp:focus {
-  border-color: rgba(232,80,10,0.5);
+  border-color: var(--or-m);
 }
 
 .hh-auth .inp.has-icon {
@@ -861,7 +880,7 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
   padding: 12px;
   font-size: 14px;
   font-weight: 500;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   cursor: pointer;
   transition: background .15s;
   display: flex;
@@ -908,7 +927,7 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
   padding: 10px;
   font-size: 13px;
   color: var(--txt2);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -918,8 +937,9 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 }
 
 .hh-auth .soc-btn:hover {
-  border-color: rgba(255,255,255,0.25);
-  color: var(--txt);
+  border-color: var(--or-m);
+  color: var(--or-d);
+  background: var(--bg3);
 }
 
 .hh-auth .soc-icon {
@@ -949,14 +969,14 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
   padding: 11px 14px;
   font-size: 14px;
   color: var(--txt);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   outline: none;
   -webkit-appearance: none;
   cursor: pointer;
 }
 
 .hh-auth .select:focus {
-  border-color: rgba(232,80,10,.5);
+  border-color: var(--or-m);
 }
 
 .hh-auth .select option {
@@ -1067,12 +1087,12 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 }
 
 .hh-auth .role-card:hover {
-  border-color: rgba(232,80,10,.35);
+  border-color: var(--or-m);
 }
 
 .hh-auth .role-card.selected {
   border-color: var(--or);
-  background: rgba(232,80,10,.06);
+  background: var(--or-l);
 }
 
 .hh-auth .role-card svg {
@@ -1152,17 +1172,36 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 
 /* ── Scoped Dashboard Page CSS ────────────────────────────────────────────── */
 .hh-dashboard {
-  --dashboard-bg: #F7F5F2;
-  --dashboard-card: #FFFFFF;
-  --dashboard-text: #1A1714;
-  --dashboard-muted: #6B6760;
-  --dashboard-border: #E3DDD7;
-  --dashboard-orange: #E8500A;
-  --dashboard-orange-light: #FEF0E8;
-  --dashboard-orange-mid: #FAC8AB;
-  --dashboard-purple: #6b21a8;
-  --dashboard-purple-light: #f5f3ff;
-  --dashboard-purple-mid: #d8b4fe;
+  /* Warm Sand Redesign: warm charcoal chrome (sidebar) + warm sand canvas + white cards */
+  --dashboard-bg: var(--hh-bg);           /* warm sand canvas background */
+  --dashboard-card: var(--hh-card);       /* white content cards */
+  --dashboard-text: var(--hh-txt);        /* dark charcoal text */
+  --dashboard-muted: var(--hh-txt2);      /* warm slate muted text */
+  --dashboard-border: var(--hh-border);   /* soft warm border */
+
+  /* Midnight Navy Sidebar shell / chrome */
+  --dashboard-shell: #0B0F19;        /* Obsidian Midnight Navy sidebar + nav */
+  --dashboard-shell-2: #121824;      /* raised midnight navy */
+  --dashboard-on-shell: #F8FAFC;     /* crisp slate-50 text on dark */
+  --dashboard-on-shell-muted: #94A3B8; /* slate-400 */
+
+  /* Primary accent (Handhub Orange) */
+  --dashboard-blue: var(--hh-or);
+  --dashboard-blue-light: var(--hh-or-l);
+  --dashboard-blue-mid: var(--hh-or-m);
+  --dashboard-blue-dark: var(--hh-or-d);
+  --dashboard-orange: var(--hh-or);
+  --dashboard-orange-light: var(--hh-or-l);
+  --dashboard-orange-mid: var(--hh-or-m);
+
+  /* AI accent folds into orange/gold */
+  --dashboard-purple: var(--hh-or);
+  --dashboard-purple-light: var(--hh-or-l);
+  --dashboard-purple-mid: var(--hh-or-m);
+
+  /* Gold — ratings & premium badges ONLY */
+  --dashboard-gold: var(--hh-gold);
+  --dashboard-gold-light: var(--hh-gold-l);
 }
 
 

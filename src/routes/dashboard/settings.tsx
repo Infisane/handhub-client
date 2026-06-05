@@ -434,7 +434,7 @@ function SettingsPage() {
 									{/* 2-Factor Authentication slider card */}
 									<div className="border border-[var(--dashboard-border)] rounded-2xl p-4.5 space-y-3 bg-[var(--dashboard-card)] shadow-xs relative overflow-hidden flex items-center justify-between">
 										<div className="flex gap-3 items-center min-w-0">
-											<div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center text-purple-600 shrink-0">
+											<div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 shrink-0">
 												<ShieldAlert size={16} />
 											</div>
 											<div className="min-w-0">
@@ -652,7 +652,7 @@ function SettingsPage() {
 									<div className="border border-[var(--dashboard-border)] rounded-2xl p-4.5 space-y-4 bg-[var(--dashboard-card)] shadow-xs">
 										<div className="flex items-center justify-between gap-3">
 											<div className="flex gap-3 items-center min-w-0">
-												<div className="w-9 h-9 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center text-[var(--dashboard-orange)] shrink-0">
+												<div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-[var(--dashboard-orange)] shrink-0">
 													<Sparkles size={16} />
 												</div>
 												<div className="min-w-0">
@@ -727,10 +727,10 @@ function SettingsPage() {
 								type="submit"
 								disabled={isSaving}
 								className={cn(
-									"py-2.5 px-5 rounded-xl text-xs font-extrabold cursor-pointer transition-all flex items-center justify-center gap-1.5 shadow-md shadow-orange-500/10 min-w-36 active:scale-95",
+									"py-2.5 px-5 rounded-xl text-xs font-extrabold cursor-pointer transition-all flex items-center justify-center gap-1.5 shadow-md shadow-blue-500/10 min-w-36 active:scale-95",
 									saveSuccess
 										? "bg-green-600 text-white shadow-green-500/10 hover:bg-green-700"
-										: "bg-[var(--dashboard-orange)] hover:bg-orange-600 text-white"
+										: "bg-[var(--dashboard-orange)] hover:bg-blue-600 text-white"
 								)}
 							>
 								{isSaving ? (

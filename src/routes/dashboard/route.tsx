@@ -197,12 +197,12 @@ function DashboardLayout() {
 		<>
 			{/* Sidebar Logo */}
 			<div
-				className="p-6 border-b border-white/5 hover:cursor-pointer transition-opacity duration-150 hover:opacity-90 flex items-center justify-between"
+				className="p-6 border-b border-white/10 hover:cursor-pointer transition-opacity duration-150 hover:opacity-90 flex items-center justify-between"
 				onClick={() => { navigate({ to: "/" }); onNavClick?.(); }}
 			>
 				<div>
 					<HHLogo theme="dark" height={28} />
-					<p className="text-[9.5px] text-white/30 tracking-[0.8px] uppercase mt-1.5 font-bold">
+					<p className="text-[9.5px] text-white/50 tracking-[0.8px] uppercase mt-1.5 font-bold">
 						Marketplace OS
 					</p>
 				</div>
@@ -223,7 +223,7 @@ function DashboardLayout() {
 			<nav className="flex-1 overflow-y-auto px-3 py-6 flex flex-col gap-6 scrollbar-none">
 				{navItems.map((sec) => (
 					<div key={sec.section}>
-						<div className="text-[9.5px] text-white/20 tracking-[1.5px] uppercase font-bold px-3.5 mb-2.5 select-none">
+						<div className="text-[9.5px] text-white/45 tracking-[1.5px] uppercase font-bold px-3.5 mb-2.5 select-none">
 							{sec.section}
 						</div>
 						<div className="flex flex-col gap-1">
@@ -239,24 +239,24 @@ function DashboardLayout() {
 										}}
 										className={`relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] cursor-pointer transition-all duration-150 border ${
 											isActive
-												? "bg-white/[0.04] !text-[var(--dashboard-orange)] font-semibold border-white/5"
-												: "!text-white/30 border-transparent hover:bg-white/[0.03] hover:!text-white/80"
+												? "bg-white/[0.06] !text-white font-semibold border-white/10"
+												: "!text-white/60 border-transparent hover:bg-white/[0.03] hover:!text-white/90"
 										}`}
 									>
 										{/* Vertical indicator bar for active item */}
 										{isActive && (
-											<div className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-r bg-[var(--dashboard-orange)]" />
+											<div className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-r bg-[var(--hh-or-m)]" />
 										)}
 										
 										{/* Explicit size and no-shrink to prevent collapsing */}
 										<Icon className={`w-4 h-4 shrink-0 transition-colors duration-150 ${
-											isActive ? "text-[var(--dashboard-orange)]" : "text-white/30"
+											isActive ? "text-[var(--hh-or-m)]" : "text-white/40"
 										}`} />
 										
 										<span className="truncate">{item.name}</span>
 										{item.badge && (
 											<span className={`ml-auto text-[9.5px] px-2 py-0.5 rounded-full font-bold leading-none ${
-												isActive ? "bg-[var(--dashboard-orange)]/10 text-[var(--dashboard-orange)]" : "bg-white/5 text-white/30"
+												isActive ? "bg-[var(--hh-or-m)]/15 text-[var(--hh-or-m)]" : "bg-white/10 text-white/50"
 											}`}>
 												{item.badge}
 											</span>
@@ -270,25 +270,25 @@ function DashboardLayout() {
 			</nav>
 
 			{/* Sidebar Footer User Info */}
-			<div className="p-4 border-t border-white/5 bg-white/[0.01]">
+			<div className="p-4 border-t border-white/10 bg-white/[0.01]">
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<button
 							type="button"
-							className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all duration-200 cursor-pointer shadow-inner group"
+							className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/10 hover:bg-white/[0.05] hover:border-white/20 transition-all duration-200 cursor-pointer shadow-inner group"
 						>
-							<div className="w-8 h-8 rounded-full bg-[var(--dashboard-orange)] flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-sm border border-white/10 ring-2 ring-[var(--dashboard-orange-light)]/10">
+							<div className="w-8 h-8 rounded-full bg-[var(--hh-or-m)] flex items-center justify-center text-xs font-bold text-[#172554] shrink-0 shadow-sm border border-white/15 ring-2 ring-[var(--hh-or-m)]/10">
 								AK
 							</div>
 							<div className="flex flex-col min-w-0 flex-1 text-left">
-								<p className="text-[13px] font-semibold text-white/90 leading-none mb-1 truncate">
+								<p className="text-[13px] font-semibold text-white/95 leading-none mb-1 truncate">
 									Adeola Kamara
 								</p>
-								<span className="text-[10px] text-white/30 font-medium truncate">
+								<span className="text-[10px] text-white/50 font-medium truncate">
 									Lekki, Lagos
 								</span>
 							</div>
-							<ChevronUp size={13} className="text-white/20 group-hover:text-white/40 transition-colors shrink-0" />
+							<ChevronUp size={13} className="text-white/30 group-hover:text-white/55 transition-colors shrink-0" />
 						</button>
 					</DropdownMenuTrigger>
 
@@ -397,7 +397,7 @@ function DashboardLayout() {
 
 			{/* Mobile Drawer Panel */}
 			<aside
-				className={`fixed top-0 left-0 z-50 h-full w-[280px] bg-[#13110F] flex flex-col border-r border-white/5 md:hidden transition-transform duration-300 ease-in-out ${
+				className={`fixed top-0 left-0 z-50 h-full w-[280px] bg-[var(--dashboard-shell)] flex flex-col border-r border-white/5 md:hidden transition-transform duration-300 ease-in-out ${
 					isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
 				}`}
 				aria-label="Mobile navigation"
@@ -406,7 +406,7 @@ function DashboardLayout() {
 			</aside>
 
 			{/* ── Desktop Sidebar ─────────────────────────────────────────────── */}
-			<aside className="hidden md:flex flex-col bg-[#13110F] w-[260px] h-full shrink-0 border-r border-white/5">
+			<aside className="hidden md:flex flex-col bg-[var(--dashboard-shell)] w-[260px] h-full shrink-0 border-r border-white/5">
 				<SidebarContent />
 			</aside>
 
@@ -464,10 +464,10 @@ function DashboardLayout() {
 					<div className="mx-4 mt-3 bg-[var(--dashboard-orange-light)] border border-[var(--dashboard-orange-mid)] rounded-lg p-3 flex items-center gap-2.5 shrink-0">
 						<FileText size={15} className="text-[var(--dashboard-orange)] shrink-0" />
 						<div className="min-w-0">
-							<p className="text-[12px] font-bold text-[#9A3412] truncate">
+							<p className="text-[12px] font-bold text-[#1E3A8A] truncate">
 								Inverter Inspection · Ticket #1042
 							</p>
-							<span className="text-[10.5px] text-[#C2410C] font-medium block">
+							<span className="text-[10.5px] text-[#1D4ED8] font-medium block">
 								In progress · Started 09:14 today
 							</span>
 						</div>
@@ -502,7 +502,7 @@ function DashboardLayout() {
 											className={`p-3 rounded-2xl text-[13px] leading-relaxed shadow-sm ${
 												isUser
 													? "bg-[var(--dashboard-orange)] text-white rounded-br-none"
-													: "bg-[#F1EEE9] text-[var(--dashboard-text)] rounded-bl-none"
+													: "bg-[var(--dashboard-bg)] text-[var(--dashboard-text)] rounded-bl-none"
 											}`}
 										>
 											{msg.text}
@@ -525,7 +525,7 @@ function DashboardLayout() {
 													className={`w-full py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-colors duration-150 ${
 														msg.quote.paid
 															? "bg-green-600 text-white cursor-default"
-															: "bg-[var(--dashboard-orange)] hover:bg-[var(--dashboard-orange-mid)] text-white"
+															: "bg-[var(--dashboard-orange)] hover:bg-[var(--dashboard-blue-dark)] text-white"
 													}`}
 													onClick={() => !msg.quote?.paid && handlePayQuote(msg.id)}
 													disabled={msg.quote.paid}
@@ -556,7 +556,7 @@ function DashboardLayout() {
 								<div className="w-7 h-7 rounded-full bg-[var(--dashboard-orange-light)] flex items-center justify-center text-[10px] font-bold text-[var(--dashboard-orange)]">
 									TJ
 								</div>
-								<div className="bg-[#F1EEE9] px-3.5 py-2.5 rounded-2xl rounded-bl-none flex items-center gap-1">
+								<div className="bg-[var(--dashboard-bg)] px-3.5 py-2.5 rounded-2xl rounded-bl-none flex items-center gap-1">
 									<span className="w-1.5 h-1.5 bg-[var(--dashboard-muted)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
 									<span className="w-1.5 h-1.5 bg-[var(--dashboard-muted)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
 									<span className="w-1.5 h-1.5 bg-[var(--dashboard-muted)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -598,7 +598,7 @@ function DashboardLayout() {
 						/>
 						<button
 							type="submit"
-							className="w-9 h-9 rounded-full bg-[var(--dashboard-orange)] hover:bg-[var(--dashboard-orange-mid)] text-white flex items-center justify-center cursor-pointer transition-colors duration-150 shrink-0"
+							className="w-9 h-9 rounded-full bg-[var(--dashboard-orange)] hover:bg-[var(--dashboard-blue-dark)] text-white flex items-center justify-center cursor-pointer transition-colors duration-150 shrink-0"
 							aria-label="Send message"
 						>
 							<Send size={15} />
@@ -608,7 +608,7 @@ function DashboardLayout() {
 			)}
 
 			{/* ── Mobile Bottom Tab Bar ──────────────────────────────────────── */}
-			<nav className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-[#13110F] border-t border-white/10 flex items-center px-2 py-1 safe-area-bottom">
+			<nav className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-[var(--dashboard-shell)] border-t border-white/10 flex items-center px-2 py-1 safe-area-bottom">
 				{[
 					{ name: "Home", icon: LayoutDashboard, path: "/dashboard" },
 					{ name: "Find", icon: Search, path: "/artisans" },

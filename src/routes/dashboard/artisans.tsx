@@ -92,7 +92,7 @@ const ALL_ARTISANS: Artisan[] = [
 		rateUnit: "/hr",
 		bio: "Certified electrical engineer with 8+ yrs handling residential & commercial wiring, inverter systems, and smart home installations.",
 		skills: ["Inverter", "Wiring", "Smart Home", "Emergency"],
-		avatarColor: "bg-[#FEE9E1] text-[#C2410C]",
+		avatarColor: "bg-[#DBEAFE] text-[#1D4ED8]",
 		verified: true,
 		topRated: true,
 		responseTime: "< 10 mins",
@@ -252,7 +252,7 @@ const ALL_ARTISANS: Artisan[] = [
 		rateUnit: "/hr",
 		bio: "Interior and exterior painting specialist. Uses premium paints and delivers clean, long-lasting finishes.",
 		skills: ["Interior", "Exterior", "Texture", "Waterproofing"],
-		avatarColor: "bg-[#F3E8FF] text-[#7E22CE]",
+		avatarColor: "bg-[#DBEAFE] text-[#1D4ED8]",
 		verified: false,
 		topRated: false,
 		responseTime: "< 2 hrs",
@@ -292,7 +292,7 @@ const ALL_ARTISANS: Artisan[] = [
 		rateUnit: "/hr",
 		bio: "Handles all household plumbing emergencies promptly. Reliable, tidy, and affordable.",
 		skills: ["Emergency", "Boreholes", "Bathrooms", "Kitchen"],
-		avatarColor: "bg-[#FFF0F6] text-[#9D174D]",
+		avatarColor: "bg-[#EFF6FF] text-[#1D4ED8]",
 		verified: true,
 		topRated: false,
 		responseTime: "< 30 mins",
@@ -332,7 +332,7 @@ const ALL_ARTISANS: Artisan[] = [
 		rateUnit: "/hr",
 		bio: "Repairs washing machines, fridges, cookers, and generators. Fair prices and transparent quotes.",
 		skills: ["Washing Machine", "Fridge", "Generator", "Cooker"],
-		avatarColor: "bg-[#FFF7ED] text-[#C2410C]",
+		avatarColor: "bg-[#EFF6FF] text-[#1D4ED8]",
 		verified: false,
 		topRated: false,
 		responseTime: "< 45 mins",
@@ -466,11 +466,11 @@ const renderStars = (rating: number) => {
 };
 
 const getCoverGradient = (colorClass: string) => {
-	if (colorClass.includes("C2410C")) return "from-orange-500/20 via-orange-500/5 to-transparent";
+	if (colorClass.includes("C2410C")) return "from-blue-500/20 via-blue-500/5 to-transparent";
 	if (colorClass.includes("0369A1")) return "from-sky-500/20 via-sky-500/5 to-transparent";
 	if (colorClass.includes("B7791F")) return "from-amber-500/20 via-amber-500/5 to-transparent";
 	if (colorClass.includes("0F766E")) return "from-teal-500/20 via-teal-500/5 to-transparent";
-	if (colorClass.includes("7E22CE")) return "from-purple-500/20 via-purple-500/5 to-transparent";
+	if (colorClass.includes("7E22CE")) return "from-blue-500/20 via-blue-500/5 to-transparent";
 	if (colorClass.includes("9D174D")) return "from-pink-500/20 via-pink-500/5 to-transparent";
 	if (colorClass.includes("065F46")) return "from-emerald-500/20 via-emerald-500/5 to-transparent";
 	return "from-[var(--dashboard-orange)]/15 via-[var(--dashboard-orange)]/5 to-transparent";
@@ -690,7 +690,7 @@ function FindPage() {
 								onClick={() => setActiveCategory(cat.value)}
 								className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12px] font-semibold whitespace-nowrap shrink-0 border transition-all duration-150 cursor-pointer ${
 									isActive
-										? "bg-[var(--dashboard-orange)] border-[var(--dashboard-orange)] text-white shadow-sm shadow-orange-500/20 font-bold"
+										? "bg-[var(--dashboard-orange)] border-[var(--dashboard-orange)] text-white shadow-sm shadow-blue-500/20 font-bold"
 										: "bg-[var(--dashboard-card)] border-[var(--dashboard-border)] text-[var(--dashboard-muted)] hover:border-[var(--dashboard-orange-mid)] hover:text-[var(--dashboard-text)]"
 								}`}
 							>
@@ -831,7 +831,7 @@ function FindPage() {
 						<button
 							type="button"
 							onClick={clearAllFilters}
-							className="px-5 py-2.5 rounded-xl text-[12.5px] font-bold bg-[var(--dashboard-orange)] text-white cursor-pointer hover:bg-orange-600 active:scale-95 transition-all"
+							className="px-5 py-2.5 rounded-xl text-[12.5px] font-bold bg-[var(--dashboard-orange)] text-white cursor-pointer hover:bg-blue-600 active:scale-95 transition-all"
 						>
 							Clear All Filters
 						</button>
@@ -1141,7 +1141,7 @@ function FindPage() {
 											? "bg-green-600 text-white cursor-default"
 											: selectedArtisan.availability === "busy"
 											? "bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200"
-											: "bg-[var(--dashboard-orange)] text-white hover:bg-orange-600 active:scale-95 shadow-md shadow-orange-500/15"
+											: "bg-[var(--dashboard-orange)] text-white hover:bg-blue-600 active:scale-95 shadow-md shadow-blue-500/15"
 									}`}
 								>
 									{hiredIds[selectedArtisan.id] ? (

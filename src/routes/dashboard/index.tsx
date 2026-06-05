@@ -68,7 +68,7 @@ function DashboardPage() {
 			availText: "Available now",
 			rate: "₦8,500/hr",
 			avatarInitials: "TJ",
-			avatarBgClass: "bg-[#FEE9E1] text-[#C2410C]",
+			avatarBgClass: "bg-[#DBEAFE] text-[#1D4ED8]",
 		},
 		{
 			id: "artisan-2",
@@ -219,8 +219,8 @@ function DashboardPage() {
 
 			{/* Statistics widgets grid */}
 			<section className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-				{/* Active Jobs (Orange Gradient Theme) */}
-				<div className="bg-gradient-to-br from-[var(--dashboard-orange)] to-[#B33D07] border border-[#B33D07]/20 rounded-xl p-4 shadow-md shadow-orange-500/5 text-white relative overflow-hidden group hover:shadow-lg transition-all duration-350">
+				{/* Active Jobs (Signal Blue gradient) */}
+				<div className="bg-gradient-to-br from-(--dashboard-blue) to-[#1D4ED8] border border-[#1D4ED8]/20 rounded-xl p-4 shadow-md shadow-blue-500/10 text-white relative overflow-hidden group hover:shadow-lg transition-all duration-350">
 					<div className="absolute -right-6 -top-6 w-20 h-20 bg-white/10 rounded-full blur-xl group-hover:scale-110 transition-transform duration-500" />
 					<div className="absolute right-3.5 bottom-3.5 text-white/12">
 						<Briefcase size={36} className="stroke-[1.5]" />
@@ -279,7 +279,7 @@ function DashboardPage() {
 			</section>
 
 			{/* AI Search input block */}
-			<section className="bg-[var(--dashboard-card)] border-2 border-[var(--dashboard-purple-mid)] rounded-xl p-4 shadow-xs relative focus-within:ring-4 focus-within:ring-[var(--dashboard-purple-mid)]/15 focus-within:border-[var(--dashboard-purple)] transition-all duration-200 shadow-purple-50/15">
+			<section className="bg-[var(--dashboard-card)] border-2 border-[var(--dashboard-purple-mid)] rounded-xl p-4 shadow-xs relative focus-within:ring-4 focus-within:ring-[var(--dashboard-purple-mid)]/15 focus-within:border-[var(--dashboard-purple)] transition-all duration-200 shadow-blue-50/15">
 				<div className="flex items-center gap-2.5">
 					<Sparkles size={16} className="text-[var(--dashboard-purple)] shrink-0" />
 					<input
@@ -350,7 +350,7 @@ function DashboardPage() {
 							<motion.div
 								key={artisan.id}
 								variants={itemVariants}
-								className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-xl p-4 flex flex-col justify-between hover:border-[var(--dashboard-orange-mid)] hover:translate-y-[-2px] hover:shadow-md hover:shadow-orange-500/5 transition-all duration-300 cursor-pointer group relative overflow-hidden"
+								className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-xl p-4 flex flex-col justify-between hover:border-[var(--dashboard-blue-mid)] hover:translate-y-[-2px] hover:shadow-md hover:shadow-blue-500/5 transition-all duration-300 cursor-pointer group relative overflow-hidden"
 							>
 								<div>
 									{/* Artisan Header info */}
@@ -395,7 +395,7 @@ function DashboardPage() {
 									className={`w-full py-2 px-3 rounded-xl text-[11px] font-extrabold font-dm cursor-pointer transition-all duration-300 hover:translate-y-[-1px] active:translate-y-0 ${
 										isHired
 											? "bg-green-600 text-white cursor-default shadow-sm shadow-green-500/10 hover:translate-y-0"
-											: "bg-[#1A1714] text-white hover:bg-[var(--dashboard-orange)] hover:shadow-sm"
+											: "bg-[var(--dashboard-blue)] text-white hover:bg-[var(--dashboard-blue-dark)] hover:shadow-sm hover:shadow-blue-500/20"
 									}`}
 									disabled={isHired}
 								>
@@ -481,7 +481,7 @@ function DashboardPage() {
 				<button
 					type="button"
 					onClick={() => setHasActiveChat(true)}
-					className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[var(--dashboard-orange)] hover:bg-[var(--dashboard-orange-mid)] text-white flex items-center justify-center cursor-pointer shadow-lg shadow-orange-500/30 transition-all duration-300 hover:scale-105 active:scale-95 animate-in zoom-in-50 duration-200"
+					className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[var(--dashboard-blue)] hover:bg-[var(--dashboard-blue-dark)] text-white flex items-center justify-center cursor-pointer shadow-lg shadow-blue-500/30 transition-all duration-300 hover:scale-105 active:scale-95 animate-in zoom-in-50 duration-200"
 					aria-label="Open chat panel"
 				>
 					<div className="relative">

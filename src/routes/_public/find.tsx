@@ -234,7 +234,7 @@ function FindPage() {
 							Search for artisans
 						</label>
 						<div
-							className="flex flex-1 min-w-[260px] items-center gap-2.5 rounded-[12px] border px-4 transition-colors duration-150 focus-within:border-[rgba(232,80,10,0.5)]"
+							className="flex flex-1 min-w-[260px] items-center gap-2.5 rounded-[12px] border px-4 transition-colors duration-150 focus-within:border-[rgba(59,130,246,0.5)]"
 							style={{
 								background: "var(--hh-card)",
 								borderColor: "var(--hh-border2)",
@@ -260,7 +260,7 @@ function FindPage() {
 							Select city
 						</label>
 						<div
-							className="flex items-center gap-2 rounded-[12px] border px-3.5 min-w-[170px] focus-within:border-[rgba(232,80,10,0.5)] transition-colors duration-150"
+							className="flex items-center gap-2 rounded-[12px] border px-3.5 min-w-[170px] focus-within:border-[rgba(59,130,246,0.5)] transition-colors duration-150"
 							style={{
 								background: "var(--hh-card)",
 								borderColor: "var(--hh-border2)",
@@ -371,11 +371,11 @@ function FindPage() {
 									style={{
 										background:
 											filters.minRating === r.value
-												? "rgba(232,80,10,0.1)"
+												? "rgba(59,130,246,0.1)"
 												: "transparent",
 										borderColor:
 											filters.minRating === r.value
-												? "rgba(232,80,10,0.35)"
+												? "rgba(59,130,246,0.35)"
 												: "var(--hh-border2)",
 										color:
 											filters.minRating === r.value
@@ -410,7 +410,7 @@ function FindPage() {
 									value={filters[k]}
 									onChange={(e) => set(k, Number(e.target.value))}
 									placeholder={i === 0 ? "Min" : "Max"}
-									className="hh-num rounded-[8px] border px-2.5 py-[7px] text-[12.5px] w-20 outline-none focus:border-[rgba(232,80,10,0.4)] transition-colors duration-150"
+									className="hh-num rounded-[8px] border px-2.5 py-[7px] text-[12.5px] w-20 outline-none focus:border-[rgba(59,130,246,0.4)] transition-colors duration-150"
 									style={{
 										background: "var(--hh-card)",
 										borderColor: "var(--hh-border2)",
@@ -463,8 +463,8 @@ function FindPage() {
 							<div
 								className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[14px] border"
 								style={{
-									background: "rgba(232,80,10,0.1)",
-									borderColor: "rgba(232,80,10,0.2)",
+									background: "rgba(59,130,246,0.1)",
+									borderColor: "rgba(59,130,246,0.2)",
 								}}
 							>
 								<Lock size={20} style={{ color: "var(--hh-or)" }} aria-hidden />
@@ -542,7 +542,7 @@ function FindPage() {
 													viewMode === m ? "var(--hh-card2)" : "transparent",
 												borderColor:
 													viewMode === m
-														? "rgba(232,80,10,0.3)"
+														? "rgba(59,130,246,0.3)"
 														: "var(--hh-border)",
 												color:
 													viewMode === m ? "var(--hh-or)" : "var(--hh-txt3)",

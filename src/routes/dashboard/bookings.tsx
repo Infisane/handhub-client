@@ -45,7 +45,7 @@ const MOCK_BOOKINGS: Booking[] = [
 		artisanName: "Taiwo Johnson",
 		artisanInitials: "TJ",
 		artisanTrade: "Licensed Electrician",
-		avatarColor: "bg-[#FEE9E1] text-[#C2410C]",
+		avatarColor: "bg-[#DBEAFE] text-[#1D4ED8]",
 		verified: true,
 		jobTitle: "Inverter Inspection & Phase Balance",
 		status: "in_progress",
@@ -96,7 +96,7 @@ const MOCK_BOOKINGS: Booking[] = [
 ];
 
 const statusConfig: Record<BookingStatus, { label: string; bg: string; text: string; dot: string }> = {
-	in_progress: { label: "In Progress", bg: "bg-orange-50 dark:bg-orange-500/10", text: "text-orange-700 dark:text-orange-400", dot: "bg-orange-500 animate-pulse" },
+	in_progress: { label: "In Progress", bg: "bg-blue-50 dark:bg-blue-500/10", text: "text-blue-700 dark:text-blue-400", dot: "bg-blue-500 animate-pulse" },
 	scheduled: { label: "Scheduled", bg: "bg-blue-50 dark:bg-blue-500/10", text: "text-blue-700 dark:text-blue-400", dot: "bg-blue-500" },
 	completed: { label: "Completed", bg: "bg-green-50 dark:bg-green-500/10", text: "text-green-700 dark:text-green-400", dot: "bg-green-500" },
 	cancelled: { label: "Cancelled", bg: "bg-neutral-100 dark:bg-neutral-800", text: "text-neutral-500 dark:text-neutral-400", dot: "bg-neutral-400" },
@@ -179,7 +179,7 @@ function BookingsPage() {
 				{/* ── Statistics Grid ───────────────────────────────────────────────── */}
 				<div className="grid grid-cols-2 md:grid-cols-4 gap-3">
 					<div className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-2xl p-3.5 flex items-center gap-3 shadow-xs">
-						<div className="w-9 h-9 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center text-[var(--dashboard-orange)] shrink-0">
+						<div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-[var(--dashboard-orange)] shrink-0">
 							<Clock size={16} className="animate-pulse" />
 						</div>
 						<div>
@@ -215,7 +215,7 @@ function BookingsPage() {
 					</div>
 
 					<div className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-2xl p-3.5 flex items-center gap-3 shadow-xs">
-						<div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center text-purple-600 shrink-0">
+						<div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 shrink-0">
 							<ThumbsUp size={15} />
 						</div>
 						<div>
@@ -298,7 +298,7 @@ function BookingsPage() {
 							<button
 								type="button"
 								onClick={() => setSearchQuery("")}
-								className="px-4 py-2 rounded-xl text-[12px] font-bold bg-[var(--dashboard-orange)] text-white cursor-pointer hover:bg-orange-600 active:scale-95 transition-all"
+								className="px-4 py-2 rounded-xl text-[12px] font-bold bg-[var(--dashboard-orange)] text-white cursor-pointer hover:bg-blue-600 active:scale-95 transition-all"
 							>
 								Clear Search
 							</button>
@@ -410,7 +410,7 @@ function BookingsPage() {
 											<button
 												type="button"
 												onClick={() => setHasActiveChat(true)}
-												className="flex-1 h-10 rounded-xl bg-[var(--dashboard-orange)] text-white text-[12px] font-extrabold text-center hover:bg-orange-600 active:scale-95 shadow-md shadow-orange-500/10 flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+												className="flex-1 h-10 rounded-xl bg-[var(--dashboard-orange)] text-white text-[12px] font-extrabold text-center hover:bg-blue-600 active:scale-95 shadow-md shadow-blue-500/10 flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
 											>
 												<Zap size={11} className="stroke-[2.5]" />
 												<span>Pay Proposal</span>
