@@ -10,22 +10,22 @@
 :root {
   /* Handhub brand — Midnight Blue theme.
      Primary accent var name kept as --hh-or* for backward-compat; values are Signal Blue. */
-  --hh-or: #3B82F6;        /* Signal Blue — primary / CTA */
-  --hh-or-l: #EFF6FF;      /* blue 50  — tint surfaces */
-  --hh-or-m: #93C5FD;      /* blue 300 — mid accent / borders */
-  --hh-or-d: #2563EB;      /* blue 600 — hover / pressed */
-  --hh-gold: #F59E0B;      /* gold — ratings & premium badges ONLY */
+  --hh-or: #E8500A;        /* Friendly Handhub Orange — primary / CTA */
+  --hh-or-l: #FEF0E8;      /* Orange 50 — tint surfaces */
+  --hh-or-m: #FAC8AB;      /* Orange 300 — mid accent / borders */
+  --hh-or-d: #C2410C;      /* Orange 700 — hover / pressed */
+  --hh-gold: #F59E0B;      /* gold — ratings & badges */
   --hh-gold-l: #FEF3C7;    /* gold tint */
-  --hh-bg: #0A0E1A;        /* midnight — dominant background */
-  --hh-bg2: #111726;       /* navy surface */
-  --hh-bg3: #1A2336;       /* raised navy */
-  --hh-card: #121A2B;      /* navy card */
-  --hh-card2: #18223A;     /* navy card raised */
-  --hh-txt: #F8FAFC;       /* cool white */
-  --hh-txt2: #94A3B8;      /* slate 400 — secondary text */
-  --hh-txt3: #64748B;      /* slate 500 — muted text */
-  --hh-border: rgba(255, 255, 255, 0.07);
-  --hh-border2: rgba(255, 255, 255, 0.12);
+  --hh-bg: #FAF9F6;        /* humanist bone white / warm sand background */
+  --hh-bg2: #FFFFFF;       /* white card surface */
+  --hh-bg3: #F3EFE9;       /* soft warm grey hover highlight */
+  --hh-card: #FFFFFF;      /* white card */
+  --hh-card2: #FBFBF9;     /* card raised */
+  --hh-txt: #1A1714;       /* dark humanist charcoal */
+  --hh-txt2: #5C564E;      /* warm slate text */
+  --hh-txt3: #8E867C;      /* muted bronze-grey text */
+  --hh-border: #EBE5DC;    /* soft warm border */
+  --hh-border2: #DFD8CD;   /* accented border */
 
   /* AI-Native theme layer — Signal Blue (no purple per Midnight Blue spec) */
   --ai-gradient: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
@@ -379,8 +379,9 @@ a {
 /* Handhub dark page shell — navy base + warm gold/blue glows so the dark feels inviting, not clinical */
 .hh-page {
   background:
-    radial-gradient(900px 500px at 8% -8%, rgba(245, 158, 11, 0.10), transparent 60%),
-    radial-gradient(900px 520px at 100% 0%, rgba(59, 130, 246, 0.10), transparent 58%),
+    radial-gradient(900px 500px at 8% -8%, rgba(245, 158, 11, 0.08), transparent 60%),
+    radial-gradient(900px 520px at 100% 0%, rgba(232, 80, 10, 0.04), transparent 58%),
+    radial-gradient(600px 400px at 50% 60%, rgba(16, 185, 129, 0.03), transparent 60%),
     var(--hh-bg);
   color: var(--hh-txt);
   font-family: var(--font-dm);
@@ -400,7 +401,7 @@ a {
 .hh-btn-primary:not(:disabled):hover { background: var(--hh-or-d); transform: translateY(-1px); }
 
 .hh-btn-ghost { background: transparent; border: 1px solid var(--hh-border2); color: var(--hh-txt2); }
-.hh-btn-ghost:not(:disabled):hover { color: var(--hh-txt); border-color: rgba(255,255,255,0.25); }
+.hh-btn-ghost:not(:disabled):hover { color: var(--hh-txt); border-color: var(--hh-txt3); }
 
 .hh-btn-white { background: #fff; color: var(--hh-or); border: none; }
 .hh-btn-white:not(:disabled):hover { background: #f9f9f9; transform: translateY(-1px); }
@@ -427,9 +428,16 @@ input[type='number'].hh-num::-webkit-outer-spin-button,
 input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: none; }
 
 .hh-spill:hover {
-  background: rgba(59, 130, 246, 0.1) !important;
-  border-color: rgba(59, 130, 246, 0.3) !important;
+  background: var(--hh-or-l) !important;
+  border-color: var(--hh-or-m) !important;
   color: var(--hh-or) !important;
+}
+
+.hh-service-card:hover {
+  background: var(--hh-card2) !important;
+  border-color: var(--hh-or-m) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(26, 23, 20, 0.05);
 }
 
 .hh-feat-item:hover,
@@ -439,8 +447,8 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 }
 
 .hh-feat-item.active .hh-feat-icon {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: rgba(59, 130, 246, 0.3);
+  background: var(--hh-or-l);
+  border-color: var(--hh-or-m);
 }
 
 .hh-feat-item.active .hh-feat-icon svg { color: var(--hh-or); }
@@ -482,20 +490,20 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 
 /* ── Scoped Auth Page CSS ─────────────────────────────────────────────────── */
 .hh-auth {
-  --or: #3B82F6;
-  --or-l: #EFF6FF;
-  --or-m: #93C5FD;
-  --or-d: #2563EB;
-  --gold: #F59E0B;
-  --bg: #0A0E1A;
-  --bg2: #111726;
-  --bg3: #1A2336;
-  --card: #121A2B;
-  --txt: #F8FAFC;
-  --txt2: #94A3B8;
-  --txt3: #64748B;
-  --bdr: rgba(255,255,255,0.08);
-  --bdr2: rgba(255,255,255,0.14);
+  --or: var(--hh-or);
+  --or-l: var(--hh-or-l);
+  --or-m: var(--hh-or-m);
+  --or-d: var(--hh-or-d);
+  --gold: var(--hh-gold);
+  --bg: var(--hh-bg);
+  --bg2: var(--hh-bg2);
+  --bg3: var(--hh-bg3);
+  --card: var(--hh-card);
+  --txt: var(--hh-txt);
+  --txt2: var(--hh-txt2);
+  --txt3: var(--hh-txt3);
+  --bdr: var(--hh-border);
+  --bdr2: var(--hh-border2);
   --r: 14px;
   --rs: 8px;
 
@@ -580,7 +588,7 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 .hh-auth .orb2 {
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(232,80,10,0.08) 0%, transparent 70%);
   bottom: -60px;
   right: -60px;
 }
@@ -648,8 +656,8 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
   width: 34px;
   height: 34px;
   border-radius: var(--rs);
-  background: rgba(59,130,246,0.1);
-  border: 1px solid rgba(59,130,246,0.2);
+  background: var(--or-l);
+  border: 1px solid var(--or-m);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -693,13 +701,13 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #16243E;
+  background: var(--or-l);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 10px;
   font-weight: 500;
-  color: #60A5FA;
+  color: var(--or-d);
 }
 
 .hh-auth .test-name {
@@ -819,7 +827,7 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 }
 
 .hh-auth .inp:focus {
-  border-color: rgba(59,130,246,0.5);
+  border-color: var(--or-m);
 }
 
 .hh-auth .inp.has-icon {
@@ -929,8 +937,9 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 }
 
 .hh-auth .soc-btn:hover {
-  border-color: rgba(255,255,255,0.25);
-  color: var(--txt);
+  border-color: var(--or-m);
+  color: var(--or-d);
+  background: var(--bg3);
 }
 
 .hh-auth .soc-icon {
@@ -967,7 +976,7 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 }
 
 .hh-auth .select:focus {
-  border-color: rgba(59,130,246,.5);
+  border-color: var(--or-m);
 }
 
 .hh-auth .select option {
@@ -1078,12 +1087,12 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 }
 
 .hh-auth .role-card:hover {
-  border-color: rgba(59,130,246,.35);
+  border-color: var(--or-m);
 }
 
 .hh-auth .role-card.selected {
   border-color: var(--or);
-  background: rgba(59,130,246,.06);
+  background: var(--or-l);
 }
 
 .hh-auth .role-card svg {
@@ -1163,37 +1172,36 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 
 /* ── Scoped Dashboard Page CSS ────────────────────────────────────────────── */
 .hh-dashboard {
-  /* Midnight Blue: navy chrome (sidebar) + light cool canvas + white cards */
-  --dashboard-bg: #EEF2F7;           /* cool slate canvas (was warm cream) */
-  --dashboard-card: #FFFFFF;         /* white content cards */
-  --dashboard-text: #0F172A;         /* slate-900 — text on white cards */
-  --dashboard-muted: #64748B;        /* slate-500 — muted text */
-  --dashboard-border: #E2E8F0;       /* slate-200 — card borders */
+  /* Warm Sand Redesign: warm charcoal chrome (sidebar) + warm sand canvas + white cards */
+  --dashboard-bg: var(--hh-bg);           /* warm sand canvas background */
+  --dashboard-card: var(--hh-card);       /* white content cards */
+  --dashboard-text: var(--hh-txt);        /* dark charcoal text */
+  --dashboard-muted: var(--hh-txt2);      /* warm slate muted text */
+  --dashboard-border: var(--hh-border);   /* soft warm border */
 
-  /* Navy shell / chrome */
-  --dashboard-shell: #0A0E1A;        /* midnight sidebar + nav */
-  --dashboard-shell-2: #111726;      /* raised navy */
-  --dashboard-on-shell: #F8FAFC;     /* light text on navy */
-  --dashboard-on-shell-muted: #94A3B8;
+  /* Warm Espresso Sidebar shell / chrome */
+  --dashboard-shell: #1E1B18;        /* warm rich espresso/charcoal sidebar + nav */
+  --dashboard-shell-2: #2B2723;      /* raised warm brown */
+  --dashboard-on-shell: #FAF9F6;     /* warm sand text on dark */
+  --dashboard-on-shell-muted: #8E867C;
 
-  /* Primary accent (Signal Blue). Legacy --dashboard-orange* names kept as
-     aliases so existing sub-page classes re-theme to blue automatically. */
-  --dashboard-blue: #3B82F6;
-  --dashboard-blue-light: #EFF6FF;
-  --dashboard-blue-mid: #93C5FD;
-  --dashboard-blue-dark: #2563EB;
-  --dashboard-orange: #3B82F6;
-  --dashboard-orange-light: #EFF6FF;
-  --dashboard-orange-mid: #93C5FD;
+  /* Primary accent (Handhub Orange) */
+  --dashboard-blue: var(--hh-or);
+  --dashboard-blue-light: var(--hh-or-l);
+  --dashboard-blue-mid: var(--hh-or-m);
+  --dashboard-blue-dark: var(--hh-or-d);
+  --dashboard-orange: var(--hh-or);
+  --dashboard-orange-light: var(--hh-or-l);
+  --dashboard-orange-mid: var(--hh-or-m);
 
-  /* AI accent folds into blue (no purple) */
-  --dashboard-purple: #2563EB;
-  --dashboard-purple-light: #EFF6FF;
-  --dashboard-purple-mid: #93C5FD;
+  /* AI accent folds into orange/gold */
+  --dashboard-purple: var(--hh-or);
+  --dashboard-purple-light: var(--hh-or-l);
+  --dashboard-purple-mid: var(--hh-or-m);
 
   /* Gold — ratings & premium badges ONLY */
-  --dashboard-gold: #F59E0B;
-  --dashboard-gold-light: #FEF3C7;
+  --dashboard-gold: var(--hh-gold);
+  --dashboard-gold-light: var(--hh-gold-l);
 }
 
 

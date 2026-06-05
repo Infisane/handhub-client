@@ -14,8 +14,8 @@ export function Nav({ showLinks = true, rightElement }: NavProps) {
 		<header
 			className="fixed top-0 left-0 right-0 z-50 flex items-center h-16 px-[5%] border-b"
 			style={{
-				background: "rgba(14,12,10,0.85)",
-				backdropFilter: "blur(20px)",
+				background: "rgba(250, 249, 246, 0.82)",
+				backdropFilter: "blur(16px)",
 				borderColor: "var(--hh-border)",
 			}}
 		>
@@ -25,7 +25,7 @@ export function Nav({ showLinks = true, rightElement }: NavProps) {
 				onClick={() => navigate({ to: "/" })}
 				aria-label="HandHub home"
 			>
-				<HHLogo theme="dark" height={28} />
+				<HHLogo theme="light" height={28} />
 			</button>
 
 			{showLinks && (

@@ -397,7 +397,7 @@ function DashboardLayout() {
 
 			{/* Mobile Drawer Panel */}
 			<aside
-				className={`fixed top-0 left-0 z-50 h-full w-[280px] bg-[#0A0E1A] flex flex-col border-r border-white/5 md:hidden transition-transform duration-300 ease-in-out ${
+				className={`fixed top-0 left-0 z-50 h-full w-[280px] bg-[var(--dashboard-shell)] flex flex-col border-r border-white/5 md:hidden transition-transform duration-300 ease-in-out ${
 					isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
 				}`}
 				aria-label="Mobile navigation"
@@ -406,7 +406,7 @@ function DashboardLayout() {
 			</aside>
 
 			{/* ── Desktop Sidebar ─────────────────────────────────────────────── */}
-			<aside className="hidden md:flex flex-col bg-[#0A0E1A] w-[260px] h-full shrink-0 border-r border-white/5">
+			<aside className="hidden md:flex flex-col bg-[var(--dashboard-shell)] w-[260px] h-full shrink-0 border-r border-white/5">
 				<SidebarContent />
 			</aside>
 
@@ -502,7 +502,7 @@ function DashboardLayout() {
 											className={`p-3 rounded-2xl text-[13px] leading-relaxed shadow-sm ${
 												isUser
 													? "bg-[var(--dashboard-orange)] text-white rounded-br-none"
-													: "bg-[#EEF2F7] text-[var(--dashboard-text)] rounded-bl-none"
+													: "bg-[var(--dashboard-bg)] text-[var(--dashboard-text)] rounded-bl-none"
 											}`}
 										>
 											{msg.text}
@@ -556,7 +556,7 @@ function DashboardLayout() {
 								<div className="w-7 h-7 rounded-full bg-[var(--dashboard-orange-light)] flex items-center justify-center text-[10px] font-bold text-[var(--dashboard-orange)]">
 									TJ
 								</div>
-								<div className="bg-[#EEF2F7] px-3.5 py-2.5 rounded-2xl rounded-bl-none flex items-center gap-1">
+								<div className="bg-[var(--dashboard-bg)] px-3.5 py-2.5 rounded-2xl rounded-bl-none flex items-center gap-1">
 									<span className="w-1.5 h-1.5 bg-[var(--dashboard-muted)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
 									<span className="w-1.5 h-1.5 bg-[var(--dashboard-muted)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
 									<span className="w-1.5 h-1.5 bg-[var(--dashboard-muted)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -608,7 +608,7 @@ function DashboardLayout() {
 			)}
 
 			{/* ── Mobile Bottom Tab Bar ──────────────────────────────────────── */}
-			<nav className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-[#0A0E1A] border-t border-white/10 flex items-center px-2 py-1 safe-area-bottom">
+			<nav className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-[var(--dashboard-shell)] border-t border-white/10 flex items-center px-2 py-1 safe-area-bottom">
 				{[
 					{ name: "Home", icon: LayoutDashboard, path: "/dashboard" },
 					{ name: "Find", icon: Search, path: "/artisans" },

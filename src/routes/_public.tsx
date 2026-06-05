@@ -34,7 +34,7 @@ function Layout() {
 				<div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
 					<div className="lg:col-span-1">
 						<div className="mb-3">
-							<HHLogo theme="dark" height={28} />
+							<HHLogo theme="light" height={28} />
 						</div>
 						<p
 							className="text-[13px] leading-[1.7] max-w-[260px]"

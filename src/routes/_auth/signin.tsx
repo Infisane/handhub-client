@@ -8,6 +8,7 @@ import {
 	Mail,
 	ShieldCheck,
 	Sparkles,
+	Users,
 	Zap,
 } from "lucide-react";
 import { useState } from "react";
@@ -118,14 +119,14 @@ function SignInPage() {
 								</div>
 								<div className="proof-card p-4.5 md:p-5 gap-4">
 									<div className="pc-icon w-10 h-10 md:w-11 md:h-11 rounded-[10px]">
-										<Zap size={20} aria-hidden="true" />
+										<Users size={20} aria-hidden="true" />
 									</div>
 									<div className="flex flex-col justify-center">
 										<div className="pc-t text-[14px] md:text-[15.5px] font-semibold mb-1">
-											AI-matched in minutes
+											Vetted neighborhood pros
 										</div>
 										<div className="pc-s text-[12px] md:text-[13px] opacity-80">
-											Our AI finds the best artisan near you instantly
+											Connect with background-checked and trusted local professionals
 										</div>
 									</div>
 								</div>
