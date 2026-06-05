@@ -20,13 +20,13 @@ export function HHLogo({
 	height = 32,
 	className,
 }: HHLogoProps) {
-	// Colour tokens per theme — Signal Blue brand
-	const markBg = theme === "on-blue" ? "#fff" : "#3B82F6";
-	const strokeCol = theme === "on-blue" ? "#3B82F6" : "#fff";
-	const dotCol = theme === "on-blue" ? "#3B82F6" : "#BFDBFE";
+	// Colour tokens per theme — Midnight Blue brand (#1E3A8A)
+	const markBg = theme === "on-blue" ? "#fff" : "#1E3A8A";
+	const strokeCol = theme === "on-blue" ? "#1E3A8A" : "#fff";
+	const dotCol = theme === "on-blue" ? "#1E3A8A" : "#BFDBFE";
 	const wordmarkMain =
-		theme === "dark" ? "#F8FAFC" : theme === "light" ? "#0F172A" : "#fff";
-	const wordmarkAccent = theme === "on-blue" ? "#fff" : "#3B82F6";
+		theme === "dark" ? "#F8FAFC" : theme === "light" ? "#1A1714" : "#fff";
+	const wordmarkAccent = theme === "on-blue" ? "#fff" : "#1E3A8A";
 
 	if (variant === "mark") {
 		// 44×44 standalone icon mark
@@ -79,7 +79,7 @@ export function HHLogo({
 		>
 			<title>HandHub</title>
 			{/* Icon mark */}
-			<rect x="0" y="4" width="36" height="36" rx="9" fill={markBg} />
+			<rect x="0" y="4" width="40" height="36" rx="9" fill={markBg} />
 			<path
 				d="M10 13 L10 31 M10 22 L18 22 M18 13 L18 31"
 				stroke={strokeCol}
@@ -99,7 +99,7 @@ export function HHLogo({
 			<text
 				x="48"
 				y="30"
-				fontFamily="Plus Jakarta Sans, sans-serif"
+				fontFamily="Syne, sans-serif"
 				fontWeight="800"
 				fontSize="26"
 				letterSpacing="-0.8"

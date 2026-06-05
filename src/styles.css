@@ -1,5 +1,5 @@
-/* Plus Jakarta Sans — humanist sans, warm + friendly + highly legible, used app-wide */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap');
+/* Plus Jakarta Sans — humanist UI font, app-wide. Syne — display font for the brand wordmark only. */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Syne:wght@700;800&display=swap');
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 
@@ -10,10 +10,10 @@
 :root {
   /* Handhub brand — Midnight Blue theme.
      Primary accent var name kept as --hh-or* for backward-compat; values are Signal Blue. */
-  --hh-or: #E8500A;        /* Friendly Handhub Orange — primary / CTA */
-  --hh-or-l: #FEF0E8;      /* Orange 50 — tint surfaces */
-  --hh-or-m: #FAC8AB;      /* Orange 300 — mid accent / borders */
-  --hh-or-d: #C2410C;      /* Orange 700 — hover / pressed */
+  --hh-or: #1E3A8A;        /* Friendly Handhub Midnight Blue — primary / CTA */
+  --hh-or-l: #EFF6FF;      /* Midnight Blue 50 — tint surfaces */
+  --hh-or-m: #93C5FD;      /* Midnight Blue 300 — mid accent / borders */
+  --hh-or-d: #172554;      /* Midnight Blue 950 — hover / pressed */
   --hh-gold: #F59E0B;      /* gold — ratings & badges */
   --hh-gold-l: #FEF3C7;    /* gold tint */
   --hh-bg: #FAF9F6;        /* humanist bone white / warm sand background */
@@ -588,7 +588,7 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 .hh-auth .orb2 {
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(232,80,10,0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(30,58,138,0.08) 0%, transparent 70%);
   bottom: -60px;
   right: -60px;
 }
@@ -1179,11 +1179,11 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
   --dashboard-muted: var(--hh-txt2);      /* warm slate muted text */
   --dashboard-border: var(--hh-border);   /* soft warm border */
 
-  /* Warm Espresso Sidebar shell / chrome */
-  --dashboard-shell: #1E1B18;        /* warm rich espresso/charcoal sidebar + nav */
-  --dashboard-shell-2: #2B2723;      /* raised warm brown */
-  --dashboard-on-shell: #FAF9F6;     /* warm sand text on dark */
-  --dashboard-on-shell-muted: #8E867C;
+  /* Midnight Navy Sidebar shell / chrome */
+  --dashboard-shell: #0B0F19;        /* Obsidian Midnight Navy sidebar + nav */
+  --dashboard-shell-2: #121824;      /* raised midnight navy */
+  --dashboard-on-shell: #F8FAFC;     /* crisp slate-50 text on dark */
+  --dashboard-on-shell-muted: #94A3B8; /* slate-400 */
 
   /* Primary accent (Handhub Orange) */
   --dashboard-blue: var(--hh-or);

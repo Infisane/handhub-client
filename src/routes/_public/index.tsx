@@ -9,6 +9,7 @@ import {
 	Droplets,
 	Hammer,
 	Lock,
+	type LucideIcon,
 	MapPin,
 	MessageCircle,
 	Paintbrush,
@@ -23,7 +24,7 @@ import {
 	Wrench,
 	Zap,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HHButton } from "#/components/hh/button";
 import { Eyebrow, O } from "#/components/hh/primitives";
 import { Reveal } from "#/components/hh/reveal";
@@ -32,13 +33,6 @@ import { cn } from "#/lib/utils";
 export const Route = createFileRoute("/_public/")({ component: Home });
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
-
-const HERO_STATS = [
-	{ n: "12", suf: "k+", label: "Verified artisans" },
-	{ n: "98", suf: "%", label: "Satisfaction rate" },
-	{ n: "48", suf: "hr", label: "Avg. response time" },
-	{ n: "6", suf: " cities", label: "Lagos, Abuja & more" },
-];
 
 const SEARCH_PILLS = [
 	{ Icon: Droplets, label: "Plumber near me" },
@@ -62,11 +56,41 @@ const SERVICES = [
 
 // Faces in the hero social-proof strip (initials stand in for real artisan photos)
 const HERO_FACES = [
-	{ init: "TJ", bg: "#FEE9E1", tc: "#C2410C" },
+	{ init: "TJ", bg: "#EFF6FF", tc: "#1E3A8A" },
 	{ init: "FA", bg: "#FDF4E3", tc: "#B7791F" },
 	{ init: "EM", bg: "#E0F2FE", tc: "#0369A1" },
 	{ init: "BK", bg: "#E2FBF0", tc: "#0F766E" },
 	{ init: "NC", bg: "#F5F3FF", tc: "#6D28D9" },
+];
+
+// Hero gallery artisan photos — TEMPORARY Unsplash stock; swap for real Lagos artisans.
+// Each gracefully falls back to a labelled tile if the remote image fails to load.
+const HERO_PHOTOS: { src: string; label: string; Icon: LucideIcon }[] = [
+	{
+		src: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=420&h=560&q=70",
+		label: "Painter",
+		Icon: Paintbrush,
+	},
+	{
+		src: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?auto=format&fit=crop&w=420&h=560&q=70",
+		label: "Plumber",
+		Icon: Droplets,
+	},
+	{
+		src: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&w=520&h=680&q=72",
+		label: "Electrician",
+		Icon: Zap,
+	},
+	{
+		src: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=420&h=560&q=70",
+		label: "Carpenter",
+		Icon: Hammer,
+	},
+	{
+		src: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=420&h=560&q=70",
+		label: "Cleaner",
+		Icon: Sparkles,
+	},
 ];
 
 const HOW_STEPS = [
@@ -122,8 +146,8 @@ const FEATURES = [
 const TESTIMONIALS = [
 	{
 		initials: "AK",
-		bg: "#FEE9E1",
-		tc: "#C2410C",
+		bg: "#EFF6FF",
+		tc: "#1E3A8A",
 		name: "Adeola Kamara",
 		city: "Lekki, Lagos",
 		quote:
@@ -149,6 +173,130 @@ const TESTIMONIALS = [
 	},
 ];
 
+// Hero gallery card — stock image with a graceful labelled fallback (never breaks)
+function HeroPhoto({
+	src,
+	label,
+	Icon,
+	className,
+}: {
+	src: string;
+	label: string;
+	Icon: LucideIcon;
+	className?: string;
+}) {
+	const [failed, setFailed] = useState(false);
+	return (
+		<div
+			className={cn(
+				"relative rounded-[20px] overflow-hidden border shadow-sm shrink-0",
+				className,
+			)}
+			style={{ borderColor: "var(--hh-border)", background: "var(--hh-bg3)" }}
+		>
+			{failed ? (
+				<div
+					className="absolute inset-0 flex items-center justify-center"
+					style={{ background: "linear-gradient(160deg,var(--hh-bg3),#E7E0D5)" }}
+				>
+					<Icon size={26} style={{ color: "var(--hh-or)" }} aria-hidden />
+				</div>
+			) : (
+				<img
+					src={src}
+					alt={`Verified ${label.toLowerCase()} in Lagos`}
+					loading="lazy"
+					onError={() => setFailed(true)}
+					className="absolute inset-0 w-full h-full object-cover"
+				/>
+			)}
+			<div
+				className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold"
+				style={{ background: "rgba(255,255,255,0.95)", color: "var(--hh-txt)" }}
+			>
+				<Icon size={10} style={{ color: "var(--hh-or)" }} aria-hidden /> {label}
+			</div>
+		</div>
+	);
+}
+
+// Auto-rotating stacked carousel of artisan photos for the hero's right column
+function HeroCarousel() {
+	const [active, setActive] = useState(0);
+	const len = HERO_PHOTOS.length;
+
+	useEffect(() => {
+		const id = setInterval(
+			() => setActive((a) => (a + 1) % HERO_PHOTOS.length),
+			3200,
+		);
+		return () => clearInterval(id);
+	}, []);
+
+	const STACK = [
+		{ t: "translate(-50%,-50%) rotate(0deg) scale(1)", z: 30, op: 1 },
+		{
+			t: "translate(-50%,-50%) translateX(52px) translateY(-18px) rotate(6deg) scale(0.9)",
+			z: 20,
+			op: 0.85,
+		},
+		{
+			t: "translate(-50%,-50%) translateX(92px) translateY(-34px) rotate(11deg) scale(0.8)",
+			z: 10,
+			op: 0.55,
+		},
+	];
+	const HIDDEN = {
+		t: "translate(-50%,-50%) translateX(120px) translateY(-46px) rotate(14deg) scale(0.68)",
+		z: 0,
+		op: 0,
+	};
+
+	return (
+		<div
+			className="relative w-full max-w-[460px] mx-auto"
+			style={{ animation: "fadeUp .8s .3s ease both" }}
+		>
+			<div className="relative h-[360px] sm:h-[440px]">
+				{HERO_PHOTOS.map((p, i) => {
+					const o = (i - active + len) % len;
+					const c = STACK[o] ?? HIDDEN;
+					return (
+						<div
+							key={p.label}
+							className="absolute left-1/2 top-1/2 w-[230px] h-[300px] sm:w-[268px] sm:h-[348px]"
+							style={{
+								transform: c.t,
+								zIndex: c.z,
+								opacity: c.op,
+								transition:
+									"transform .65s cubic-bezier(.22,1,.36,1), opacity .65s ease",
+							}}
+						>
+							<HeroPhoto {...p} className="w-full h-full" />
+						</div>
+					);
+				})}
+			</div>
+			<div className="flex items-center justify-center gap-1.5 mt-5">
+				{HERO_PHOTOS.map((p, i) => (
+					<button
+						key={p.label}
+						type="button"
+						onClick={() => setActive(i)}
+						aria-label={`Show ${p.label}`}
+						className="h-1.5 rounded-full transition-all duration-300 cursor-pointer"
+						style={{
+							width: i === active ? 22 : 6,
+							background: i === active ? "var(--hh-or)" : "var(--hh-border2)",
+						}}
+					/>
+				))}
+			</div>
+		</div>
+	);
+}
+
 // ─── Feature visual panels ────────────────────────────────────────────────────
 
 function FeatVisual0() {
@@ -171,8 +319,8 @@ function FeatVisual0() {
 					<span
 						className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold"
 						style={{
-							background: "rgba(232,80,10,0.12)",
-							border: "1px solid rgba(232,80,10,0.22)",
+							background: "rgba(30,58,138,0.12)",
+							border: "1px solid rgba(30,58,138,0.22)",
 							color: "var(--hh-or)",
 						}}
 					>
@@ -211,8 +359,8 @@ function FeatVisual0() {
 					name: "Taiwo Johnson",
 					role: "Licensed Electrician · 1.2km",
 					rating: "4.9",
-					bg: "#FEE9E1",
-					tc: "#C2410C",
+					bg: "#EFF6FF",
+					tc: "#1E3A8A",
 				},
 				{
 					init: "KA",
@@ -276,7 +424,7 @@ function FeatVisual1() {
 				<div className="flex gap-2 items-start">
 					<div
 						className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-extrabold shrink-0"
-						style={{ background: "#FEE9E1", color: "#C2410C" }}
+						style={{ background: "#EFF6FF", color: "#1E3A8A" }}
 					>
 						TJ
 					</div>
@@ -300,7 +448,7 @@ function FeatVisual1() {
 				<div className="flex gap-2 items-start">
 					<div
 						className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-extrabold shrink-0"
-						style={{ background: "#FEE9E1", color: "#C2410C" }}
+						style={{ background: "#EFF6FF", color: "#1E3A8A" }}
 					>
 						TJ
 					</div>
@@ -317,7 +465,7 @@ function FeatVisual1() {
 						<div
 							className="rounded-[10px] border px-3 py-3"
 							style={{
-								background: "rgba(232,80,10,0.04)",
+								background: "rgba(30,58,138,0.04)",
 								borderColor: "var(--hh-or-m)",
 							}}
 						>
@@ -514,239 +662,144 @@ function Home() {
 
 	return (
 		<>
-			{/* ── Hero ───────────────────────────────────────────────────────── */}
-			<section className="relative min-h-dvh flex flex-col items-center justify-center text-center px-[5%] pt-[120px] pb-20 overflow-hidden">
-				<div
-					className="absolute inset-0 pointer-events-none overflow-hidden"
-					aria-hidden
-				>
+			{/* ── Hero (two-column: copy left, artisan carousel right) ──────── */}
+			<section className="relative min-h-dvh flex items-center px-[5%] pt-[120px] pb-16 overflow-hidden">
+				<div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
 					<div
-						className="absolute w-[600px] h-[600px] rounded-full -top-[100px] -left-[100px]"
+						className="absolute w-[600px] h-[600px] rounded-full -top-[120px] -right-[140px]"
 						style={{
-							background:
-								"radial-gradient(circle,rgba(245,158,11,0.08) 0%,transparent 70%)",
+							background: "radial-gradient(circle,rgba(245,158,11,0.10) 0%,transparent 70%)",
 							animation: "hhFloat1 8s ease-in-out infinite",
 						}}
 					/>
 					<div
-						className="absolute w-[500px] h-[500px] rounded-full -bottom-[80px] -right-[80px]"
+						className="absolute w-[480px] h-[480px] rounded-full -bottom-[80px] -left-[100px]"
 						style={{
-							background:
-								"radial-gradient(circle,rgba(232,80,10,0.06) 0%,transparent 70%)",
+							background: "radial-gradient(circle,rgba(30,58,138,0.07) 0%,transparent 70%)",
 							animation: "hhFloat2 10s ease-in-out infinite",
-						}}
-					/>
-					<div
-						className="absolute inset-0"
-						style={{
-							backgroundImage:
-								"linear-gradient(var(--hh-border) 1px,transparent 1px),linear-gradient(90deg,var(--hh-border) 1px,transparent 1px)",
-							backgroundSize: "60px 60px",
-							maskImage:
-								"radial-gradient(ellipse 80% 60% at 50% 50%,black 0%,transparent 100%)",
-							opacity: 0.75,
 						}}
 					/>
 				</div>
 
-				<div className="relative z-10 w-full max-w-[800px]">
-					<div
-						className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-[5px] text-[12px] font-bold mb-7"
-						style={{
-							background: "var(--hh-or-l)",
-							borderColor: "var(--hh-or-m)",
-							color: "var(--hh-or)",
-							animation: "fadeUp .6s ease both",
-						}}
-					>
-						<ShieldCheck size={13} aria-hidden /> Verified Lagos artisans, trusted by neighbors
-					</div>
-
-					<h1
-						className="font-extrabold leading-[1.08] tracking-[-1.8px] mb-5 text-[var(--hh-txt)] font-syne"
-						style={{
-							fontSize: "clamp(36px,4.6vw,68px)",
-							animation: "fadeUp .7s .1s ease both",
-						}}
-					>
-						Lagos homes run on
-						<br />
-						<span
-							className="relative inline-block"
-							style={{ color: "var(--hh-or)" }}
-						>
-							trusted hands
-							<span
-								className="absolute left-0 right-0 h-[3px] rounded-sm opacity-60"
-								style={{ bottom: "-4px", background: "var(--hh-or)" }}
-								aria-hidden
-							/>
-						</span>
-					</h1>
-
-					<p
-						className="text-[16px] sm:text-[17px] max-w-[560px] mx-auto mb-9 font-medium leading-[1.7]"
-						style={{
-							color: "var(--hh-txt2)",
-							animation: "fadeUp .7s .2s ease both",
-						}}
-					>
-						From a stubborn generator that won’t start, to a leaking pipe, or a quick clean before guests arrive. Handhub connects you with vetted, friendly artisans recommended by families in your neighborhood.
-					</p>
-
-					<div
-						className="flex items-center justify-center gap-3.5 mb-8 flex-wrap"
-						style={{ animation: "fadeUp .7s .3s ease both" }}
-					>
-						<HHButton size="lg" onClick={handleCTAFindArtisan}>
-							<Search size={17} aria-hidden /> Find help now
-						</HHButton>
-						<HHButton variant="ghost" size="lg">
-							<Play size={17} aria-hidden /> See how it works
-						</HHButton>
-					</div>
-
-					{/* Human social proof — faces + rating build trust before the stats */}
-					<div
-						className="flex items-center justify-center gap-3.5 mb-14 flex-wrap"
-						style={{ animation: "fadeUp .7s .35s ease both" }}
-					>
-						<div className="flex -space-x-2.5">
-							{HERO_FACES.map((f) => (
-								<div
-									key={f.init}
-									className="w-9.5 h-9.5 rounded-full flex items-center justify-center text-[11px] font-bold ring-2 ring-[var(--hh-bg)]"
-									style={{ background: f.bg, color: f.tc }}
-								>
-									{f.init}
-								</div>
-							))}
-						</div>
-						<div className="text-left">
-							<div className="flex items-center gap-1">
-								{Array.from({ length: 5 }).map((_, i) => (
-									<Star
-										key={i}
-										size={13}
-										fill="var(--hh-gold)"
-										style={{ color: "var(--hh-gold)" }}
-										aria-hidden
-									/>
-								))}
-								<span
-									className="text-[13.5px] font-extrabold ml-1"
-									style={{ color: "var(--hh-txt)" }}
-								>
-									4.9
-								</span>
-							</div>
-							<p className="text-[12px] font-semibold" style={{ color: "var(--hh-txt3)" }}>
-								Vetted pros serving 50,000+ homes across Lagos
-							</p>
-						</div>
-					</div>
-
-					<div
-						className="flex items-center justify-center mb-16 flex-wrap gap-y-6"
-						style={{ animation: "fadeUp .7s .4s ease both" }}
-					>
-						{HERO_STATS.map((s, i) => (
-							<div key={s.label} className="flex items-center">
-								{i > 0 && (
-									<div
-										className="hidden sm:block w-px h-8 mx-8 md:mx-12"
-										style={{ background: "var(--hh-border)" }}
-										aria-hidden
-									/>
-								)}
-								<div className="text-center px-4 sm:px-0">
-									<div
-										className="text-[28px] sm:text-[32px] font-extrabold"
-										style={{
-											fontFamily: "var(--font-syne)",
-											color: "var(--hh-txt)",
-										}}
-									>
-										{s.n}
-										<O>{s.suf}</O>
-									</div>
-									<div
-										className="text-[10px] uppercase font-bold tracking-[0.8px] mt-0.5"
-										style={{ color: "var(--hh-txt3)" }}
-									>
-										{s.label}
-									</div>
-								</div>
-							</div>
-						))}
-					</div>
-
-					<div
-						className="max-w-[680px] mx-auto shadow-sm"
-						style={{ animation: "fadeUp .7s .5s ease both" }}
-					>
+				<div className="relative z-10 w-full max-w-[1200px] mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+					{/* Left — copy */}
+					<div className="text-center lg:text-left flex flex-col items-center lg:items-start">
 						<div
-							className="relative rounded-[18px] border px-5 py-4"
-							style={{
-								background: "var(--hh-card)",
-								borderColor: "var(--hh-border)",
-							}}
+							className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-[5px] text-[12px] font-bold mb-6"
+							style={{ background: "var(--hh-or-l)", borderColor: "var(--hh-or-m)", color: "var(--hh-or)", animation: "fadeUp .6s ease both" }}
 						>
-							<div
-								className="absolute inset-[-1px] rounded-[18px] -z-10"
-								style={{
-									background:
-										"linear-gradient(135deg,rgba(232,80,10,0.06),rgba(245,158,11,0.04),transparent 60%)",
-								}}
-								aria-hidden
-							/>
-							<div className="flex items-center gap-2.5">
-								<Sparkles
-									size={18}
-									style={{ color: "var(--hh-or)" }}
+							<ShieldCheck size={13} aria-hidden /> Verified Lagos artisans, trusted by neighbors
+						</div>
+
+						<h1
+							className="font-extrabold leading-[1.08] tracking-[-1.8px] mb-5 text-[var(--hh-txt)] font-syne"
+							style={{ fontSize: "clamp(34px,3.9vw,56px)", animation: "fadeUp .7s .1s ease both" }}
+						>
+							Lagos homes run on{" "}
+							<span className="relative inline-block" style={{ color: "var(--hh-or)" }}>
+								trusted hands
+								<span
+									className="absolute left-0 right-0 h-[3px] rounded-sm opacity-60"
+									style={{ bottom: "-4px", background: "var(--hh-or)" }}
 									aria-hidden
 								/>
-								<input
-									value={heroQuery}
-									onChange={(e) => setHeroQuery(e.target.value)}
-									placeholder='Try "Emergency plumber in Surulere right now…"'
-									className="hh-search-input flex-1 bg-transparent border-none outline-none text-[14px]"
-									style={{
-										color: "var(--hh-txt)",
-										caretColor: "var(--hh-or)",
-										fontFamily: "var(--font-dm)",
-									}}
-									aria-label="Search for artisans"
-								/>
-								<div
-									className="flex items-center gap-1 rounded-full border px-2.5 py-[5px] text-[11px] font-bold"
-									style={{
-										background: "var(--hh-or-l)",
-										borderColor: "var(--hh-or-m)",
-										color: "var(--hh-or)",
-									}}
-								>
-									<Zap size={11} aria-hidden /> Instant match
-								</div>
-							</div>
-							<div className="flex gap-2 mt-3 flex-wrap">
-								{SEARCH_PILLS.map(({ Icon, label }) => (
-									<button
-										key={label}
-										type="button"
-										onClick={() => setHeroQuery(label)}
-										className="hh-spill inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11.5px] cursor-pointer transition-all duration-150 font-bold"
-										style={{
-											background: "var(--hh-bg3)",
-											borderColor: "var(--hh-border)",
-											color: "var(--hh-txt2)",
-										}}
+							</span>
+						</h1>
+
+						<p
+							className="text-[16px] sm:text-[17px] max-w-[520px] mx-auto lg:mx-0 mb-8 font-medium leading-[1.7]"
+							style={{ color: "var(--hh-txt2)", animation: "fadeUp .7s .2s ease both" }}
+						>
+							From a stubborn generator that won’t start, to a leaking pipe, or a quick clean before guests arrive. Handhub connects you with vetted, friendly artisans recommended by families in your neighborhood.
+						</p>
+
+						<div
+							className="flex items-center justify-center lg:justify-start gap-3.5 mb-7 flex-wrap"
+							style={{ animation: "fadeUp .7s .3s ease both" }}
+						>
+							<HHButton size="lg" onClick={handleCTAFindArtisan}>
+								<Search size={17} aria-hidden /> Find help now
+							</HHButton>
+							<HHButton variant="ghost" size="lg">
+								<Play size={17} aria-hidden /> See how it works
+							</HHButton>
+						</div>
+
+						<div
+							className="flex items-center justify-center lg:justify-start gap-3.5 mb-8 flex-wrap"
+							style={{ animation: "fadeUp .7s .35s ease both" }}
+						>
+							<div className="flex -space-x-2.5">
+								{HERO_FACES.map((f) => (
+									<div
+										key={f.init}
+										className="w-9.5 h-9.5 rounded-full flex items-center justify-center text-[11px] font-bold ring-2 ring-[var(--hh-bg)]"
+										style={{ background: f.bg, color: f.tc }}
 									>
-										<Icon size={13} aria-hidden /> {label}
-									</button>
+										{f.init}
+									</div>
 								))}
 							</div>
+							<div className="text-left">
+								<div className="flex items-center gap-1">
+									{["s1", "s2", "s3", "s4", "s5"].map((k) => (
+										<Star key={k} size={13} fill="var(--hh-gold)" style={{ color: "var(--hh-gold)" }} aria-hidden />
+									))}
+									<span className="text-[13.5px] font-extrabold ml-1" style={{ color: "var(--hh-txt)" }}>
+										4.9
+									</span>
+								</div>
+								<p className="text-[12px] font-semibold" style={{ color: "var(--hh-txt3)" }}>
+									Vetted pros serving 50,000+ homes across Lagos
+								</p>
+							</div>
 						</div>
+
+						<div
+							className="w-full max-w-[520px] mx-auto lg:mx-0"
+							style={{ animation: "fadeUp .7s .5s ease both" }}
+						>
+							<div
+								className="relative rounded-[16px] border px-4 py-3.5"
+								style={{ background: "var(--hh-card)", borderColor: "var(--hh-border)", boxShadow: "0 8px 24px rgba(26,23,20,0.06)" }}
+							>
+								<div className="flex items-center gap-2.5">
+									<Sparkles size={18} style={{ color: "var(--hh-or)" }} aria-hidden />
+									<input
+										value={heroQuery}
+										onChange={(e) => setHeroQuery(e.target.value)}
+										placeholder='Try "Emergency plumber in Surulere…"'
+										className="hh-search-input flex-1 bg-transparent border-none outline-none text-[14px]"
+										style={{ color: "var(--hh-txt)", caretColor: "var(--hh-or)", fontFamily: "var(--font-dm)" }}
+										aria-label="Search for artisans"
+									/>
+									<div
+										className="hidden sm:flex items-center gap-1 rounded-full border px-2.5 py-[5px] text-[11px] font-bold shrink-0"
+										style={{ background: "var(--hh-or-l)", borderColor: "var(--hh-or-m)", color: "var(--hh-or)" }}
+									>
+										<Zap size={11} aria-hidden /> Instant match
+									</div>
+								</div>
+								<div className="flex gap-2 mt-3 flex-wrap">
+									{SEARCH_PILLS.slice(0, 4).map(({ Icon, label }) => (
+										<button
+											key={label}
+											type="button"
+											onClick={() => setHeroQuery(label)}
+											className="hh-spill inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11.5px] cursor-pointer transition-all duration-150 font-bold"
+											style={{ background: "var(--hh-bg3)", borderColor: "var(--hh-border)", color: "var(--hh-txt2)" }}
+										>
+											<Icon size={13} aria-hidden /> {label}
+										</button>
+									))}
+								</div>
+							</div>
+						</div>
+					</div>
+
+					{/* Right — artisan carousel */}
+					<div className="w-full">
+						<HeroCarousel />
 					</div>
 				</div>
 			</section>
@@ -879,7 +932,7 @@ function Home() {
 								className="absolute top-4 right-5 text-[64px] font-extrabold leading-none pointer-events-none select-none"
 								style={{
 									fontFamily: "var(--font-syne)",
-									color: "rgba(232,80,10,0.05)",
+									color: "rgba(30,58,138,0.05)",
 								}}
 								aria-hidden
 							>
@@ -999,7 +1052,7 @@ function Home() {
 							className="absolute -top-10 -right-10 w-[200px] h-[200px] rounded-full pointer-events-none"
 							style={{
 								background:
-									"radial-gradient(circle,rgba(232,80,10,0.06) 0%,transparent 70%)",
+									"radial-gradient(circle,rgba(30,58,138,0.06) 0%,transparent 70%)",
 							}}
 							aria-hidden
 						/>

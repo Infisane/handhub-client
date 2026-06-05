@@ -197,12 +197,12 @@ function DashboardLayout() {
 		<>
 			{/* Sidebar Logo */}
 			<div
-				className="p-6 border-b border-white/5 hover:cursor-pointer transition-opacity duration-150 hover:opacity-90 flex items-center justify-between"
+				className="p-6 border-b border-white/10 hover:cursor-pointer transition-opacity duration-150 hover:opacity-90 flex items-center justify-between"
 				onClick={() => { navigate({ to: "/" }); onNavClick?.(); }}
 			>
 				<div>
 					<HHLogo theme="dark" height={28} />
-					<p className="text-[9.5px] text-white/30 tracking-[0.8px] uppercase mt-1.5 font-bold">
+					<p className="text-[9.5px] text-white/50 tracking-[0.8px] uppercase mt-1.5 font-bold">
 						Marketplace OS
 					</p>
 				</div>
@@ -223,7 +223,7 @@ function DashboardLayout() {
 			<nav className="flex-1 overflow-y-auto px-3 py-6 flex flex-col gap-6 scrollbar-none">
 				{navItems.map((sec) => (
 					<div key={sec.section}>
-						<div className="text-[9.5px] text-white/20 tracking-[1.5px] uppercase font-bold px-3.5 mb-2.5 select-none">
+						<div className="text-[9.5px] text-white/45 tracking-[1.5px] uppercase font-bold px-3.5 mb-2.5 select-none">
 							{sec.section}
 						</div>
 						<div className="flex flex-col gap-1">
@@ -239,24 +239,24 @@ function DashboardLayout() {
 										}}
 										className={`relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] cursor-pointer transition-all duration-150 border ${
 											isActive
-												? "bg-white/[0.04] !text-[var(--dashboard-orange)] font-semibold border-white/5"
-												: "!text-white/30 border-transparent hover:bg-white/[0.03] hover:!text-white/80"
+												? "bg-white/[0.06] !text-white font-semibold border-white/10"
+												: "!text-white/60 border-transparent hover:bg-white/[0.03] hover:!text-white/90"
 										}`}
 									>
 										{/* Vertical indicator bar for active item */}
 										{isActive && (
-											<div className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-r bg-[var(--dashboard-orange)]" />
+											<div className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-r bg-[var(--hh-or-m)]" />
 										)}
 										
 										{/* Explicit size and no-shrink to prevent collapsing */}
 										<Icon className={`w-4 h-4 shrink-0 transition-colors duration-150 ${
-											isActive ? "text-[var(--dashboard-orange)]" : "text-white/30"
+											isActive ? "text-[var(--hh-or-m)]" : "text-white/40"
 										}`} />
 										
 										<span className="truncate">{item.name}</span>
 										{item.badge && (
 											<span className={`ml-auto text-[9.5px] px-2 py-0.5 rounded-full font-bold leading-none ${
-												isActive ? "bg-[var(--dashboard-orange)]/10 text-[var(--dashboard-orange)]" : "bg-white/5 text-white/30"
+												isActive ? "bg-[var(--hh-or-m)]/15 text-[var(--hh-or-m)]" : "bg-white/10 text-white/50"
 											}`}>
 												{item.badge}
 											</span>
@@ -270,25 +270,25 @@ function DashboardLayout() {
 			</nav>
 
 			{/* Sidebar Footer User Info */}
-			<div className="p-4 border-t border-white/5 bg-white/[0.01]">
+			<div className="p-4 border-t border-white/10 bg-white/[0.01]">
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<button
 							type="button"
-							className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all duration-200 cursor-pointer shadow-inner group"
+							className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/10 hover:bg-white/[0.05] hover:border-white/20 transition-all duration-200 cursor-pointer shadow-inner group"
 						>
-							<div className="w-8 h-8 rounded-full bg-[var(--dashboard-orange)] flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-sm border border-white/10 ring-2 ring-[var(--dashboard-orange-light)]/10">
+							<div className="w-8 h-8 rounded-full bg-[var(--hh-or-m)] flex items-center justify-center text-xs font-bold text-[#172554] shrink-0 shadow-sm border border-white/15 ring-2 ring-[var(--hh-or-m)]/10">
 								AK
 							</div>
 							<div className="flex flex-col min-w-0 flex-1 text-left">
-								<p className="text-[13px] font-semibold text-white/90 leading-none mb-1 truncate">
+								<p className="text-[13px] font-semibold text-white/95 leading-none mb-1 truncate">
 									Adeola Kamara
 								</p>
-								<span className="text-[10px] text-white/30 font-medium truncate">
+								<span className="text-[10px] text-white/50 font-medium truncate">
 									Lekki, Lagos
 								</span>
 							</div>
-							<ChevronUp size={13} className="text-white/20 group-hover:text-white/40 transition-colors shrink-0" />
+							<ChevronUp size={13} className="text-white/30 group-hover:text-white/55 transition-colors shrink-0" />
 						</button>
 					</DropdownMenuTrigger>
 
