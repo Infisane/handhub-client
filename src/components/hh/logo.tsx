@@ -1,6 +1,6 @@
 interface HHLogoProps {
 	/** Visual theme — matches the background the logo sits on */
-	theme?: "dark" | "light" | "on-orange";
+	theme?: "dark" | "light" | "on-blue";
 	/** Show icon + wordmark ("wordmark") or icon alone ("mark") */
 	variant?: "wordmark" | "mark";
 	/** Rendered height in px; width scales proportionally */
@@ -9,7 +9,7 @@ interface HHLogoProps {
 }
 
 /**
- * HandHub brand logo built from the official SVG logo suite.
+ * HandHub brand logo (Midnight Blue theme).
  *
  * Icon anatomy: left element = stylised capital H (hand/worker);
  * right element = lowercase h downstroke curve (artisan), dot above = person.
@@ -20,17 +20,13 @@ export function HHLogo({
 	height = 32,
 	className,
 }: HHLogoProps) {
-	// Colour tokens per theme
-	const markBg =
-		theme === "on-orange" ? "#fff" : "#E8500A";
-	const strokeCol =
-		theme === "on-orange" ? "#E8500A" : "#fff";
-	const dotCol =
-		theme === "on-orange" ? "#E8500A" : "#FAC8AB";
+	// Colour tokens per theme — Signal Blue brand
+	const markBg = theme === "on-blue" ? "#fff" : "#3B82F6";
+	const strokeCol = theme === "on-blue" ? "#3B82F6" : "#fff";
+	const dotCol = theme === "on-blue" ? "#3B82F6" : "#BFDBFE";
 	const wordmarkMain =
-		theme === "dark" ? "#F5F0EA" : theme === "light" ? "#1A1714" : "#fff";
-	const wordmarkAccent =
-		theme === "on-orange" ? "#fff" : "#E8500A";
+		theme === "dark" ? "#F8FAFC" : theme === "light" ? "#0F172A" : "#fff";
+	const wordmarkAccent = theme === "on-blue" ? "#fff" : "#3B82F6";
 
 	if (variant === "mark") {
 		// 44×44 standalone icon mark
@@ -103,7 +99,7 @@ export function HHLogo({
 			<text
 				x="48"
 				y="30"
-				fontFamily="Syne, sans-serif"
+				fontFamily="Plus Jakarta Sans, sans-serif"
 				fontWeight="800"
 				fontSize="26"
 				letterSpacing="-0.8"

@@ -85,8 +85,8 @@ function Layout() {
 								}}
 								onMouseEnter={(e) => {
 									const el = e.currentTarget;
-									el.style.background = "rgba(232,80,10,0.1)";
-									el.style.borderColor = "rgba(232,80,10,0.3)";
+									el.style.background = "rgba(59,130,246,0.1)";
+									el.style.borderColor = "rgba(59,130,246,0.3)";
 									el.style.color = "var(--hh-or)";
 								}}
 								onMouseLeave={(e) => {

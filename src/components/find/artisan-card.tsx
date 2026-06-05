@@ -21,7 +21,7 @@ export function ArtisanCard({ artisan: a, onView }: ArtisanCardProps) {
 			aria-label={`View profile of ${a.name}`}
 			onMouseEnter={(e) => {
 				(e.currentTarget as HTMLElement).style.borderColor =
-					"rgba(232,80,10,0.35)";
+					"rgba(59,130,246,0.35)";
 			}}
 			onMouseLeave={(e) => {
 				(e.currentTarget as HTMLElement).style.borderColor = "var(--hh-border)";
@@ -147,8 +147,8 @@ export function ArtisanCard({ artisan: a, onView }: ArtisanCardProps) {
 						}}
 						className="rounded-[8px] border px-3 py-[5px] text-[12px] cursor-pointer transition-all duration-150 hover:text-white"
 						style={{
-							background: "rgba(232,80,10,0.08)",
-							borderColor: "rgba(232,80,10,0.2)",
+							background: "rgba(59,130,246,0.08)",
+							borderColor: "rgba(59,130,246,0.2)",
 							color: "var(--hh-or)",
 						}}
 						onMouseEnter={(e) => {
@@ -159,9 +159,9 @@ export function ArtisanCard({ artisan: a, onView }: ArtisanCardProps) {
 						}}
 						onMouseLeave={(e) => {
 							const el = e.currentTarget;
-							el.style.background = "rgba(232,80,10,0.08)";
+							el.style.background = "rgba(59,130,246,0.08)";
 							el.style.color = "var(--hh-or)";
-							el.style.borderColor = "rgba(232,80,10,0.2)";
+							el.style.borderColor = "rgba(59,130,246,0.2)";
 						}}
 					>
 						View

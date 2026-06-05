@@ -397,7 +397,7 @@ function DashboardLayout() {
 
 			{/* Mobile Drawer Panel */}
 			<aside
-				className={`fixed top-0 left-0 z-50 h-full w-[280px] bg-[#13110F] flex flex-col border-r border-white/5 md:hidden transition-transform duration-300 ease-in-out ${
+				className={`fixed top-0 left-0 z-50 h-full w-[280px] bg-[#0A0E1A] flex flex-col border-r border-white/5 md:hidden transition-transform duration-300 ease-in-out ${
 					isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
 				}`}
 				aria-label="Mobile navigation"
@@ -406,7 +406,7 @@ function DashboardLayout() {
 			</aside>
 
 			{/* ── Desktop Sidebar ─────────────────────────────────────────────── */}
-			<aside className="hidden md:flex flex-col bg-[#13110F] w-[260px] h-full shrink-0 border-r border-white/5">
+			<aside className="hidden md:flex flex-col bg-[#0A0E1A] w-[260px] h-full shrink-0 border-r border-white/5">
 				<SidebarContent />
 			</aside>
 
@@ -464,10 +464,10 @@ function DashboardLayout() {
 					<div className="mx-4 mt-3 bg-[var(--dashboard-orange-light)] border border-[var(--dashboard-orange-mid)] rounded-lg p-3 flex items-center gap-2.5 shrink-0">
 						<FileText size={15} className="text-[var(--dashboard-orange)] shrink-0" />
 						<div className="min-w-0">
-							<p className="text-[12px] font-bold text-[#9A3412] truncate">
+							<p className="text-[12px] font-bold text-[#1E3A8A] truncate">
 								Inverter Inspection · Ticket #1042
 							</p>
-							<span className="text-[10.5px] text-[#C2410C] font-medium block">
+							<span className="text-[10.5px] text-[#1D4ED8] font-medium block">
 								In progress · Started 09:14 today
 							</span>
 						</div>
@@ -502,7 +502,7 @@ function DashboardLayout() {
 											className={`p-3 rounded-2xl text-[13px] leading-relaxed shadow-sm ${
 												isUser
 													? "bg-[var(--dashboard-orange)] text-white rounded-br-none"
-													: "bg-[#F1EEE9] text-[var(--dashboard-text)] rounded-bl-none"
+													: "bg-[#EEF2F7] text-[var(--dashboard-text)] rounded-bl-none"
 											}`}
 										>
 											{msg.text}
@@ -525,7 +525,7 @@ function DashboardLayout() {
 													className={`w-full py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-colors duration-150 ${
 														msg.quote.paid
 															? "bg-green-600 text-white cursor-default"
-															: "bg-[var(--dashboard-orange)] hover:bg-[var(--dashboard-orange-mid)] text-white"
+															: "bg-[var(--dashboard-orange)] hover:bg-[var(--dashboard-blue-dark)] text-white"
 													}`}
 													onClick={() => !msg.quote?.paid && handlePayQuote(msg.id)}
 													disabled={msg.quote.paid}
@@ -556,7 +556,7 @@ function DashboardLayout() {
 								<div className="w-7 h-7 rounded-full bg-[var(--dashboard-orange-light)] flex items-center justify-center text-[10px] font-bold text-[var(--dashboard-orange)]">
 									TJ
 								</div>
-								<div className="bg-[#F1EEE9] px-3.5 py-2.5 rounded-2xl rounded-bl-none flex items-center gap-1">
+								<div className="bg-[#EEF2F7] px-3.5 py-2.5 rounded-2xl rounded-bl-none flex items-center gap-1">
 									<span className="w-1.5 h-1.5 bg-[var(--dashboard-muted)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
 									<span className="w-1.5 h-1.5 bg-[var(--dashboard-muted)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
 									<span className="w-1.5 h-1.5 bg-[var(--dashboard-muted)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -598,7 +598,7 @@ function DashboardLayout() {
 						/>
 						<button
 							type="submit"
-							className="w-9 h-9 rounded-full bg-[var(--dashboard-orange)] hover:bg-[var(--dashboard-orange-mid)] text-white flex items-center justify-center cursor-pointer transition-colors duration-150 shrink-0"
+							className="w-9 h-9 rounded-full bg-[var(--dashboard-orange)] hover:bg-[var(--dashboard-blue-dark)] text-white flex items-center justify-center cursor-pointer transition-colors duration-150 shrink-0"
 							aria-label="Send message"
 						>
 							<Send size={15} />
@@ -608,7 +608,7 @@ function DashboardLayout() {
 			)}
 
 			{/* ── Mobile Bottom Tab Bar ──────────────────────────────────────── */}
-			<nav className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-[#13110F] border-t border-white/10 flex items-center px-2 py-1 safe-area-bottom">
+			<nav className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-[#0A0E1A] border-t border-white/10 flex items-center px-2 py-1 safe-area-bottom">
 				{[
 					{ name: "Home", icon: LayoutDashboard, path: "/dashboard" },
 					{ name: "Find", icon: Search, path: "/artisans" },

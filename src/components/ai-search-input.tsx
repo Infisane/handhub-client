@@ -83,7 +83,7 @@ export function AISearchInput({ onSearch, className }: AISearchInputProps) {
 	const bgStyle =
 		isFocused || isComputing ? "var(--ai-gradient)" : "var(--surface-strong)";
 	const boxShadow = isFocused
-		? "0 0 0 3px rgba(216,180,254,0.25), 0 4px 16px rgba(107,33,168,0.1), 0 1px 0 var(--inset-glint) inset"
+		? "0 0 0 3px rgba(147,197,253,0.25), 0 4px 16px rgba(37,99,235,0.1), 0 1px 0 var(--inset-glint) inset"
 		: "0 1px 0 var(--inset-glint) inset, 0 4px 12px rgba(23,58,64,0.06)";
 
 	return (
@@ -186,7 +186,7 @@ export function AISearchInput({ onSearch, className }: AISearchInputProps) {
 						className="mx-6 mt-0.5 h-[2px] rounded-full"
 						style={{
 							background:
-								"linear-gradient(90deg, var(--lagoon), var(--ai-border), #c084fc, var(--lagoon))",
+								"linear-gradient(90deg, var(--lagoon), var(--ai-border), #93C5FD, var(--lagoon))",
 							backgroundSize: "200% 100%",
 							animation: isComputing
 								? "gradient-slide 2s linear infinite"

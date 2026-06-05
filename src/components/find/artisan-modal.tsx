@@ -115,8 +115,8 @@ export function ArtisanModal({ artisan, onClose }: ArtisanModalProps) {
 							<span
 								className="inline-flex items-center gap-1 rounded-full border px-2.5 py-[3px] text-[11px]"
 								style={{
-									background: "rgba(232,80,10,0.1)",
-									borderColor: "rgba(232,80,10,0.2)",
+									background: "rgba(59,130,246,0.1)",
+									borderColor: "rgba(59,130,246,0.2)",
 									color: "var(--hh-or)",
 								}}
 							>
@@ -243,13 +243,13 @@ export function ArtisanModal({ artisan, onClose }: ArtisanModalProps) {
 					<div
 						className="flex items-center gap-3.5 rounded-[12px] border p-4"
 						style={{
-							background: "rgba(232,80,10,0.06)",
-							borderColor: "rgba(232,80,10,0.15)",
+							background: "rgba(59,130,246,0.06)",
+							borderColor: "rgba(59,130,246,0.15)",
 						}}
 					>
 						<div
 							className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px]"
-							style={{ background: "rgba(232,80,10,0.1)" }}
+							style={{ background: "rgba(59,130,246,0.1)" }}
 						>
 							<Lock size={18} style={{ color: "var(--hh-or)" }} aria-hidden />
 						</div>

@@ -368,7 +368,7 @@ function ReviewsPage() {
 							{pendingReviews.map((pending) => (
 								<div
 									key={pending.id}
-									className="bg-orange-50/50 dark:bg-orange-500/5 border border-orange-200/50 dark:border-orange-900/10 rounded-2xl p-4.5 flex gap-3.5 items-center justify-between shadow-xs"
+									className="bg-blue-50/50 dark:bg-blue-500/5 border border-blue-200/50 dark:border-blue-900/10 rounded-2xl p-4.5 flex gap-3.5 items-center justify-between shadow-xs"
 								>
 									<div className="flex items-center gap-3 min-w-0">
 										<div className={cn("w-10 h-10 rounded-xl flex items-center justify-center font-black text-[12.5px] shrink-0 shadow-xs", pending.avatarBgClass)}>
@@ -395,7 +395,7 @@ function ReviewsPage() {
 									<button
 										type="button"
 										onClick={() => handleOpenReviewer(pending)}
-										className="py-1.5 px-3.5 bg-[var(--dashboard-orange)] hover:bg-orange-600 text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-1 cursor-pointer shadow-md shadow-orange-500/10 active:scale-95 transition-all shrink-0"
+										className="py-1.5 px-3.5 bg-[var(--dashboard-orange)] hover:bg-blue-600 text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-1 cursor-pointer shadow-md shadow-blue-500/10 active:scale-95 transition-all shrink-0"
 									>
 										Rate Job <ChevronRight size={13} className="stroke-[3]" />
 									</button>
@@ -717,7 +717,7 @@ function ReviewsPage() {
 							<button
 								type="submit"
 								disabled={!formComment.trim()}
-								className="flex-1 py-2.5 bg-[var(--dashboard-orange)] hover:bg-orange-600 text-white disabled:bg-neutral-200 disabled:text-neutral-400 dark:disabled:bg-neutral-800 dark:disabled:text-neutral-600 rounded-xl text-xs font-extrabold cursor-pointer transition-colors"
+								className="flex-1 py-2.5 bg-[var(--dashboard-orange)] hover:bg-blue-600 text-white disabled:bg-neutral-200 disabled:text-neutral-400 dark:disabled:bg-neutral-800 dark:disabled:text-neutral-600 rounded-xl text-xs font-extrabold cursor-pointer transition-colors"
 							>
 								{editingReview ? "Save Changes" : "Publish Evaluation"}
 							</button>

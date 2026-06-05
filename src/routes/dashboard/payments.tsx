@@ -67,7 +67,7 @@ const INITIAL_SAVED_CARDS: SavedCard[] = [
 		expiry: "09/29",
 		holder: "Adeola Kamara",
 		isDefault: true,
-		bgGradient: "from-[#1e1b4b] via-[#312e81] to-[#1e1b4b]",
+		bgGradient: "from-[#172554] via-[#1E3A8A] to-[#172554]",
 	},
 	{
 		id: "card-2",
@@ -87,7 +87,7 @@ const INITIAL_TRANSACTIONS: Transaction[] = [
 		title: "Escrow Hold: Solar Inverter Diagnosis",
 		artisanName: "Taiwo Johnson",
 		avatarInitials: "TJ",
-		avatarBgClass: "bg-[#FEE9E1] text-[#C2410C]",
+		avatarBgClass: "bg-[#DBEAFE] text-[#1D4ED8]",
 		type: "escrow_lock",
 		status: "held",
 		date: "Today, May 31",
@@ -143,15 +143,15 @@ const INITIAL_TRANSACTIONS: Transaction[] = [
 const txConfig: Record<TxType, { label: string; icon: any; color: string; bg: string }> = {
 	deposit: { label: "Deposit", icon: ArrowDownLeft, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-500/10" },
 	payment: { label: "Direct Payment", icon: ArrowUpRight, color: "text-neutral-700 dark:text-neutral-300", bg: "bg-neutral-100 dark:bg-neutral-800" },
-	escrow_lock: { label: "Escrow Held", icon: Lock, color: "text-orange-600 dark:text-orange-400", bg: "bg-orange-50 dark:bg-orange-500/10" },
+	escrow_lock: { label: "Escrow Held", icon: Lock, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-500/10" },
 	escrow_release: { label: "Escrow Released", icon: Unlock, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-500/10" },
-	refund: { label: "Refund", icon: ArrowDownLeft, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-500/10" },
+	refund: { label: "Refund", icon: ArrowDownLeft, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-500/10" },
 };
 
 const statusConfig: Record<TxStatus, { label: string; text: string; bg: string; dot: string }> = {
 	successful: { label: "Successful", text: "text-green-700 dark:text-green-400", bg: "bg-green-50 dark:bg-green-500/10", dot: "bg-green-500" },
-	held: { label: "Escrow Held", text: "text-orange-700 dark:text-orange-400", bg: "bg-orange-50 dark:bg-orange-500/10", dot: "bg-orange-500 animate-pulse" },
-	refunded: { label: "Refunded", text: "text-purple-700 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-500/10", dot: "bg-purple-500" },
+	held: { label: "Escrow Held", text: "text-blue-700 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-500/10", dot: "bg-blue-500 animate-pulse" },
+	refunded: { label: "Refunded", text: "text-blue-700 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-500/10", dot: "bg-blue-500" },
 	processing: { label: "Processing", text: "text-blue-700 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-500/10", dot: "bg-blue-500 animate-pulse" },
 };
 
@@ -271,7 +271,7 @@ function PaymentsPage() {
 		if (!newCardNumber || !newCardExpiry || !newCardHolder) return;
 
 		const cardGradients = [
-			"from-[#3b0764] via-[#581c87] to-[#3b0764]",
+			"from-[#172554] via-[#1E3A8A] to-[#172554]",
 			"from-[#030712] via-[#111827] to-[#1f2937]",
 			"from-[#065f46] via-[#047857] to-[#065f46]",
 		];
@@ -364,7 +364,7 @@ function PaymentsPage() {
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 					{/* Card 1: Wallet Balance */}
 					<div className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-2xl p-5 relative overflow-hidden shadow-xs group flex flex-col justify-between">
-						<div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-2xl group-hover:bg-orange-500/10 transition-all duration-300" />
+						<div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-all duration-300" />
 						<div className="space-y-4">
 							<div className="flex justify-between items-center">
 								<span className="text-[11px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider flex items-center gap-1.5">
@@ -385,7 +385,7 @@ function PaymentsPage() {
 							<button
 								type="button"
 								onClick={() => setIsFundingModalOpen(true)}
-								className="flex-1 py-2 px-3 bg-[var(--dashboard-orange)] hover:bg-orange-600 text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-orange-500/10 transition-all active:scale-95"
+								className="flex-1 py-2 px-3 bg-[var(--dashboard-orange)] hover:bg-blue-600 text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-blue-500/10 transition-all active:scale-95"
 							>
 								<Plus size={14} className="stroke-[3]" /> Fund Wallet
 							</button>
@@ -429,14 +429,14 @@ function PaymentsPage() {
 
 					{/* Card 3: Saved Methods Summary & Preview */}
 					<div className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-2xl p-5 relative overflow-hidden shadow-xs flex flex-col justify-between group">
-						<div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-2xl transition-all duration-300" />
+						<div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl transition-all duration-300" />
 						<div className="space-y-4">
 							<div className="flex justify-between items-center">
 								<span className="text-[11px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider flex items-center gap-1.5">
-									<CreditCard size={13} className="text-purple-500" />
+									<CreditCard size={13} className="text-blue-500" />
 									Linked Cards
 								</span>
-								<span className="text-[10px] text-purple-600 bg-purple-50 dark:bg-purple-900/20 px-2 py-0.5 rounded-full border border-purple-200/50 font-bold">
+								<span className="text-[10px] text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full border border-blue-200/50 font-bold">
 									{savedCards.length} Cards Saved
 								</span>
 							</div>
@@ -468,7 +468,7 @@ function PaymentsPage() {
 						<button
 							type="button"
 							onClick={() => setIsAddCardModalOpen(true)}
-							className="mt-5 py-2 px-3 border border-purple-200 dark:border-purple-900/30 hover:border-purple-400 bg-purple-50/20 dark:bg-purple-900/5 text-purple-600 dark:text-purple-400 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+							className="mt-5 py-2 px-3 border border-blue-200 dark:border-blue-900/30 hover:border-blue-400 bg-blue-50/20 dark:bg-blue-900/5 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
 						>
 							<Plus size={14} className="stroke-[3]" /> Add Payment Card
 						</button>
@@ -492,7 +492,7 @@ function PaymentsPage() {
 								<button
 									type="button"
 									onClick={() => setShowCardNumber(!showCardNumber)}
-									className="text-[11px] font-bold text-[var(--dashboard-orange)] hover:text-orange-600 flex items-center gap-1 cursor-pointer transition-all"
+									className="text-[11px] font-bold text-[var(--dashboard-orange)] hover:text-blue-600 flex items-center gap-1 cursor-pointer transition-all"
 								>
 									{showCardNumber ? (
 										<>
@@ -682,7 +682,7 @@ function PaymentsPage() {
 								<div className="min-w-0 flex-1">
 									<h4 className="text-[12.5px] font-extrabold text-[var(--dashboard-text)] leading-none mb-1 flex items-center gap-1.5">
 										Inspect &amp; Release
-										<span className="bg-orange-50 dark:bg-orange-500/10 text-[9px] text-[var(--dashboard-orange)] px-2 py-0.5 border border-[var(--dashboard-orange-mid)]/40 rounded-full font-bold">
+										<span className="bg-blue-50 dark:bg-blue-500/10 text-[9px] text-[var(--dashboard-orange)] px-2 py-0.5 border border-[var(--dashboard-orange-mid)]/40 rounded-full font-bold">
 											Current Step
 										</span>
 									</h4>
@@ -790,7 +790,7 @@ function PaymentsPage() {
 													<div className="flex items-center gap-2 text-[10.5px] text-[var(--dashboard-muted)] font-medium shrink-0 flex-wrap">
 														<span>{tx.date} at {tx.time}</span>
 														<span>·</span>
-														<span className="font-mono text-purple-600 dark:text-purple-400 font-extrabold">{tx.id}</span>
+														<span className="font-mono text-blue-600 dark:text-blue-400 font-extrabold">{tx.id}</span>
 														{tx.ticketId && (
 															<>
 																<span>·</span>
@@ -912,7 +912,7 @@ function PaymentsPage() {
 							<button
 								type="submit"
 								disabled={!fundingAmount || parseFloat(fundingAmount) <= 0}
-								className="flex-1 py-2.5 bg-[var(--dashboard-orange)] hover:bg-orange-600 text-white disabled:bg-neutral-200 disabled:text-neutral-400 dark:disabled:bg-neutral-800 dark:disabled:text-neutral-600 rounded-xl text-xs font-extrabold cursor-pointer transition-colors"
+								className="flex-1 py-2.5 bg-[var(--dashboard-orange)] hover:bg-blue-600 text-white disabled:bg-neutral-200 disabled:text-neutral-400 dark:disabled:bg-neutral-800 dark:disabled:text-neutral-600 rounded-xl text-xs font-extrabold cursor-pointer transition-colors"
 							>
 								Authorize Deposit
 							</button>
@@ -999,7 +999,7 @@ function PaymentsPage() {
 							<button
 								type="submit"
 								disabled={!withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > balance || !withdrawAccount || withdrawAccount.length < 10}
-								className="flex-1 py-2.5 bg-[var(--dashboard-orange)] hover:bg-orange-600 text-white disabled:bg-neutral-200 disabled:text-neutral-400 dark:disabled:bg-neutral-800 dark:disabled:text-neutral-600 rounded-xl text-xs font-extrabold cursor-pointer transition-colors"
+								className="flex-1 py-2.5 bg-[var(--dashboard-orange)] hover:bg-blue-600 text-white disabled:bg-neutral-200 disabled:text-neutral-400 dark:disabled:bg-neutral-800 dark:disabled:text-neutral-600 rounded-xl text-xs font-extrabold cursor-pointer transition-colors"
 							>
 								Request Payout
 							</button>
@@ -1013,7 +1013,7 @@ function PaymentsPage() {
 				<DialogContent className="max-w-md">
 					<DialogHeader className="p-6 pb-2 border-b border-[var(--dashboard-border)]">
 						<DialogTitle className="font-syne font-extrabold text-[18px] text-[var(--dashboard-text)] leading-none flex items-center gap-2">
-							<CreditCard size={18} className="text-purple-600" />
+							<CreditCard size={18} className="text-blue-600" />
 							Link New Payment Card
 						</DialogTitle>
 					</DialogHeader>
@@ -1090,7 +1090,7 @@ function PaymentsPage() {
 							</button>
 							<button
 								type="submit"
-								className="flex-1 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-extrabold cursor-pointer transition-colors"
+								className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold cursor-pointer transition-colors"
 							>
 								Link Method
 							</button>
@@ -1141,7 +1141,7 @@ function PaymentsPage() {
 
 								<div className="flex justify-between items-center text-[12px]">
 									<span className="text-[var(--dashboard-muted)] font-bold">Statement Reference</span>
-									<span className="font-mono text-purple-600 dark:text-purple-400 font-extrabold text-right uppercase">
+									<span className="font-mono text-blue-600 dark:text-blue-400 font-extrabold text-right uppercase">
 										{selectedTx.id}
 									</span>
 								</div>

@@ -55,7 +55,7 @@ const INITIAL_THREADS: ChatThread[] = [
 		artisanName: "Taiwo Johnson",
 		artisanInitials: "TJ",
 		artisanTrade: "Licensed Electrician",
-		avatarColor: "bg-[#FEE9E1] text-[#C2410C]",
+		avatarColor: "bg-[#DBEAFE] text-[#1D4ED8]",
 		verified: true,
 		online: true,
 		lastMessageSnippet: "Quote Proposal - Inverter Inspection Fee",
@@ -485,7 +485,7 @@ function MessagesPage() {
 												{/* Quote proposal payload layout */}
 												{msg.quote ? (
 													<div className="space-y-3">
-														<div className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-orange-600 bg-orange-50 dark:bg-orange-500/10 px-2.5 py-1 rounded-lg w-fit">
+														<div className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-blue-600 bg-blue-50 dark:bg-blue-500/10 px-2.5 py-1 rounded-lg w-fit">
 															<Zap size={11} className="stroke-[2.5]" /> Quote Proposal
 														</div>
 														<div className="space-y-1">
@@ -513,7 +513,7 @@ function MessagesPage() {
 																<button
 																	type="button"
 																	onClick={() => handlePayProposal(msg.id)}
-																	className="px-4 py-2 rounded-xl bg-[var(--dashboard-orange)] hover:bg-orange-600 text-white font-extrabold text-[11.5px] shadow-md shadow-orange-500/10 flex items-center gap-1 active:scale-95 transition-all cursor-pointer"
+																	className="px-4 py-2 rounded-xl bg-[var(--dashboard-orange)] hover:bg-blue-600 text-white font-extrabold text-[11.5px] shadow-md shadow-blue-500/10 flex items-center gap-1 active:scale-95 transition-all cursor-pointer"
 																>
 																	<Check size={12} className="stroke-[3.5]" /> Pay Proposal
 																</button>
@@ -530,7 +530,7 @@ function MessagesPage() {
 												{/* Message timestamp */}
 												<span className={cn(
 													"text-[9px] block text-right mt-1.5 font-bold opacity-60",
-													isUser ? "text-orange-100" : "text-[var(--dashboard-muted)]"
+													isUser ? "text-blue-100" : "text-[var(--dashboard-muted)]"
 												)}>
 													{msg.time}
 												</span>
@@ -576,7 +576,7 @@ function MessagesPage() {
 										className={cn(
 											"w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0 cursor-pointer transition-all shadow-xs",
 											inputText.trim()
-												? "bg-[var(--dashboard-orange)] hover:bg-orange-600 active:scale-95"
+												? "bg-[var(--dashboard-orange)] hover:bg-blue-600 active:scale-95"
 												: "bg-neutral-100 text-neutral-400 dark:bg-neutral-800 dark:text-neutral-600 cursor-not-allowed border border-neutral-200 dark:border-neutral-700/50"
 										)}
 										aria-label="Send message"

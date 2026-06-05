@@ -134,17 +134,17 @@ const MAP_NODES: MapNode[] = [
 
 /* ── Premium Warm-Sand Theme Google Maps Custom Styles ─────── */
 const GOOGLE_MAPS_THEME = [
-	{ "elementType": "geometry", "stylers": [{ "color": "#f8f6f2" }] },
-	{ "elementType": "labels.text.fill", "stylers": [{ "color": "#6B655C" }] },
-	{ "elementType": "labels.text.stroke", "stylers": [{ "color": "#f8f6f2" }] },
+	{ "elementType": "geometry", "stylers": [{ "color": "#F1F5F9" }] },
+	{ "elementType": "labels.text.fill", "stylers": [{ "color": "#64748B" }] },
+	{ "elementType": "labels.text.stroke", "stylers": [{ "color": "#F1F5F9" }] },
 	{ "featureType": "administrative.land_parcel", "elementType": "labels", "stylers": [{ "visibility": "off" }] },
-	{ "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#eae6e0" }] },
-	{ "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#756d64" }] },
+	{ "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#E2E8F0" }] },
+	{ "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#64748B" }] },
 	{ "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
-	{ "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#8c8275" }] },
+	{ "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#64748B" }] },
 	{ "featureType": "road.arterial", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
-	{ "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#fdecdb" }] },
-	{ "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#f7d0b8" }] },
+	{ "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#DBEAFE" }] },
+	{ "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#BFDBFE" }] },
 	{ "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#dae5ed" }] },
 	{ "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#8099ab" }] }
 ];
@@ -181,8 +181,8 @@ function ServiceMap({ zones, selectedZone, onSelectZone }: {
 				{/* Coastline silhouette (Premium warm-light outline) */}
 				<path
 					d="M 45 62 Q 50 58 55 60 Q 65 62 72 55 Q 82 48 88 42 Q 92 36 90 28 Q 88 20 82 18 Q 75 15 68 20 Q 60 25 55 32 Q 48 40 45 48 Q 42 55 45 62Z"
-					fill="rgba(232, 80, 10, 0.02)"
-					stroke="rgba(232, 80, 10, 0.05)"
+					fill="rgba(59, 130, 246, 0.02)"
+					stroke="rgba(59, 130, 246, 0.05)"
 					strokeWidth="0.4"
 				/>
 
@@ -363,7 +363,7 @@ function GoogleMapWrapper({ zones, selectedZoneId, radiusKm, onSelectZone }: {
 			const isSelected = selectedZoneId === zone.id;
 
 			// Custom color representation
-			const hexColor = zone.color.includes("hsl(28") ? "#E8500A" : zone.color.includes("hsl(210") ? "#3B82F6" : "#10B981";
+			const hexColor = zone.color.includes("hsl(28") ? "#3B82F6" : zone.color.includes("hsl(210") ? "#3B82F6" : "#10B981";
 
 			// Draw Map Markers
 			const marker = new window.google.maps.Marker({
@@ -373,7 +373,7 @@ function GoogleMapWrapper({ zones, selectedZoneId, radiusKm, onSelectZone }: {
 				icon: {
 					path: window.google.maps.SymbolPath.CIRCLE,
 					scale: zone.isPrimary ? 8 : 6,
-					fillColor: zone.isActive ? hexColor : "#6B655C",
+					fillColor: zone.isActive ? hexColor : "#64748B",
 					fillOpacity: 1,
 					strokeColor: "#ffffff",
 					strokeWeight: 2,
@@ -645,7 +645,7 @@ function AddZoneModal({ open, onClose, onAdd, existingZones }: {
 							type="button"
 							onClick={handleAdd}
 							disabled={!selectedSuggestion && !search.trim()}
-							className="flex-1 py-2.5 rounded-xl bg-[var(--dashboard-orange)] text-white font-extrabold text-xs hover:bg-orange-600 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+							className="flex-1 py-2.5 rounded-xl bg-[var(--dashboard-orange)] text-white font-extrabold text-xs hover:bg-blue-600 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
 						>
 							Add Zone
 						</button>
@@ -869,7 +869,7 @@ function MyAreaPage() {
 
 						<button
 							onClick={handleSave}
-							className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--dashboard-orange)] hover:bg-orange-600 text-white font-extrabold text-xs tracking-wide transition-colors cursor-pointer"
+							className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--dashboard-orange)] hover:bg-blue-600 text-white font-extrabold text-xs tracking-wide transition-colors cursor-pointer"
 						>
 							<Check size={14} />
 							Save Changes

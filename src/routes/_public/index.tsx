@@ -99,8 +99,8 @@ const FEATURES = [
 const TESTIMONIALS = [
 	{
 		initials: "AK",
-		bg: "#3D1F0D",
-		tc: "#F97316",
+		bg: "#0B2A4A",
+		tc: "#60A5FA",
 		name: "Adeola Kamara",
 		city: "Lekki, Lagos",
 		quote:
@@ -117,8 +117,8 @@ const TESTIMONIALS = [
 	},
 	{
 		initials: "NC",
-		bg: "#2A0D2D",
-		tc: "#C084FC",
+		bg: "#10243B",
+		tc: "#93C5FD",
 		name: "Ngozi Chukwu",
 		city: "GRA, Port Harcourt",
 		quote:
@@ -149,9 +149,9 @@ function FeatVisual0() {
 					<span
 						className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-medium"
 						style={{
-							background: "rgba(107,33,168,0.15)",
-							border: "1px solid rgba(107,33,168,0.3)",
-							color: "#c084fc",
+							background: "rgba(37,99,235,0.15)",
+							border: "1px solid rgba(37,99,235,0.3)",
+							color: "#93C5FD",
 						}}
 					>
 						<Zap size={10} aria-hidden /> Matching
@@ -189,8 +189,8 @@ function FeatVisual0() {
 					name: "Taiwo Johnson",
 					role: "Licensed Electrician · 1.2km",
 					rating: "4.9",
-					bg: "#3D1F0D",
-					tc: "#F97316",
+					bg: "#0B2A4A",
+					tc: "#60A5FA",
 				},
 				{
 					init: "KA",
@@ -256,7 +256,7 @@ function FeatVisual1() {
 				<div className="flex gap-2 items-start">
 					<div
 						className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-medium shrink-0"
-						style={{ background: "#3D1F0D", color: "#F97316" }}
+						style={{ background: "#0B2A4A", color: "#60A5FA" }}
 					>
 						TJ
 					</div>
@@ -273,7 +273,7 @@ function FeatVisual1() {
 				<div className="flex flex-row-reverse">
 					<div
 						className="rounded-[10px_10px_0_10px] px-3 py-2 text-[12px] leading-relaxed"
-						style={{ background: "rgba(232,80,10,0.15)", color: "#FAC8AB" }}
+						style={{ background: "rgba(59,130,246,0.18)", color: "#BFDBFE" }}
 					>
 						Sure, that works perfectly!
 					</div>
@@ -281,7 +281,7 @@ function FeatVisual1() {
 				<div className="flex gap-2 items-start">
 					<div
 						className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-medium shrink-0"
-						style={{ background: "#3D1F0D", color: "#F97316" }}
+						style={{ background: "#0B2A4A", color: "#60A5FA" }}
 					>
 						TJ
 					</div>
@@ -298,8 +298,8 @@ function FeatVisual1() {
 						<div
 							className="rounded-[10px] border px-3 py-3"
 							style={{
-								background: "rgba(232,80,10,0.08)",
-								borderColor: "rgba(232,80,10,0.2)",
+								background: "rgba(59,130,246,0.08)",
+								borderColor: "rgba(59,130,246,0.2)",
 							}}
 						>
 							<p
@@ -508,7 +508,7 @@ function Home() {
 						className="absolute w-[600px] h-[600px] rounded-full -top-[100px] -left-[100px]"
 						style={{
 							background:
-								"radial-gradient(circle,rgba(232,80,10,0.12) 0%,transparent 70%)",
+								"radial-gradient(circle,rgba(59,130,246,0.12) 0%,transparent 70%)",
 							animation: "hhFloat1 8s ease-in-out infinite",
 						}}
 					/>
@@ -516,7 +516,7 @@ function Home() {
 						className="absolute w-[500px] h-[500px] rounded-full -bottom-[80px] -right-[80px]"
 						style={{
 							background:
-								"radial-gradient(circle,rgba(107,33,168,0.10) 0%,transparent 70%)",
+								"radial-gradient(circle,rgba(37,99,235,0.10) 0%,transparent 70%)",
 							animation: "hhFloat2 10s ease-in-out infinite",
 						}}
 					/>
@@ -534,15 +534,15 @@ function Home() {
 
 				<div className="relative z-10 w-full max-w-[800px]">
 					<div
-						className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-[5px] text-[12px] font-medium mb-7"
+						className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-[5px] text-[12px] font-semibold mb-7"
 						style={{
-							background: "rgba(232,80,10,0.12)",
-							borderColor: "rgba(232,80,10,0.3)",
-							color: "var(--hh-or)",
+							background: "rgba(245,158,11,0.12)",
+							borderColor: "rgba(245,158,11,0.30)",
+							color: "var(--hh-gold)",
 							animation: "fadeUp .6s ease both",
 						}}
 					>
-						<Zap size={13} aria-hidden /> AI-powered artisan marketplace
+						<ShieldCheck size={13} aria-hidden /> Verified artisans, trusted by thousands
 					</div>
 
 					<h1
@@ -643,7 +643,7 @@ function Home() {
 								className="absolute inset-[-1px] rounded-[18px] -z-10"
 								style={{
 									background:
-										"linear-gradient(135deg,rgba(232,80,10,0.3),rgba(107,33,168,0.2),transparent 60%)",
+										"linear-gradient(135deg,rgba(59,130,246,0.3),rgba(37,99,235,0.2),transparent 60%)",
 								}}
 								aria-hidden
 							/>
@@ -668,9 +668,9 @@ function Home() {
 								<div
 									className="flex items-center gap-1 rounded-full border px-2.5 py-[5px] text-[11px] font-medium"
 									style={{
-										background: "rgba(107,33,168,0.15)",
-										borderColor: "rgba(107,33,168,0.3)",
-										color: "#c084fc",
+										background: "rgba(37,99,235,0.15)",
+										borderColor: "rgba(37,99,235,0.3)",
+										color: "#93C5FD",
 									}}
 								>
 									<Zap size={11} aria-hidden /> AI Search
@@ -771,8 +771,8 @@ function Home() {
 							<div
 								className="w-11 h-11 rounded-[8px] border flex items-center justify-center mb-5"
 								style={{
-									background: "rgba(232,80,10,0.12)",
-									borderColor: "rgba(232,80,10,0.2)",
+									background: "rgba(59,130,246,0.12)",
+									borderColor: "rgba(59,130,246,0.2)",
 								}}
 							>
 								<Icon size={20} style={{ color: "var(--hh-or)" }} aria-hidden />
@@ -882,7 +882,7 @@ function Home() {
 							className="absolute -top-10 -right-10 w-[200px] h-[200px] rounded-full pointer-events-none"
 							style={{
 								background:
-									"radial-gradient(circle,rgba(232,80,10,0.08) 0%,transparent 70%)",
+									"radial-gradient(circle,rgba(59,130,246,0.08) 0%,transparent 70%)",
 							}}
 							aria-hidden
 						/>
