@@ -688,7 +688,7 @@ function Home() {
 							className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-[5px] text-[12px] font-bold mb-6"
 							style={{ background: "var(--hh-or-l)", borderColor: "var(--hh-or-m)", color: "var(--hh-or)", animation: "fadeUp .6s ease both" }}
 						>
-							<ShieldCheck size={13} aria-hidden /> Verified artisans, nearby
+							<ShieldCheck size={13} aria-hidden /> Verified and Trusted Artisans
 						</div>
 
 						<h1
