@@ -37,6 +37,21 @@ import {
 import { useState, useRef, useEffect, createContext } from "react";
 import { HHLogo } from "#/components/hh/logo";
 
+/**
+ * Canonical dashboard route paths — shared between the desktop sidebar,
+ * the mobile bottom tab bar, and any other navigation surface.
+ */
+export const DASHBOARD_PATHS = {
+	dashboard: "/dashboard",
+	artisans: "/dashboard/artisans",
+	bookings: "/dashboard/bookings",
+	messages: "/dashboard/messages",
+	payments: "/dashboard/payments",
+	reviews: "/dashboard/reviews",
+	myArea: "/dashboard/my-area",
+	settings: "/dashboard/settings",
+} as const;
+
 export interface DashboardContextType {
 	hasActiveChat: boolean;
 	setHasActiveChat: (val: boolean) => void;
@@ -177,18 +192,18 @@ function DashboardLayout() {
 
 	const navItems = [
 		{ section: "Main", items: [
-			{ name: "Dashboard", icon: LayoutDashboard, path: "/dashboard", badge: null },
-			{ name: "Find Artisans", icon: Search, path: "/dashboard/artisans", badge: 48 },
-			{ name: "Bookings", icon: Calendar, path: "/dashboard/bookings", badge: 3 },
-			{ name: "Messages", icon: MessageSquare, path: "/dashboard/messages", badge: 5 },
+			{ name: "Dashboard", icon: LayoutDashboard, path: DASHBOARD_PATHS.dashboard, badge: null },
+			{ name: "Find Artisans", icon: Search, path: DASHBOARD_PATHS.artisans, badge: 48 },
+			{ name: "Bookings", icon: Calendar, path: DASHBOARD_PATHS.bookings, badge: 3 },
+			{ name: "Messages", icon: MessageSquare, path: DASHBOARD_PATHS.messages, badge: 5 },
 		]},
 		{ section: "Manage", items: [
-			{ name: "Payments", icon: CreditCard, path: "/dashboard/payments", badge: null },
-			{ name: "Reviews", icon: Star, path: "/dashboard/reviews", badge: null },
-			{ name: "My Area", icon: MapPin, path: "/dashboard/my-area", badge: null },
+			{ name: "Payments", icon: CreditCard, path: DASHBOARD_PATHS.payments, badge: null },
+			{ name: "Reviews", icon: Star, path: DASHBOARD_PATHS.reviews, badge: null },
+			{ name: "My Area", icon: MapPin, path: DASHBOARD_PATHS.myArea, badge: null },
 		]},
 		{ section: "Account", items: [
-			{ name: "Settings", icon: Settings, path: "/dashboard/settings", badge: null },
+			{ name: "Settings", icon: Settings, path: DASHBOARD_PATHS.settings, badge: null },
 		]}
 	];
 
@@ -312,7 +327,7 @@ function DashboardLayout() {
 
 						<DropdownMenuItem
 							className="gap-2.5 cursor-pointer"
-							onClick={() => navigate({ to: "/dashboard/settings" })}
+							onClick={() => navigate({ to: DASHBOARD_PATHS.settings })}
 						>
 							<User size={14} className="text-muted-foreground" />
 							View Profile
@@ -320,7 +335,7 @@ function DashboardLayout() {
 
 						<DropdownMenuItem
 							className="gap-2.5 cursor-pointer"
-							onClick={() => navigate({ to: "/dashboard/settings" })}
+							onClick={() => navigate({ to: DASHBOARD_PATHS.settings })}
 						>
 							<Settings size={14} className="text-muted-foreground" />
 							Settings
@@ -418,7 +433,7 @@ function DashboardLayout() {
 			</div>
 
 			{/* ── Chat Panel (Right Side) ─────────────────────────────────────── */}
-			{hasActiveChat && pathname !== "/dashboard/messages" && pathname !== "/dashboard/payments" && pathname !== "/dashboard/reviews" && pathname !== "/dashboard/settings" && pathname !== "/dashboard/my-area" && (
+			{hasActiveChat && pathname !== DASHBOARD_PATHS.messages && pathname !== DASHBOARD_PATHS.payments && pathname !== DASHBOARD_PATHS.reviews && pathname !== DASHBOARD_PATHS.settings && pathname !== DASHBOARD_PATHS.myArea && (
 				<aside className="hidden lg:flex flex-col w-[320px] bg-[var(--dashboard-card)] border-l border-[var(--dashboard-border)] h-full overflow-hidden shrink-0 animate-in slide-in-from-right duration-250">
 					{/* Chat Header */}
 					<div className="p-4 border-b border-[var(--dashboard-border)] flex items-center gap-3 bg-[var(--dashboard-card)]">
@@ -610,10 +625,10 @@ function DashboardLayout() {
 			{/* ── Mobile Bottom Tab Bar ──────────────────────────────────────── */}
 			<nav className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-[var(--dashboard-shell)] border-t border-white/10 flex items-center px-2 py-1 safe-area-bottom">
 				{[
-					{ name: "Home", icon: LayoutDashboard, path: "/dashboard" },
-					{ name: "Find", icon: Search, path: "/artisans" },
-					{ name: "Bookings", icon: Calendar, path: "/bookings" },
-					{ name: "Messages", icon: MessageSquare, path: "/messages", badge: 5 },
+					{ name: "Home", icon: LayoutDashboard, path: DASHBOARD_PATHS.dashboard },
+					{ name: "Find", icon: Search, path: DASHBOARD_PATHS.artisans },
+					{ name: "Bookings", icon: Calendar, path: DASHBOARD_PATHS.bookings },
+					{ name: "Messages", icon: MessageSquare, path: DASHBOARD_PATHS.messages, badge: 5 },
 					{ name: "More", icon: Menu, path: null },
 				].map((item) => {
 					const isActive = item.path ? pathname === item.path : false;

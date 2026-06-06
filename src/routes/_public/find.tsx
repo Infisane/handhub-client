@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
 import {
 	ChevronLeft,
 	ChevronRight,
@@ -12,9 +12,11 @@ import {
 	MapPin,
 	Paintbrush,
 	Search,
+	SlidersHorizontal,
 	Sparkles,
 	Star,
 	Wind,
+	X,
 	Zap,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -143,6 +145,7 @@ function FindPage() {
 	const [page, setPage] = useState(1);
 	const [activeArtisan, setActiveArtisan] = useState<Artisan | null>(null);
 	const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
+	const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
 	const filtered = useMemo(() => {
 		let r = [...ARTISANS];
@@ -229,12 +232,12 @@ function FindPage() {
 					>
 						Find skilled hands <O>near you</O>
 					</h1>
-					<div className="flex gap-2.5 flex-wrap items-stretch">
+					<div className="flex flex-col sm:flex-row gap-3">
 						<label className="sr-only" htmlFor="hero-search">
 							Search for artisans
 						</label>
 						<div
-							className="flex flex-1 min-w-[260px] items-center gap-2.5 rounded-[12px] border px-4 transition-colors duration-150 focus-within:border-[rgba(59,130,246,0.5)]"
+							className="flex flex-1 items-center gap-2.5 rounded-[12px] border px-4 transition-colors duration-150 focus-within:border-[rgba(59,130,246,0.5)] w-full"
 							style={{
 								background: "var(--hh-card)",
 								borderColor: "var(--hh-border2)",
@@ -260,7 +263,7 @@ function FindPage() {
 							Select city
 						</label>
 						<div
-							className="flex items-center gap-2 rounded-[12px] border px-3.5 min-w-[170px] focus-within:border-[rgba(59,130,246,0.5)] transition-colors duration-150"
+							className="flex items-center gap-2 rounded-[12px] border px-3.5 w-full sm:w-[180px] shrink-0 focus-within:border-[rgba(59,130,246,0.5)] transition-colors duration-150"
 							style={{
 								background: "var(--hh-card)",
 								borderColor: "var(--hh-border2)",
@@ -283,208 +286,271 @@ function FindPage() {
 								))}
 							</select>
 						</div>
-						<HHButton size="lg" className="min-h-12">
+						<HHButton size="lg" className="min-h-12 w-full sm:w-auto">
 							<Search size={17} aria-hidden /> Search
 						</HHButton>
 					</div>
-					<div className="flex items-center gap-2 mt-3.5 flex-wrap">
-						<span className="text-[11.5px]" style={{ color: "var(--hh-txt3)" }}>
+					<div className="flex items-center gap-2 mt-3.5 overflow-x-auto whitespace-nowrap pb-2 sm:pb-0 sm:flex-wrap scrollbar-none">
+						<span className="text-[11.5px] shrink-0" style={{ color: "var(--hh-txt3)" }}>
 							Quick search:
 						</span>
-						{QUICK_PILLS.map(({ Icon, label }) => (
-							<button
-								key={label}
-								type="button"
-								onClick={() => setQuery(label)}
-								className="hh-spill inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[11.5px] cursor-pointer transition-all duration-150"
-								style={{
-									background: "rgba(255,255,255,0.05)",
-									borderColor: "var(--hh-border2)",
-									color: "var(--hh-txt2)",
-								}}
-							>
-								<Icon size={12} aria-hidden /> {label}
-							</button>
-						))}
+						<div className="flex items-center gap-2 overflow-x-auto sm:flex-wrap pb-1 sm:pb-0 scrollbar-none">
+							{QUICK_PILLS.map(({ Icon, label }) => (
+								<button
+									key={label}
+									type="button"
+									onClick={() => setQuery(label)}
+									className="hh-spill inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[11.5px] cursor-pointer transition-all duration-150 shrink-0"
+									style={{
+										background: "rgba(255,255,255,0.05)",
+										borderColor: "var(--hh-border2)",
+										color: "var(--hh-txt2)",
+									}}
+								>
+									<Icon size={12} aria-hidden /> {label}
+								</button>
+							))}
+						</div>
 					</div>
 				</div>
 
 				{/* ── Page body ────────────────────────────────────────────────── */}
-				<div className="flex" style={{ minHeight: "calc(100dvh - 220px)" }}>
+				<div className="flex flex-col md:flex-row relative" style={{ minHeight: "calc(100dvh - 220px)" }}>
+					{/* Mobile Filters Drawer Overlay */}
+					{mobileFiltersOpen && (
+						<div
+							className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 md:hidden animate-in fade-in duration-200"
+							onClick={() => setMobileFiltersOpen(false)}
+						/>
+					)}
+
 					{/* ── Filters sidebar ────────────────────────────────────────── */}
 					<aside
-						className="w-[240px] shrink-0 border-r px-5 py-6 overflow-y-auto"
+						className={cn(
+							"fixed inset-y-0 left-0 w-[280px] max-w-[85vw] z-50 bg-[var(--hh-bg2)] border-r flex flex-col p-5 shadow-2xl transition-transform duration-300 md:relative md:translate-x-0 md:shadow-none md:z-auto md:w-[240px] md:h-auto md:shrink-0 md:bg-transparent md:border-r md:px-5 md:py-6 md:flex",
+							mobileFiltersOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+						)}
 						style={{
 							background: "var(--hh-bg2)",
 							borderColor: "var(--hh-border)",
 						}}
 					>
-						<p
-							className="text-[11px] uppercase tracking-[0.8px] font-medium mb-3"
-							style={{ color: "var(--hh-txt3)" }}
-						>
-							Trade category
-						</p>
-						{TRADE_OPTS.map((o) => (
-							<CheckOpt
-								key={o.label}
-								id={`t-${o.label}`}
-								label={o.label}
-								count={o.count}
-								checked={!!filters.trades[o.label]}
-								onChange={(v) =>
-									set("trades", { ...filters.trades, [o.label]: v })
-								}
-							/>
-						))}
-						{divider}
-						<p
-							className="text-[11px] uppercase tracking-[0.8px] font-medium mb-3"
-							style={{ color: "var(--hh-txt3)" }}
-						>
-							Availability
-						</p>
-						{AVAIL_OPTS.map((o) => (
-							<CheckOpt
-								key={o.key}
-								id={`a-${o.key}`}
-								label={o.label}
-								count={o.count}
-								checked={!!filters.avail[o.key]}
-								onChange={(v) => set("avail", { ...filters.avail, [o.key]: v })}
-							/>
-						))}
-						{divider}
-						<p
-							className="text-[11px] uppercase tracking-[0.8px] font-medium mb-3"
-							style={{ color: "var(--hh-txt3)" }}
-						>
-							Minimum rating
-						</p>
-						<div className="flex gap-1.5 flex-wrap mt-1">
-							{RATING_OPTS.map((r) => (
-								<button
-									key={r.value}
-									type="button"
-									onClick={() => set("minRating", r.value)}
-									className="flex items-center gap-1 rounded-full border px-2.5 py-1 text-[12px] cursor-pointer transition-all duration-150"
-									style={{
-										background:
-											filters.minRating === r.value
-												? "rgba(59,130,246,0.1)"
-												: "transparent",
-										borderColor:
-											filters.minRating === r.value
-												? "rgba(59,130,246,0.35)"
-												: "var(--hh-border2)",
-										color:
-											filters.minRating === r.value
-												? "var(--hh-or)"
-												: "var(--hh-txt2)",
-									}}
+						{/* Header for mobile filters drawer */}
+						<div className="flex items-center justify-between mb-4 md:hidden pb-3 border-b border-[var(--hh-border)]">
+							<span className="font-extrabold text-[12px] text-[var(--hh-txt)] uppercase tracking-wide">Filters</span>
+							<button
+								type="button"
+								onClick={() => setMobileFiltersOpen(false)}
+								className="p-1 rounded-lg border border-[var(--hh-border)] text-[var(--hh-txt2)] hover:bg-[var(--hh-bg3)] cursor-pointer"
+								aria-label="Close filters"
+							>
+								<X size={15} />
+							</button>
+						</div>
+
+						{/* Scrollable filters list */}
+						<div className="flex-1 overflow-y-auto space-y-5 pr-1 -mr-1">
+							<div>
+								<p
+									className="text-[11px] uppercase tracking-[0.8px] font-medium mb-3"
+									style={{ color: "var(--hh-txt3)" }}
 								>
-									{r.value > 0 && (
-										<Star
-											size={12}
-											fill="#F59E0B"
-											style={{ color: "#F59E0B" }}
-											aria-hidden
+									Trade category
+								</p>
+								{TRADE_OPTS.map((o) => (
+									<CheckOpt
+										key={o.label}
+										id={`t-${o.label}`}
+										label={o.label}
+										count={o.count}
+										checked={!!filters.trades[o.label]}
+										onChange={(v) =>
+											set("trades", { ...filters.trades, [o.label]: v })
+										}
+									/>
+								))}
+							</div>
+
+							{divider}
+
+							<div>
+								<p
+									className="text-[11px] uppercase tracking-[0.8px] font-medium mb-3"
+									style={{ color: "var(--hh-txt3)" }}
+								>
+									Availability
+								</p>
+								{AVAIL_OPTS.map((o) => (
+									<CheckOpt
+										key={o.key}
+										id={`a-${o.key}`}
+										label={o.label}
+										count={o.count}
+										checked={!!filters.avail[o.key]}
+										onChange={(v) => set("avail", { ...filters.avail, [o.key]: v })}
+									/>
+								))}
+							</div>
+
+							{divider}
+
+							<div>
+								<p
+									className="text-[11px] uppercase tracking-[0.8px] font-medium mb-3"
+									style={{ color: "var(--hh-txt3)" }}
+								>
+									Minimum rating
+								</p>
+								<div className="flex gap-1.5 flex-wrap mt-1">
+									{RATING_OPTS.map((r) => (
+										<button
+											key={r.value}
+											type="button"
+											onClick={() => set("minRating", r.value)}
+											className="flex items-center gap-1 rounded-full border px-2.5 py-1 text-[12px] cursor-pointer transition-all duration-150"
+											style={{
+												background:
+													filters.minRating === r.value
+														? "rgba(59,130,246,0.1)"
+														: "transparent",
+												borderColor:
+													filters.minRating === r.value
+														? "rgba(59,130,246,0.35)"
+														: "var(--hh-border2)",
+												color:
+													filters.minRating === r.value
+														? "var(--hh-or)"
+														: "var(--hh-txt2)",
+											}}
+										>
+											{r.value > 0 && (
+												<Star
+													size={12}
+													fill="#F59E0B"
+													style={{ color: "#F59E0B" }}
+													aria-hidden
+												/>
+											)}
+											{r.label}
+										</button>
+									))}
+								</div>
+							</div>
+
+							{divider}
+
+							<div>
+								<p
+									className="text-[11px] uppercase tracking-[0.8px] font-medium mb-3"
+									style={{ color: "var(--hh-txt3)" }}
+								>
+									Rate range (₦/hr)
+								</p>
+								<div className="flex items-center gap-2 mt-1">
+									{(["minRate", "maxRate"] as const).map((k, i) => (
+										<input
+											key={k}
+											type="number"
+											value={filters[k]}
+											onChange={(e) => set(k, Number(e.target.value))}
+											placeholder={i === 0 ? "Min" : "Max"}
+											className="hh-num rounded-[8px] border px-2.5 py-[7px] text-[12.5px] w-20 outline-none focus:border-[rgba(59,130,246,0.4)] transition-colors duration-150"
+											style={{
+												background: "var(--hh-card)",
+												borderColor: "var(--hh-border2)",
+												color: "var(--hh-txt)",
+												fontFamily: "var(--font-dm)",
+											}}
 										/>
-									)}
-									{r.label}
-								</button>
-							))}
+									))}
+									<span className="text-[12px]" style={{ color: "var(--hh-txt3)" }}>
+										—
+									</span>
+								</div>
+							</div>
+
+							{divider}
+
+							<div>
+								<p
+									className="text-[11px] uppercase tracking-[0.8px] font-medium mb-3"
+									style={{ color: "var(--hh-txt3)" }}
+								>
+									District
+								</p>
+								{DISTRICT_OPTS.map((o) => (
+									<CheckOpt
+										key={o.label}
+										id={`d-${o.label}`}
+										label={o.label}
+										count={o.count}
+										checked={!!filters.districts[o.label]}
+										onChange={(v) =>
+											set("districts", { ...filters.districts, [o.label]: v })
+										}
+									/>
+								))}
+							</div>
 						</div>
-						{divider}
-						<p
-							className="text-[11px] uppercase tracking-[0.8px] font-medium mb-3"
-							style={{ color: "var(--hh-txt3)" }}
-						>
-							Rate range (₦/hr)
-						</p>
-						<div className="flex items-center gap-2 mt-1">
-							{(["minRate", "maxRate"] as const).map((k, i) => (
-								<input
-									key={k}
-									type="number"
-									value={filters[k]}
-									onChange={(e) => set(k, Number(e.target.value))}
-									placeholder={i === 0 ? "Min" : "Max"}
-									className="hh-num rounded-[8px] border px-2.5 py-[7px] text-[12.5px] w-20 outline-none focus:border-[rgba(59,130,246,0.4)] transition-colors duration-150"
-									style={{
-										background: "var(--hh-card)",
-										borderColor: "var(--hh-border2)",
-										color: "var(--hh-txt)",
-										fontFamily: "var(--font-dm)",
-									}}
-								/>
-							))}
-							<span className="text-[12px]" style={{ color: "var(--hh-txt3)" }}>
-								—
-							</span>
+
+						{/* Footer Actions */}
+						<div className="pt-3 border-t border-[var(--hh-border)] flex flex-col gap-2 mt-4 shrink-0">
+							<HHButton
+								onClick={() => {
+									setFilters(DEFAULT_FILTERS);
+									setMobileFiltersOpen(false);
+								}}
+								variant="ghost"
+								className="w-full"
+							>
+								Reset filters
+							</HHButton>
+							<HHButton
+								onClick={() => setMobileFiltersOpen(false)}
+								className="w-full md:hidden"
+							>
+								Apply filters
+							</HHButton>
 						</div>
-						{divider}
-						<p
-							className="text-[11px] uppercase tracking-[0.8px] font-medium mb-3"
-							style={{ color: "var(--hh-txt3)" }}
-						>
-							District
-						</p>
-						{DISTRICT_OPTS.map((o) => (
-							<CheckOpt
-								key={o.label}
-								id={`d-${o.label}`}
-								label={o.label}
-								count={o.count}
-								checked={!!filters.districts[o.label]}
-								onChange={(v) =>
-									set("districts", { ...filters.districts, [o.label]: v })
-								}
-							/>
-						))}
-						<HHButton
-							onClick={() => setFilters(DEFAULT_FILTERS)}
-							className="mt-5 w-full"
-						>
-							Reset filters
-						</HHButton>
 					</aside>
 
 					{/* ── Results pane ───────────────────────────────────────────── */}
-					<div className="flex-1 min-w-0 px-6 py-5 overflow-y-auto">
+					<div className="flex-1 min-w-0 px-4 sm:px-6 py-5 overflow-y-auto">
 						{/* Gate banner */}
 						<div
-							className="flex items-center gap-4 rounded-[16px] border px-6 py-5 mb-5"
+							className="flex flex-col sm:flex-row items-start sm:items-center gap-4 rounded-[16px] border p-5 sm:px-6 sm:py-5 mb-5"
 							style={{
 								background: "var(--hh-bg2)",
 								borderColor: "var(--hh-border2)",
 							}}
 						>
-							<div
-								className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[14px] border"
-								style={{
-									background: "rgba(59,130,246,0.1)",
-									borderColor: "rgba(59,130,246,0.2)",
-								}}
-							>
-								<Lock size={20} style={{ color: "var(--hh-or)" }} aria-hidden />
-							</div>
-							<div className="flex-1">
-								<p
-									className="text-[13.5px] font-medium"
-									style={{ color: "var(--hh-txt)" }}
+							<div className="flex gap-4 items-center">
+								<div
+									className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[14px] border"
+									style={{
+										background: "rgba(59,130,246,0.1)",
+										borderColor: "rgba(59,130,246,0.2)",
+									}}
 								>
-									Sign up free to contact any artisan directly
-								</p>
-								<p
-									className="text-[12.5px]"
-									style={{ color: "var(--hh-txt3)" }}
-								>
-									You're browsing as a guest. Create an account to book, chat,
-									and pay safely.
-								</p>
+									<Lock size={20} style={{ color: "var(--hh-or)" }} aria-hidden />
+								</div>
+								<div className="flex-1">
+									<p
+										className="text-[13.5px] font-medium"
+										style={{ color: "var(--hh-txt)" }}
+									>
+										Sign up free to contact any artisan directly
+									</p>
+									<p
+										className="text-[12.5px]"
+										style={{ color: "var(--hh-txt3)" }}
+									>
+										You're browsing as a guest. Create an account to book, chat,
+										and pay safely.
+									</p>
+								</div>
 							</div>
-							<div className="flex gap-2 shrink-0">
+							<div className="flex gap-2 w-full sm:w-auto justify-end shrink-0 border-t border-[var(--hh-border)] sm:border-none pt-3 sm:pt-0 mt-1 sm:mt-0">
 								<HHButton size="sm" pill>
 									Sign up free
 								</HHButton>
@@ -495,66 +561,83 @@ function FindPage() {
 						</div>
 
 						{/* Sort / view controls */}
-						<div className="flex items-center justify-between flex-wrap gap-2.5 mb-4">
+						<div className="flex items-center justify-between flex-wrap gap-3 mb-4">
 							<p className="text-[13.5px]" style={{ color: "var(--hh-txt2)" }}>
 								<strong style={{ color: "var(--hh-txt)", fontWeight: 500 }}>
 									{filtered.length} artisans
 								</strong>{" "}
 								found in {city}
 							</p>
-							<div className="flex items-center gap-2.5">
-								<span
-									className="text-[12.5px]"
-									style={{ color: "var(--hh-txt3)" }}
-								>
-									Sort by
-								</span>
-								<label className="sr-only" htmlFor="sort-sel">
-									Sort results
-								</label>
-								<select
-									id="sort-sel"
-									value={sortBy}
-									onChange={(e) => setSortBy(e.target.value)}
-									className="hh-select rounded-[8px] border px-2.5 py-1.5 text-[12.5px]"
+							<div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+								{/* Mobile Filters Toggle Button */}
+								<button
+									type="button"
+									onClick={() => setMobileFiltersOpen(true)}
+									className="md:hidden flex items-center gap-1.5 rounded-[8px] border px-3 py-1.5 text-[12.5px] cursor-pointer transition-colors hover:bg-[var(--hh-bg3)]"
 									style={{
 										background: "var(--hh-card)",
 										borderColor: "var(--hh-border2)",
 										color: "var(--hh-txt2)",
-										fontFamily: "var(--font-dm)",
 									}}
 								>
-									{SORT_OPTIONS.map((o) => (
-										<option key={o}>{o}</option>
-									))}
-								</select>
-								<div className="flex gap-1">
-									{(["grid", "list"] as const).map((m) => (
-										<button
-											key={m}
-											type="button"
-											onClick={() => setViewMode(m)}
-											aria-label={`${m} view`}
-											aria-pressed={viewMode === m}
-											className="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[6px] border transition-all duration-150"
-											style={{
-												background:
-													viewMode === m ? "var(--hh-card2)" : "transparent",
-												borderColor:
-													viewMode === m
-														? "rgba(59,130,246,0.3)"
-														: "var(--hh-border)",
-												color:
-													viewMode === m ? "var(--hh-or)" : "var(--hh-txt3)",
-											}}
-										>
-											{m === "grid" ? (
-												<LayoutGrid size={15} aria-hidden />
-											) : (
-												<List size={15} aria-hidden />
-											)}
-										</button>
-									))}
+									<SlidersHorizontal size={14} />
+									<span>Filters</span>
+								</button>
+
+								<div className="flex items-center gap-2">
+									<span
+										className="text-[12.5px] hidden xs:inline"
+										style={{ color: "var(--hh-txt3)" }}
+									>
+										Sort by
+									</span>
+									<label className="sr-only" htmlFor="sort-sel">
+										Sort results
+									</label>
+									<select
+										id="sort-sel"
+										value={sortBy}
+										onChange={(e) => setSortBy(e.target.value)}
+										className="hh-select rounded-[8px] border px-2.5 py-1.5 text-[12.5px]"
+										style={{
+											background: "var(--hh-card)",
+											borderColor: "var(--hh-border2)",
+											color: "var(--hh-txt2)",
+											fontFamily: "var(--font-dm)",
+										}}
+									>
+										{SORT_OPTIONS.map((o) => (
+											<option key={o}>{o}</option>
+										))}
+									</select>
+									<div className="flex gap-1">
+										{(["grid", "list"] as const).map((m) => (
+											<button
+												key={m}
+												type="button"
+												onClick={() => setViewMode(m)}
+												aria-label={`${m} view`}
+												aria-pressed={viewMode === m}
+												className="flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[6px] border transition-all duration-150"
+												style={{
+													background:
+														viewMode === m ? "var(--hh-card2)" : "transparent",
+													borderColor:
+														viewMode === m
+															? "rgba(59,130,246,0.3)"
+															: "var(--hh-border)",
+													color:
+														viewMode === m ? "var(--hh-or)" : "var(--hh-txt3)",
+												}}
+											>
+												{m === "grid" ? (
+													<LayoutGrid size={15} aria-hidden />
+												) : (
+													<List size={15} aria-hidden />
+												)}
+											</button>
+										))}
+									</div>
 								</div>
 							</div>
 						</div>
