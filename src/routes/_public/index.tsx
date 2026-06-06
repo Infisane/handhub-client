@@ -688,16 +688,16 @@ function Home() {
 							className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-[5px] text-[12px] font-bold mb-6"
 							style={{ background: "var(--hh-or-l)", borderColor: "var(--hh-or-m)", color: "var(--hh-or)", animation: "fadeUp .6s ease both" }}
 						>
-							<ShieldCheck size={13} aria-hidden /> Verified Lagos artisans, trusted by neighbors
+							<ShieldCheck size={13} aria-hidden /> Verified artisans, nearby
 						</div>
 
 						<h1
 							className="font-extrabold leading-[1.08] tracking-[-1.8px] mb-5 text-[var(--hh-txt)] font-syne"
 							style={{ fontSize: "clamp(34px,3.9vw,56px)", animation: "fadeUp .7s .1s ease both" }}
 						>
-							Lagos homes run on{" "}
+							Skilled hands {" "}
 							<span className="relative inline-block" style={{ color: "var(--hh-or)" }}>
-								trusted hands
+								one tap away
 								<span
 									className="absolute left-0 right-0 h-[3px] rounded-sm opacity-60"
 									style={{ bottom: "-4px", background: "var(--hh-or)" }}
@@ -710,7 +710,7 @@ function Home() {
 							className="text-[16px] sm:text-[17px] max-w-[520px] mx-auto lg:mx-0 mb-8 font-medium leading-[1.7]"
 							style={{ color: "var(--hh-txt2)", animation: "fadeUp .7s .2s ease both" }}
 						>
-							From a stubborn generator that won’t start, to a leaking pipe, or a quick clean before guests arrive. Handhub connects you with vetted, friendly artisans recommended by families in your neighborhood.
+							Generator won't start? Pipe leaking? Need a quick clean before guests arrive? There's a vetted artisan nearby, available now.
 						</p>
 
 						<div

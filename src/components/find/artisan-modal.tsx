@@ -241,40 +241,42 @@ export function ArtisanModal({ artisan, onClose }: ArtisanModalProps) {
 
 					{/* Gate CTA */}
 					<div
-						className="flex items-center gap-3.5 rounded-[12px] border p-4"
+						className="flex flex-col sm:flex-row items-start sm:items-center gap-3.5 rounded-[12px] border p-4"
 						style={{
 							background: "rgba(59,130,246,0.06)",
 							borderColor: "rgba(59,130,246,0.15)",
 						}}
 					>
-						<div
-							className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px]"
-							style={{ background: "rgba(59,130,246,0.1)" }}
-						>
-							<Lock size={18} style={{ color: "var(--hh-or)" }} aria-hidden />
-						</div>
-						<div className="flex-1">
-							<p
-								className="text-[13.5px] font-medium"
-								style={{ color: "var(--hh-txt)" }}
+						<div className="flex items-start gap-3 w-full">
+							<div
+								className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px]"
+								style={{ background: "rgba(59,130,246,0.1)" }}
 							>
-								Sign up to contact {artisan.name.split(" ")[0]}
-							</p>
-							<p className="text-[12px]" style={{ color: "var(--hh-txt3)" }}>
-								Book, chat, and pay securely in one place
-							</p>
+								<Lock size={18} style={{ color: "var(--hh-or)" }} aria-hidden />
+							</div>
+							<div className="flex-1 min-w-0">
+								<p
+									className="text-[13.5px] font-medium"
+									style={{ color: "var(--hh-txt)" }}
+								>
+									Sign up to contact {artisan.name.split(" ")[0]}
+								</p>
+								<p className="text-[12px]" style={{ color: "var(--hh-txt3)" }}>
+									Book, chat, and pay securely in one place
+								</p>
+							</div>
 						</div>
-						<div className="flex flex-col gap-1.5 shrink-0">
+						<div className="flex flex-row sm:flex-col gap-1.5 w-full sm:w-auto justify-end mt-3 sm:mt-0 shrink-0 border-t border-[var(--hh-border)] sm:border-none pt-3 sm:pt-0">
 							<button
 								type="button"
-								className="cursor-pointer rounded-[8px] px-4 py-1.5 text-[12.5px] font-medium text-white whitespace-nowrap"
+								className="flex-1 sm:flex-none cursor-pointer rounded-[8px] px-4 py-1.5 text-[12.5px] font-medium text-white whitespace-nowrap text-center"
 								style={{ background: "var(--hh-or)", border: "none" }}
 							>
 								Sign up free
 							</button>
 							<button
 								type="button"
-								className="cursor-pointer rounded-[8px] border px-4 py-1.5 text-[12px] whitespace-nowrap transition-colors duration-150"
+								className="flex-1 sm:flex-none cursor-pointer rounded-[8px] border px-4 py-1.5 text-[12px] whitespace-nowrap transition-colors duration-150 text-center"
 								style={{
 									background: "transparent",
 									borderColor: "var(--hh-border2)",
