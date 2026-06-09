@@ -1,22 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-	Settings,
-	User,
-	Lock,
-	Bell,
-	CreditCard,
-	Check,
-	Upload,
-	Eye,
-	EyeOff,
-	ShieldAlert,
-	Sparkles,
-	Sliders,
-} from "lucide-react";
+import { Settings, User, Lock, Bell, CreditCard, Check } from "lucide-react";
 import { useState, useContext } from "react";
 import { DashboardContext } from "./route";
 import { cn } from "#/lib/utils.ts";
+import { ProfileTab } from "#/components/dashboard/settings/profile-tab.tsx";
+import { SecurityTab } from "#/components/dashboard/settings/security-tab.tsx";
+import { NotificationsTab } from "#/components/dashboard/settings/notifications-tab.tsx";
+import { PaymentsTab } from "#/components/dashboard/settings/payments-tab.tsx";
 
 export const Route = createFileRoute("/dashboard/settings")({ 
 	component: SettingsPage,
@@ -63,17 +54,6 @@ function SettingsPage() {
 	const [autoFund, setAutoFund] = useState(false);
 	const [threshold, setThreshold] = useState("20000");
 	const [defaultCard, setDefaultCard] = useState("card-1");
-
-	// Password strength calculation
-	const passwordStrength = () => {
-		if (!newPassword) return 0;
-		let score = 0;
-		if (newPassword.length >= 8) score++;
-		if (/[A-Z]/.test(newPassword)) score++;
-		if (/[0-9]/.test(newPassword)) score++;
-		if (/[^A-Za-z0-9]/.test(newPassword)) score++;
-		return score;
-	};
 
 	// Save settings callback
 	const handleSaveSettings = (e: React.FormEvent) => {
@@ -208,112 +188,18 @@ function SettingsPage() {
 									exit={{ opacity: 0, y: -8 }}
 									className="space-y-5"
 								>
-									<div>
-										<h3 className="font-syne font-extrabold text-[15px] sm:text-[16px] text-[var(--dashboard-text)] leading-none mb-1 flex items-center gap-2">
-											Personal Profile Details
-										</h3>
-										<p className="text-[11px] text-[var(--dashboard-muted)]">
-											Update your personal coordinates and profile bio
-										</p>
-									</div>
-
-									{/* Premium Avatar Modification Section */}
-									<div className="flex items-center gap-4 bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-2xl p-4.5 shadow-xs shrink-0">
-										<div className="w-14 h-14 rounded-full bg-[var(--dashboard-orange)] flex items-center justify-center text-lg font-black text-white shrink-0 border border-white/10 ring-4 ring-[var(--dashboard-orange-light)]/20 shadow-md">
-											AK
-										</div>
-										<div className="space-y-1.5 min-w-0">
-											<div className="flex gap-2">
-												<button
-													type="button"
-													className="py-1.5 px-3 bg-[var(--dashboard-orange-light)] hover:bg-[var(--dashboard-orange)] hover:text-white border border-[var(--dashboard-orange-mid)] text-[var(--dashboard-orange)] rounded-lg text-[10.5px] font-extrabold flex items-center gap-1 cursor-pointer transition-all"
-												>
-													<Upload size={12} /> Replace Avatar
-												</button>
-												<button
-													type="button"
-													className="py-1.5 px-3 border border-[var(--dashboard-border)] hover:bg-[var(--dashboard-bg)] text-[var(--dashboard-muted)] rounded-lg text-[10.5px] font-bold cursor-pointer"
-												>
-													Delete
-												</button>
-											</div>
-											<span className="text-[10px] text-[var(--dashboard-muted)] font-medium leading-none block">
-												JPG or PNG, max size 2MB. Fits cleanly inside circular badges.
-											</span>
-										</div>
-									</div>
-
-									{/* Main Profile Grid inputs */}
-									<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-										<div className="space-y-1.5">
-											<label className="text-[10.5px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block">
-												Full Username Name
-											</label>
-											<input
-												type="text"
-												required
-												value={name}
-												onChange={(e) => setName(e.target.value)}
-												placeholder="Adeola Kamara"
-												className="w-full px-3.5 py-2 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] text-[12.5px] font-semibold text-[var(--dashboard-text)] placeholder-[var(--dashboard-muted)] outline-none focus:border-[var(--dashboard-orange)]"
-											/>
-										</div>
-
-										<div className="space-y-1.5">
-											<label className="text-[10.5px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block">
-												Verified Email Address
-											</label>
-											<input
-												type="email"
-												required
-												value={email}
-												onChange={(e) => setEmail(e.target.value)}
-												placeholder="adeola@handhub.co"
-												className="w-full px-3.5 py-2 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] text-[12.5px] font-semibold text-[var(--dashboard-text)] placeholder-[var(--dashboard-muted)] outline-none focus:border-[var(--dashboard-orange)]"
-											/>
-										</div>
-
-										<div className="space-y-1.5">
-											<label className="text-[10.5px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block">
-												Mobile Telephone Number
-											</label>
-											<input
-												type="text"
-												required
-												value={phone}
-												onChange={(e) => setPhone(e.target.value)}
-												placeholder="+234 812 345 6789"
-												className="w-full px-3.5 py-2 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] text-[12.5px] font-semibold text-[var(--dashboard-text)] placeholder-[var(--dashboard-muted)] outline-none focus:border-[var(--dashboard-orange)]"
-											/>
-										</div>
-
-										<div className="space-y-1.5">
-											<label className="text-[10.5px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block">
-												Primary Address Coordinate
-											</label>
-											<input
-												type="text"
-												required
-												value={address}
-												onChange={(e) => setAddress(e.target.value)}
-												placeholder="Lekki, Lagos"
-												className="w-full px-3.5 py-2 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] text-[12.5px] font-semibold text-[var(--dashboard-text)] placeholder-[var(--dashboard-muted)] outline-none focus:border-[var(--dashboard-orange)]"
-											/>
-										</div>
-									</div>
-
-									<div className="space-y-1.5">
-										<label className="text-[10.5px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block">
-											Biography / Description (Community notes)
-										</label>
-										<textarea
-											rows={3}
-											value={bio}
-											onChange={(e) => setBio(e.target.value)}
-											placeholder="Short description..."
-											className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] text-[12.5px] text-[var(--dashboard-text)] placeholder-[var(--dashboard-muted)] outline-none focus:border-[var(--dashboard-orange)] resize-none"
-										/>
-									</div>
+									<ProfileTab
+										name={name}
+										setName={setName}
+										email={email}
+										setEmail={setEmail}
+										phone={phone}
+										setPhone={setPhone}
+										address={address}
+										setAddress={setAddress}
+										bio={bio}
+										setBio={setBio}
+									/>
 								</motion.div>
 							)}
 
@@ -325,145 +211,22 @@ function SettingsPage() {
 									exit={{ opacity: 0, y: -8 }}
 									className="space-y-5"
 								>
-									<div>
-										<h3 className="font-syne font-extrabold text-[15px] sm:text-[16px] text-[var(--dashboard-text)] leading-none mb-1 flex items-center gap-2">
-											Security Credentials
-										</h3>
-										<p className="text-[11px] text-[var(--dashboard-muted)]">
-											Update password logs and secure authentication tools
-										</p>
-									</div>
-
-									{/* Password modification segment */}
-									<div className="space-y-4">
-										<div className="space-y-1.5">
-											<label className="text-[10.5px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block">
-												Current Password
-											</label>
-											<div className="relative">
-												<input
-													type={showCurrent ? "text" : "password"}
-													value={currentPassword}
-													onChange={(e) => setCurrentPassword(e.target.value)}
-													placeholder="••••••••"
-													className="w-full pl-3.5 pr-9 py-2 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] font-mono text-[12.5px] text-[var(--dashboard-text)] placeholder-[var(--dashboard-muted)] outline-none focus:border-[var(--dashboard-orange)]"
-												/>
-												<button
-													type="button"
-													onClick={() => setShowCurrent(!showCurrent)}
-													className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--dashboard-muted)]"
-												>
-													{showCurrent ? <EyeOff size={14} /> : <Eye size={14} />}
-												</button>
-											</div>
-										</div>
-
-										<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-											<div className="space-y-1.5">
-												<label className="text-[10.5px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block">
-													New Password
-												</label>
-												<div className="relative">
-													<input
-														type={showNew ? "text" : "password"}
-														value={newPassword}
-														onChange={(e) => setNewPassword(e.target.value)}
-														placeholder="••••••••"
-														className="w-full pl-3.5 pr-9 py-2 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] font-mono text-[12.5px] text-[var(--dashboard-text)] placeholder-[var(--dashboard-muted)] outline-none focus:border-[var(--dashboard-orange)]"
-													/>
-													<button
-														type="button"
-														onClick={() => setShowNew(!showNew)}
-														className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--dashboard-muted)]"
-													>
-														{showNew ? <EyeOff size={14} /> : <Eye size={14} />}
-													</button>
-												</div>
-
-												{/* Strength indicator line */}
-												{newPassword && (
-													<div className="space-y-1 mt-1">
-														<div className="flex gap-1 h-1.5">
-															{Array.from({ length: 4 }).map((_, i) => (
-																<div
-																	key={i}
-																	className={cn(
-																		"flex-1 h-full rounded-full transition-all",
-																		i < passwordStrength()
-																			? passwordStrength() <= 2
-																				? "bg-red-500 animate-pulse"
-																				: passwordStrength() === 3
-																				? "bg-amber-500"
-																				: "bg-green-500"
-																			: "bg-[var(--dashboard-border)]/50"
-																	)}
-																/>
-															))}
-														</div>
-														<span className="text-[9px] text-[var(--dashboard-muted)] font-bold block text-right">
-															{passwordStrength() <= 2 ? "Weak" : passwordStrength() === 3 ? "Good" : "Strong!"}
-														</span>
-													</div>
-												)}
-											</div>
-
-											<div className="space-y-1.5">
-												<label className="text-[10.5px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block">
-													Confirm New Password
-												</label>
-												<div className="relative">
-													<input
-														type={showConfirm ? "text" : "password"}
-														value={confirmPassword}
-														onChange={(e) => setConfirmPassword(e.target.value)}
-														placeholder="••••••••"
-														className="w-full pl-3.5 pr-9 py-2 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] font-mono text-[12.5px] text-[var(--dashboard-text)] placeholder-[var(--dashboard-muted)] outline-none focus:border-[var(--dashboard-orange)]"
-													/>
-													<button
-														type="button"
-														onClick={() => setShowConfirm(!showConfirm)}
-														className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--dashboard-muted)]"
-													>
-														{showConfirm ? <EyeOff size={14} /> : <Eye size={14} />}
-													</button>
-												</div>
-											</div>
-										</div>
-									</div>
-
-									{/* 2-Factor Authentication slider card */}
-									<div className="border border-[var(--dashboard-border)] rounded-2xl p-4.5 space-y-3 bg-[var(--dashboard-card)] shadow-xs relative overflow-hidden flex items-center justify-between">
-										<div className="flex gap-3 items-center min-w-0">
-											<div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 shrink-0">
-												<ShieldAlert size={16} />
-											</div>
-											<div className="min-w-0">
-												<h4 className="text-[13px] font-extrabold text-[var(--dashboard-text)] leading-none mb-1">
-													Two-Factor Authentication (2FA)
-												</h4>
-												<p className="text-[10.5px] text-[var(--dashboard-muted)] leading-normal">
-													Request a unique passcode via SMS or email for each payment authorization
-												</p>
-											</div>
-										</div>
-
-										{/* Interactive slider switch trigger */}
-										<button
-											type="button"
-											onClick={() => setTwoFactor(!twoFactor)}
-											className={cn(
-												"w-10 h-5.5 rounded-full p-0.5 transition-colors cursor-pointer shrink-0 relative flex items-center",
-												twoFactor ? "bg-green-500" : "bg-[var(--dashboard-border)]/60"
-											)}
-										>
-											<motion.div
-												layout
-												transition={{ type: "spring", stiffness: 450, damping: 25 }}
-												className="w-4.5 h-4.5 rounded-full bg-white shadow-xs"
-												style={{ x: twoFactor ? "18px" : "0px" }}
-											/>
-										</button>
-									</div>
+									<SecurityTab
+										currentPassword={currentPassword}
+										setCurrentPassword={setCurrentPassword}
+										newPassword={newPassword}
+										setNewPassword={setNewPassword}
+										confirmPassword={confirmPassword}
+										setConfirmPassword={setConfirmPassword}
+										showCurrent={showCurrent}
+										setShowCurrent={setShowCurrent}
+										showNew={showNew}
+										setShowNew={setShowNew}
+										showConfirm={showConfirm}
+										setShowConfirm={setShowConfirm}
+										twoFactor={twoFactor}
+										setTwoFactor={setTwoFactor}
+									/>
 								</motion.div>
 							)}
 
@@ -475,144 +238,18 @@ function SettingsPage() {
 									exit={{ opacity: 0, y: -8 }}
 									className="space-y-5"
 								>
-									<div>
-										<h3 className="font-syne font-extrabold text-[15px] sm:text-[16px] text-[var(--dashboard-text)] leading-none mb-1 flex items-center gap-2">
-											Notification Center
-										</h3>
-										<p className="text-[11px] text-[var(--dashboard-muted)]">
-											Define when and how you receive alerts from handhub system
-										</p>
-									</div>
-
-									{/* List of custom switch buttons */}
-									<div className="space-y-3.5 bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-2xl p-5 shadow-xs">
-										
-										{/* Item 1: Booking logs */}
-										<div className="flex items-center justify-between gap-3 text-[12.5px] border-b border-[var(--dashboard-border)]/40 pb-3">
-											<div>
-												<h4 className="font-extrabold text-[var(--dashboard-text)] leading-none mb-0.5">Booking Status Alerts</h4>
-												<p className="text-[10px] text-[var(--dashboard-muted)] font-semibold leading-relaxed">
-													Email and push updates when booking is scheduled, in-progress, or finalized.
-												</p>
-											</div>
-											<button
-												type="button"
-												onClick={() => setNotifBooking(!notifBooking)}
-												className={cn(
-													"w-9 h-5 rounded-full p-0.5 transition-colors cursor-pointer shrink-0 relative flex items-center",
-													notifBooking ? "bg-green-500" : "bg-[var(--dashboard-border)]/60"
-												)}
-											>
-												<motion.div
-													layout
-													transition={{ type: "spring", stiffness: 450, damping: 25 }}
-													className="w-4 h-4 rounded-full bg-white shadow-xs"
-													style={{ x: notifBooking ? "14px" : "0px" }}
-												/>
-											</button>
-										</div>
-
-										{/* Item 2: Chats */}
-										<div className="flex items-center justify-between gap-3 text-[12.5px] border-b border-[var(--dashboard-border)]/40 pb-3">
-											<div>
-												<h4 className="font-extrabold text-[var(--dashboard-text)] leading-none mb-0.5">New Chat messages</h4>
-												<p className="text-[10px] text-[var(--dashboard-muted)] font-semibold leading-relaxed">
-													Instant push notification when an active artisan sends a message.
-												</p>
-											</div>
-											<button
-												type="button"
-												onClick={() => setNotifChat(!notifChat)}
-												className={cn(
-													"w-9 h-5 rounded-full p-0.5 transition-colors cursor-pointer shrink-0 relative flex items-center",
-													notifChat ? "bg-green-500" : "bg-[var(--dashboard-border)]/60"
-												)}
-											>
-												<motion.div
-													layout
-													transition={{ type: "spring", stiffness: 450, damping: 25 }}
-													className="w-4 h-4 rounded-full bg-white shadow-xs"
-													style={{ x: notifChat ? "14px" : "0px" }}
-												/>
-											</button>
-										</div>
-
-										{/* Item 3: Proposals */}
-										<div className="flex items-center justify-between gap-3 text-[12.5px] border-b border-[var(--dashboard-border)]/40 pb-3">
-											<div>
-												<h4 className="font-extrabold text-[var(--dashboard-text)] leading-none mb-0.5">Quote Proposals Received</h4>
-												<p className="text-[10px] text-[var(--dashboard-muted)] font-semibold leading-relaxed">
-													SMS notification when an expert uploads a fixed proposal rate sheet.
-												</p>
-											</div>
-											<button
-												type="button"
-												onClick={() => setNotifQuote(!notifQuote)}
-												className={cn(
-													"w-9 h-5 rounded-full p-0.5 transition-colors cursor-pointer shrink-0 relative flex items-center",
-													notifQuote ? "bg-green-500" : "bg-[var(--dashboard-border)]/60"
-												)}
-											>
-												<motion.div
-													layout
-													transition={{ type: "spring", stiffness: 450, damping: 25 }}
-													className="w-4 h-4 rounded-full bg-white shadow-xs"
-													style={{ x: notifQuote ? "14px" : "0px" }}
-												/>
-											</button>
-										</div>
-
-										{/* Item 4: Escrow status */}
-										<div className="flex items-center justify-between gap-3 text-[12.5px] border-b border-[var(--dashboard-border)]/40 pb-3">
-											<div>
-												<h4 className="font-extrabold text-[var(--dashboard-text)] leading-none mb-0.5">Escrow Transaction updates</h4>
-												<p className="text-[10px] text-[var(--dashboard-muted)] font-semibold leading-relaxed">
-													Alerts when payments are secured, cleared, or active refund balances are pending.
-												</p>
-											</div>
-											<button
-												type="button"
-												onClick={() => setNotifEscrow(!notifEscrow)}
-												className={cn(
-													"w-9 h-5 rounded-full p-0.5 transition-colors cursor-pointer shrink-0 relative flex items-center",
-													notifEscrow ? "bg-green-500" : "bg-[var(--dashboard-border)]/60"
-												)}
-											>
-												<motion.div
-													layout
-													transition={{ type: "spring", stiffness: 450, damping: 25 }}
-													className="w-4 h-4 rounded-full bg-white shadow-xs"
-													style={{ x: notifEscrow ? "14px" : "0px" }}
-												/>
-											</button>
-										</div>
-
-										{/* Item 5: Promo */}
-										<div className="flex items-center justify-between gap-3 text-[12.5px]">
-											<div>
-												<h4 className="font-extrabold text-[var(--dashboard-text)] leading-none mb-0.5">Discounts &amp; Promotional campaigns</h4>
-												<p className="text-[10px] text-[var(--dashboard-muted)] font-semibold leading-relaxed">
-													Occasional updates on seasonal home maintenance coupons and deals.
-												</p>
-											</div>
-											<button
-												type="button"
-												onClick={() => setNotifPromo(!notifPromo)}
-												className={cn(
-													"w-9 h-5 rounded-full p-0.5 transition-colors cursor-pointer shrink-0 relative flex items-center",
-													notifPromo ? "bg-green-500" : "bg-[var(--dashboard-border)]/60"
-												)}
-											>
-												<motion.div
-													layout
-													transition={{ type: "spring", stiffness: 450, damping: 25 }}
-													className="w-4 h-4 rounded-full bg-white shadow-xs"
-													style={{ x: notifPromo ? "14px" : "0px" }}
-												/>
-											</button>
-										</div>
-
-									</div>
+									<NotificationsTab
+										notifBooking={notifBooking}
+										setNotifBooking={setNotifBooking}
+										notifChat={notifChat}
+										setNotifChat={setNotifChat}
+										notifQuote={notifQuote}
+										setNotifQuote={setNotifQuote}
+										notifEscrow={notifEscrow}
+										setNotifEscrow={setNotifEscrow}
+										notifPromo={notifPromo}
+										setNotifPromo={setNotifPromo}
+									/>
 								</motion.div>
 							)}
 
@@ -624,91 +261,14 @@ function SettingsPage() {
 									exit={{ opacity: 0, y: -8 }}
 									className="space-y-5"
 								>
-									<div>
-										<h3 className="font-syne font-extrabold text-[15px] sm:text-[16px] text-[var(--dashboard-text)] leading-none mb-1 flex items-center gap-2">
-											Billing &amp; Wallet Parameters
-										</h3>
-										<p className="text-[11px] text-[var(--dashboard-muted)]">
-											Define default funding methods and escrow trigger limits
-										</p>
-									</div>
-
-									{/* Default method select */}
-									<div className="space-y-1.5">
-										<label className="text-[10.5px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block">
-											Default Funding Source Card
-										</label>
-										<select
-											value={defaultCard}
-											onChange={(e) => setDefaultCard(e.target.value)}
-											className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] text-[12.5px] text-[var(--dashboard-text)] font-semibold outline-none focus:border-[var(--dashboard-orange)]"
-										>
-											<option value="card-1">Visa Ending in 4821 (Default)</option>
-											<option value="card-2">Mastercard Ending in 9012</option>
-										</select>
-									</div>
-
-									{/* Auto funding configuration */}
-									<div className="border border-[var(--dashboard-border)] rounded-2xl p-4.5 space-y-4 bg-[var(--dashboard-card)] shadow-xs">
-										<div className="flex items-center justify-between gap-3">
-											<div className="flex gap-3 items-center min-w-0">
-												<div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-[var(--dashboard-orange)] shrink-0">
-													<Sparkles size={16} />
-												</div>
-												<div className="min-w-0">
-													<h4 className="text-[13px] font-extrabold text-[var(--dashboard-text)] leading-none mb-1">
-														Automatic Wallet Funding
-													</h4>
-													<p className="text-[10.5px] text-[var(--dashboard-muted)] leading-normal">
-														Trigger auto-charge when balance drops below threshold during bookings
-													</p>
-												</div>
-											</div>
-
-											<button
-												type="button"
-												onClick={() => setAutoFund(!autoFund)}
-												className={cn(
-													"w-10 h-5.5 rounded-full p-0.5 transition-colors cursor-pointer shrink-0 relative flex items-center",
-													autoFund ? "bg-green-500" : "bg-[var(--dashboard-border)]/60"
-												)}
-											>
-												<motion.div
-													layout
-													transition={{ type: "spring", stiffness: 450, damping: 25 }}
-													className="w-4.5 h-4.5 rounded-full bg-white shadow-xs"
-													style={{ x: autoFund ? "18px" : "0px" }}
-												/>
-											</button>
-										</div>
-
-										{autoFund && (
-											<motion.div
-												initial={{ height: 0, opacity: 0 }}
-												animate={{ height: "auto", opacity: 1 }}
-												className="space-y-2 border-t border-[var(--dashboard-border)]/40 pt-4"
-											>
-												<label className="text-[10px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block">
-													Minimum Top-up Trigger Threshold (₦)
-												</label>
-												<div className="flex gap-3 items-center">
-													<Sliders size={15} className="text-[var(--dashboard-muted)] shrink-0" />
-													<input
-														type="range"
-														min="10000"
-														max="100000"
-														step="5000"
-														value={threshold}
-														onChange={(e) => setThreshold(e.target.value)}
-														className="flex-1 accent-[var(--dashboard-orange)]"
-													/>
-													<span className="font-syne font-black text-[13px] text-[var(--dashboard-text)] bg-[var(--dashboard-bg)] border border-[var(--dashboard-border)] px-2.5 py-1 rounded-lg shrink-0">
-														₦{parseInt(threshold).toLocaleString()}
-													</span>
-												</div>
-											</motion.div>
-										)}
-									</div>
+									<PaymentsTab
+										autoFund={autoFund}
+										setAutoFund={setAutoFund}
+										threshold={threshold}
+										setThreshold={setThreshold}
+										defaultCard={defaultCard}
+										setDefaultCard={setDefaultCard}
+									/>
 								</motion.div>
 							)}
 						</AnimatePresence>

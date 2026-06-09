@@ -19,6 +19,12 @@ import {
 } from "lucide-react";
 import { useState, useRef, useEffect, useContext } from "react";
 import { DashboardContext } from "./route";
+import { ArtisanOnboarding } from "#/components/dashboard/artisan-onboarding";
+import {
+	completeArtisanOnboarding,
+	hasCompletedArtisanOnboarding,
+	isArtisan,
+} from "#/lib/user";
 
 export const Route = createFileRoute("/dashboard/")({
 	component: DashboardPage,
@@ -45,6 +51,20 @@ function DashboardPage() {
 	const [hiredArtisans, setHiredArtisans] = useState<Record<string, boolean>>({});
 	const searchTimerRef = useRef<NodeJS.Timeout | null>(null);
 	const searchInputRef = useRef<HTMLInputElement>(null);
+
+	// Show the artisan onboarding wizard once, after mount (avoids SSR/hydration
+	// mismatch since the gate reads localStorage).
+	const [showOnboarding, setShowOnboarding] = useState(false);
+	useEffect(() => {
+		if (isArtisan() && !hasCompletedArtisanOnboarding()) {
+			setShowOnboarding(true);
+		}
+	}, []);
+
+	const handleOnboardingComplete = () => {
+		completeArtisanOnboarding();
+		setShowOnboarding(false);
+	};
 
 	// Suggestion pills data
 	const pills = [
@@ -493,6 +513,12 @@ function DashboardPage() {
 					</div>
 				</button>
 			)}
+
+			{/* Artisan onboarding wizard — shown once for artisan accounts */}
+			<ArtisanOnboarding
+				open={showOnboarding}
+				onComplete={handleOnboardingComplete}
+			/>
 		</main>
 	);
 }
