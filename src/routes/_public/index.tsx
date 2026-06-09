@@ -692,15 +692,19 @@ function Home() {
 						</div>
 
 						<h1
-							className="font-extrabold leading-[1.08] tracking-[-1.8px] mb-5 text-[var(--hh-txt)] font-syne"
-							style={{ fontSize: "clamp(34px,3.9vw,56px)", animation: "fadeUp .7s .1s ease both" }}
+							className="font-black leading-[1.08] tracking-[-1.8px] mb-5 text-[var(--hh-txt)] font-syne"
+							style={{
+								fontSize: "clamp(34px,3.9vw,56px)",
+								animation: "fadeUp .7s .1s ease both",
+								WebkitTextStroke: "0.7px currentColor",
+							}}
 						>
 							Skilled hands {" "}
 							<span className="relative inline-block" style={{ color: "var(--hh-or)" }}>
 								one tap away
 								<span
 									className="absolute left-0 right-0 h-[3px] rounded-sm opacity-60"
-									style={{ bottom: "-4px", background: "var(--hh-or)" }}
+									style={{ bottom: "-10px", background: "var(--hh-or)" }}
 									aria-hidden
 								/>
 							</span>
