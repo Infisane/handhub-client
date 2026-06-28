@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, User, Lock, Bell, CreditCard, Check } from "lucide-react";
-import { useState, useContext } from "react";
-import { DashboardContext } from "./route";
+import { useState } from "react";
+import { useAppDispatch } from "#/core/hooks/useStore.hook";
+import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
 import { cn } from "#/lib/utils.ts";
 import { ProfileTab } from "#/components/dashboard/settings/profile-tab.tsx";
 import { SecurityTab } from "#/components/dashboard/settings/security-tab.tsx";
@@ -18,7 +19,7 @@ type SettingsTab = "profile" | "security" | "notifications" | "payments_settings
 
 /* ── Main Component ────────────────────────────────────────── */
 function SettingsPage() {
-	const { setIsMobileSidebarOpen } = useContext(DashboardContext);
+	const dispatch = useAppDispatch();
 
 	// Navigation tab state
 	const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
@@ -90,7 +91,7 @@ function SettingsPage() {
 					<div className="flex items-center gap-3">
 						<button
 							type="button"
-							onClick={() => setIsMobileSidebarOpen(true)}
+							onClick={() => dispatch(set_dashboard_flags({ isMobileSidebarOpen: true }))}
 							className="md:hidden w-9 h-9 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] flex items-center justify-center text-[var(--dashboard-text)] hover:bg-[var(--dashboard-orange-light)] transition-all shrink-0 shadow-xs"
 							aria-label="Open navigation"
 						>

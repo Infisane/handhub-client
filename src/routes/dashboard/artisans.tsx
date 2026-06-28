@@ -24,8 +24,8 @@ import {
 	Clock,
 } from "lucide-react";
 import { useState, useRef, useCallback } from "react";
-import { DashboardContext } from "./route";
-import { useContext } from "react";
+import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
+import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
 import {
 	Dialog,
 	DialogContent,
@@ -478,7 +478,8 @@ const getCoverGradient = (colorClass: string) => {
 
 /* ── Component ──────────────────────────────────────────────── */
 function FindPage() {
-	const { hasActiveChat, setHasActiveChat } = useContext(DashboardContext);
+	const dispatch = useAppDispatch();
+	const hasActiveChat = useAppSelector((s) => s.dashboardStore.hasActiveChat);
 
 	const [search, setSearch] = useState("");
 	const [activeCategory, setActiveCategory] = useState("all");
@@ -547,7 +548,7 @@ function FindPage() {
 
 	const handleHire = (id: string) => {
 		setHiredIds((prev) => ({ ...prev, [id]: true }));
-		setHasActiveChat(true);
+		dispatch(set_dashboard_flags({ hasActiveChat: true }));
 	};
 
 	const clearSearch = () => {
@@ -1127,7 +1128,7 @@ function FindPage() {
 								</button>
 								<button
 									type="button"
-									onClick={() => { setHasActiveChat(true); setSelectedArtisan(null); }}
+									onClick={() => { dispatch(set_dashboard_flags({ hasActiveChat: true })); setSelectedArtisan(null); }}
 									className="flex-1 py-2.5 rounded-xl border border-[var(--dashboard-border)] text-[12px] font-bold text-[var(--dashboard-text)] hover:bg-[var(--dashboard-bg)] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
 								>
 									<MessageSquare size={13} /> Message

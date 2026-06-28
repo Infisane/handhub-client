@@ -17,8 +17,9 @@ import {
 	MessageSquare,
 	Menu,
 } from "lucide-react";
-import { useState, useRef, useEffect, useContext } from "react";
-import { DashboardContext } from "./route";
+import { useState, useRef, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
+import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
 import { ArtisanOnboarding } from "#/components/dashboard/artisan-onboarding";
 import {
 	completeArtisanOnboarding,
@@ -45,7 +46,8 @@ interface Artisan {
 }
 
 function DashboardPage() {
-	const { hasActiveChat, setHasActiveChat, setIsMobileSidebarOpen } = useContext(DashboardContext);
+	const dispatch = useAppDispatch();
+	const hasActiveChat = useAppSelector((s) => s.dashboardStore.hasActiveChat);
 	const [searchValue, setSearchValue] = useState("");
 	const [isSearching, setIsSearching] = useState(false);
 	const [hiredArtisans, setHiredArtisans] = useState<Record<string, boolean>>({});
@@ -181,7 +183,7 @@ function DashboardPage() {
 			...prev,
 			[artisanId]: true,
 		}));
-		setHasActiveChat(true);
+		dispatch(set_dashboard_flags({ hasActiveChat: true }));
 	};
 
 	// Framer motion variants for cards entrance
@@ -215,7 +217,7 @@ function DashboardPage() {
 				{/* Hamburger trigger — mobile only */}
 				<button
 					type="button"
-					onClick={() => setIsMobileSidebarOpen(true)}
+					onClick={() => dispatch(set_dashboard_flags({ isMobileSidebarOpen: true }))}
 					className="md:hidden w-9 h-9 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] flex items-center justify-center text-[var(--dashboard-text)] hover:bg-[var(--dashboard-orange-light)] hover:border-[var(--dashboard-orange-mid)] hover:text-[var(--dashboard-orange)] transition-all duration-150 shrink-0 shadow-sm"
 					aria-label="Open navigation"
 				>
@@ -500,7 +502,7 @@ function DashboardPage() {
 			{!hasActiveChat && (
 				<button
 					type="button"
-					onClick={() => setHasActiveChat(true)}
+					onClick={() => dispatch(set_dashboard_flags({ hasActiveChat: true }))}
 					className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[var(--dashboard-blue)] hover:bg-[var(--dashboard-blue-dark)] text-white flex items-center justify-center cursor-pointer shadow-lg shadow-blue-500/30 transition-all duration-300 hover:scale-105 active:scale-95 animate-in zoom-in-50 duration-200"
 					aria-label="Open chat panel"
 				>

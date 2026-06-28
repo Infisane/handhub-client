@@ -16,8 +16,9 @@ import {
 	Eye,
 	EyeOff,
 } from "lucide-react";
-import { useState, useContext, useMemo } from "react";
-import { DashboardContext } from "./route";
+import { useState, useMemo } from "react";
+import { useAppDispatch } from "#/core/hooks/useStore.hook";
+import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
 import { cn } from "#/lib/utils.ts";
 import {
 	Dialog,
@@ -157,7 +158,7 @@ const statusConfig: Record<TxStatus, { label: string; text: string; bg: string; 
 
 /* ── Main Component ────────────────────────────────────────── */
 function PaymentsPage() {
-	const { setIsMobileSidebarOpen } = useContext(DashboardContext);
+	const dispatch = useAppDispatch();
 
 	// Balance & state variables
 	const [balance, setBalance] = useState(124500);
@@ -343,7 +344,7 @@ function PaymentsPage() {
 					<div className="flex items-center gap-3">
 						<button
 							type="button"
-							onClick={() => setIsMobileSidebarOpen(true)}
+							onClick={() => dispatch(set_dashboard_flags({ isMobileSidebarOpen: true }))}
 							className="md:hidden w-9 h-9 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] flex items-center justify-center text-[var(--dashboard-text)] hover:bg-[var(--dashboard-orange-light)] transition-all shrink-0 shadow-xs"
 							aria-label="Open navigation"
 						>

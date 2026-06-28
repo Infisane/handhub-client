@@ -1,12 +1,27 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ArrowRight, Mail, ShieldCheck, Sparkles, Users } from "lucide-react";
+import {
+	ArrowRight,
+	Loader2,
+	Lock,
+	Mail,
+	ShieldCheck,
+	Sparkles,
+	Users,
+} from "lucide-react";
 import { useState } from "react";
+import { AppInput } from "#/components/ui/app-input";
 import { AuthLeftPanel } from "#/components/auth/auth-left-panel";
 import { formBoxMotion, itemVariants } from "#/components/auth/auth-motion";
-import { PasswordField } from "#/components/auth/password-field";
 import { SocialAuthButtons } from "#/components/auth/social-auth-buttons";
 import { Nav } from "#/components/home/nav";
+import { useValidator } from "#/core/helpers/useValidator.helper";
+import { useLoginQuery } from "#/core/queries/auth.q";
+import { SignInSchema } from "#/core/schemas/auth.schema";
+import { USER_TYPES } from "#/core/helpers/constants.helper";
+import { writeStoredSession } from "#/core/helpers/auth-storage.helper";
+import { useAppDispatch } from "#/core/hooks/useStore.hook";
+import { set_auth_session } from "#/core/redux-store/slices/auth.slice";
 
 export const Route = createFileRoute("/_auth/signin")({
 	component: SignInPage,
@@ -15,15 +30,36 @@ export const Route = createFileRoute("/_auth/signin")({
 function SignInPage() {
 	const navigate = useNavigate();
 	const [activeTab, setActiveTab] = useState<"cust" | "art">("cust");
-	const [showPassword, setShowPassword] = useState(false);
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
+	const [loginFormData, setLoginFormData] = useState({
+		email: "",
+		password: "",
+	});
 	const [rememberMe, setRememberMe] = useState(true);
+
+	const { validate, revalidate, errors } = useValidator({
+		schema: SignInSchema,
+		store: loginFormData,
+	});
+
+	const dispatch = useAppDispatch();
+
+	const { mutate: handleLoginRequest, isPending: isLoginPending } = useLoginQuery({
+		onSuccessCallback: (session) => {
+			dispatch(set_auth_session({ token: session.token, user: session.user }));
+			writeStoredSession(session);
+			navigate({ to: "/dashboard" });
+		},
+	});
 
 	const handleSignIn = (e: React.FormEvent) => {
 		e.preventDefault();
-		// Mock authentication action - navigate to dashboard
-		navigate({ to: "/dashboard" });
+		validate(() => {
+			handleLoginRequest({
+				credential: loginFormData.email,
+				password: loginFormData.password,
+				userType: activeTab === "cust" ? USER_TYPES.customer : USER_TYPES.artisan,
+			});
+		});
 	};
 
 	const rightElement = (
@@ -141,19 +177,19 @@ function SignInPage() {
 							<form onSubmit={handleSignIn}>
 								<div className="field">
 									<label htmlFor="signin-email">Email address</label>
-									<div className="inp-wrap">
-										<Mail className="inp-icon" size={16} aria-hidden="true" />
-										<input
-											id="signin-email"
-											className="inp has-icon"
-											type="email"
-											required
-											value={email}
-											onChange={(e) => setEmail(e.target.value)}
-											placeholder="you@example.com"
-											aria-label="Email address"
-										/>
-									</div>
+									<AppInput
+										id="signin-email"
+										type="email"
+										icon={<Mail size={16} aria-hidden="true" />}
+										value={loginFormData.email}
+										onChange={(e) => {
+											setLoginFormData({ ...loginFormData, email: e.target.value });
+											revalidate("email", e.target.value);
+										}}
+										placeholder="you@example.com"
+										aria-label="Email address"
+										error={errors.email}
+									/>
 								</div>
 
 								<div className="field">
@@ -163,14 +199,18 @@ function SignInPage() {
 											Forgot password?
 										</a>
 									</div>
-									<PasswordField
+									<AppInput
 										id="signin-pw"
-										value={password}
-										onChange={setPassword}
-										show={showPassword}
-										onToggleShow={() => setShowPassword(!showPassword)}
+										type="password"
+										icon={<Lock size={16} aria-hidden="true" />}
+										value={loginFormData.password}
+										onChange={(e) => {
+											setLoginFormData({ ...loginFormData, password: e.target.value });
+											revalidate("password", e.target.value);
+										}}
 										placeholder="••••••••"
-										ariaLabel="Password"
+										aria-label="Password"
+										error={errors.password}
 									/>
 								</div>
 
@@ -186,8 +226,21 @@ function SignInPage() {
 									</label>
 								</div>
 
-								<button type="submit" className="btn-full">
-									<ArrowRight size={17} aria-hidden="true" /> Sign in
+								<button
+									type="submit"
+									className="btn-full"
+									disabled={isLoginPending}
+								>
+									{isLoginPending ? (
+										<Loader2
+											size={17}
+											className="animate-spin"
+											aria-hidden="true"
+										/>
+									) : (
+										<ArrowRight size={17} aria-hidden="true" />
+									)}
+									{isLoginPending ? "Signing in..." : "Sign in"}
 								</button>
 							</form>
 

@@ -12,8 +12,9 @@ import {
 	X,
 	Zap,
 } from "lucide-react";
-import { useState, useContext, useMemo } from "react";
-import { DashboardContext } from "./route";
+import { useState, useMemo } from "react";
+import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
+import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
 import { cn } from "#/lib/utils.ts";
 
 export const Route = createFileRoute("/dashboard/bookings")({ 
@@ -104,7 +105,8 @@ const statusConfig: Record<BookingStatus, { label: string; bg: string; text: str
 
 /* ── Component ──────────────────────────────────────────────── */
 function BookingsPage() {
-	const { hasActiveChat, setHasActiveChat } = useContext(DashboardContext);
+	const dispatch = useAppDispatch();
+	const hasActiveChat = useAppSelector((s) => s.dashboardStore.hasActiveChat);
 
 	const [activeTab, setActiveTab] = useState<"all" | "active" | "completed" | "cancelled">("all");
 	const [searchQuery, setSearchQuery] = useState("");
@@ -397,7 +399,7 @@ function BookingsPage() {
 										{/* Chat icon button */}
 										<button
 											type="button"
-											onClick={() => setHasActiveChat(true)}
+											onClick={() => dispatch(set_dashboard_flags({ hasActiveChat: true }))}
 											className="size-10 rounded-xl border border-[var(--dashboard-border)] text-[var(--dashboard-text)] hover:bg-[var(--dashboard-bg)] transition-colors flex items-center justify-center shrink-0 cursor-pointer"
 											title="Chat with Artisan"
 											aria-label="Chat with Artisan"
@@ -409,7 +411,7 @@ function BookingsPage() {
 										{booking.status === "in_progress" && booking.hasProposal ? (
 											<button
 												type="button"
-												onClick={() => setHasActiveChat(true)}
+												onClick={() => dispatch(set_dashboard_flags({ hasActiveChat: true }))}
 												className="flex-1 h-10 rounded-xl bg-[var(--dashboard-orange)] text-white text-[12px] font-extrabold text-center hover:bg-blue-600 active:scale-95 shadow-md shadow-blue-500/10 flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
 											>
 												<Zap size={11} className="stroke-[2.5]" />

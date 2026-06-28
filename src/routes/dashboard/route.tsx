@@ -1,4 +1,5 @@
-import { createFileRoute, Outlet, Link, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Link, useLocation, redirect } from "@tanstack/react-router";
+import { readStoredSession } from "#/core/helpers/auth-storage.helper";
 import {
 	LayoutDashboard,
 	Search,
@@ -34,8 +35,11 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "#/components/ui/dialog.tsx";
-import { useState, useRef, useEffect, createContext } from "react";
+import { useState, useRef, useEffect } from "react";
 import { HHLogo } from "#/components/hh/logo";
+import { clearStoredSession } from "#/core/helpers/auth-storage.helper";
+import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
+import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
 
 /**
  * Canonical dashboard route paths — shared between the desktop sidebar,
@@ -52,21 +56,15 @@ export const DASHBOARD_PATHS = {
 	settings: "/dashboard/settings",
 } as const;
 
-export interface DashboardContextType {
-	hasActiveChat: boolean;
-	setHasActiveChat: (val: boolean) => void;
-	isMobileSidebarOpen: boolean;
-	setIsMobileSidebarOpen: (val: boolean) => void;
-}
 
-export const DashboardContext = createContext<DashboardContextType>({
-	hasActiveChat: true,
-	setHasActiveChat: () => {},
-	isMobileSidebarOpen: false,
-	setIsMobileSidebarOpen: () => {},
+export const Route = createFileRoute("/dashboard")({
+	beforeLoad: () => {
+		if (typeof window !== "undefined" && !readStoredSession()) {
+			throw redirect({ to: "/signin" });
+		}
+	},
+	component: DashboardLayout,
 });
-
-export const Route = createFileRoute("/dashboard")({ component: DashboardLayout });
 
 interface Message {
 	id: number;
@@ -84,9 +82,9 @@ interface Message {
 function DashboardLayout() {
 	const { pathname } = useLocation();
 	const navigate = Route.useNavigate();
-	
-	const [hasActiveChat, setHasActiveChat] = useState(true);
-	const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+	const dispatch = useAppDispatch();
+	const hasActiveChat = useAppSelector((s) => s.dashboardStore.hasActiveChat);
+	const isMobileSidebarOpen = useAppSelector((s) => s.dashboardStore.isMobileSidebarOpen);
 	const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 	
 	// Real-time chat states
@@ -384,7 +382,12 @@ function DashboardLayout() {
 							</button>
 							<button
 								type="button"
-								onClick={() => { setShowLogoutDialog(false); navigate({ to: "/" }); }}
+								onClick={() => {
+									setShowLogoutDialog(false);
+									dispatch({ type: "RESET_STORE" });
+									clearStoredSession();
+									navigate({ to: "/" });
+								}}
 								className="flex-1 py-2.5 bg-red-600 hover:bg-red-750 text-white border border-red-700/10 rounded-xl text-xs font-extrabold transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer shadow-xs"
 							>
 								<LogOut size={13} />
@@ -406,7 +409,7 @@ function DashboardLayout() {
 				className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden transition-opacity duration-300 ${
 					isMobileSidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
 				}`}
-				onClick={() => setIsMobileSidebarOpen(false)}
+				onClick={() => dispatch(set_dashboard_flags({ isMobileSidebarOpen: false }))}
 				aria-hidden="true"
 			/>
 
@@ -417,7 +420,7 @@ function DashboardLayout() {
 				}`}
 				aria-label="Mobile navigation"
 			>
-				<SidebarContent onNavClick={() => setIsMobileSidebarOpen(false)} />
+				<SidebarContent onNavClick={() => dispatch(set_dashboard_flags({ isMobileSidebarOpen: false }))} />
 			</aside>
 
 			{/* ── Desktop Sidebar ─────────────────────────────────────────────── */}
@@ -427,9 +430,7 @@ function DashboardLayout() {
 
 			{/* ── Main Content Area ──────────────────────────────────────────── */}
 			<div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
-				<DashboardContext.Provider value={{ hasActiveChat, setHasActiveChat, isMobileSidebarOpen, setIsMobileSidebarOpen }}>
-					<Outlet />
-				</DashboardContext.Provider>
+				<Outlet />
 			</div>
 
 			{/* ── Chat Panel (Right Side) ─────────────────────────────────────── */}
@@ -466,7 +467,7 @@ function DashboardLayout() {
 							</button>
 							<button
 								type="button"
-								onClick={() => setHasActiveChat(false)}
+								onClick={() => dispatch(set_dashboard_flags({ hasActiveChat: false }))}
 								className="w-8 h-8 rounded-lg border border-[var(--dashboard-border)] flex items-center justify-center text-red-500 bg-red-50/10 hover:bg-red-500 hover:text-white transition-colors duration-150 cursor-pointer"
 								aria-label="Close chat"
 							>
@@ -639,7 +640,7 @@ function DashboardLayout() {
 							type="button"
 							onClick={() => {
 								if (item.path === null) {
-									setIsMobileSidebarOpen(true);
+									dispatch(set_dashboard_flags({ isMobileSidebarOpen: true }));
 								} else {
 									navigate({ to: item.path });
 								}
