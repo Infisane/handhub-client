@@ -15,17 +15,11 @@ import {
 	CreditCard,
 	ArrowUpRight,
 	MessageSquare,
-	Menu,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
+import { DashboardHeader } from "#/components/dashboard/dashboard-header";
 import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
-import { ArtisanOnboarding } from "#/components/dashboard/artisan-onboarding";
-import {
-	completeArtisanOnboarding,
-	hasCompletedArtisanOnboarding,
-	isArtisan,
-} from "#/lib/user";
 
 export const Route = createFileRoute("/dashboard/")({
 	component: DashboardPage,
@@ -53,20 +47,6 @@ function DashboardPage() {
 	const [hiredArtisans, setHiredArtisans] = useState<Record<string, boolean>>({});
 	const searchTimerRef = useRef<NodeJS.Timeout | null>(null);
 	const searchInputRef = useRef<HTMLInputElement>(null);
-
-	// Show the artisan onboarding wizard once, after mount (avoids SSR/hydration
-	// mismatch since the gate reads localStorage).
-	const [showOnboarding, setShowOnboarding] = useState(false);
-	useEffect(() => {
-		if (isArtisan() && !hasCompletedArtisanOnboarding()) {
-			setShowOnboarding(true);
-		}
-	}, []);
-
-	const handleOnboardingComplete = () => {
-		completeArtisanOnboarding();
-		setShowOnboarding(false);
-	};
 
 	// Suggestion pills data
 	const pills = [
@@ -212,32 +192,7 @@ function DashboardPage() {
 
 	return (
 		<main className="flex-1 p-4 sm:p-5 md:p-6 pb-24 md:pb-6 flex flex-col gap-4 md:gap-5 overflow-y-auto h-full max-h-screen bg-[var(--dashboard-bg)]">
-			{/* Top Bar Header */}
-			<div className="flex items-center justify-between gap-3">
-				{/* Hamburger trigger — mobile only */}
-				<button
-					type="button"
-					onClick={() => dispatch(set_dashboard_flags({ isMobileSidebarOpen: true }))}
-					className="md:hidden w-9 h-9 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] flex items-center justify-center text-[var(--dashboard-text)] hover:bg-[var(--dashboard-orange-light)] hover:border-[var(--dashboard-orange-mid)] hover:text-[var(--dashboard-orange)] transition-all duration-150 shrink-0 shadow-sm"
-					aria-label="Open navigation"
-				>
-					<Menu size={18} />
-				</button>
-
-				<div className="min-w-0">
-					<h2 className="font-syne font-extrabold text-[20px] sm:text-[25px] tracking-[-0.6px] text-[var(--dashboard-text)] leading-none mb-1 mt-0.5 truncate">
-						Good morning, Adeola
-					</h2>
-					<div className="flex items-center gap-2 text-[11px] text-[var(--dashboard-muted)] font-medium flex-wrap">
-						<span className="hidden sm:inline">Saturday, 30 May 2026</span>
-						<span className="text-neutral-300 select-none hidden sm:inline">·</span>
-						<div className="flex items-center gap-1.5 bg-green-50 border border-green-200/50 rounded-full px-2.5 py-0.5 text-[9.5px] text-green-700 font-semibold shadow-sm select-none">
-							<span className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
-							Lagos State · Live
-						</div>
-					</div>
-				</div>
-			</div>
+			<DashboardHeader />
 
 			{/* Statistics widgets grid */}
 			<section className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
@@ -516,11 +471,6 @@ function DashboardPage() {
 				</button>
 			)}
 
-			{/* Artisan onboarding wizard — shown once for artisan accounts */}
-			<ArtisanOnboarding
-				open={showOnboarding}
-				onComplete={handleOnboardingComplete}
-			/>
 		</main>
 	);
 }

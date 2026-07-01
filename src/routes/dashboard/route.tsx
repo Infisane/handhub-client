@@ -29,17 +29,16 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "#/components/ui/dropdown-menu.tsx";
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-} from "#/components/ui/dialog.tsx";
+import { LogoutDialog } from "#/components/dashboard/logout-dialog";
 import { useState, useRef, useEffect } from "react";
 import { HHLogo } from "#/components/hh/logo";
 import { clearStoredSession } from "#/core/helpers/auth-storage.helper";
 import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
+import { useEnrichedProviderProfile } from "#/core/hooks/useEnrichedProviderProfile.hook";
 import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
+import { useMeQuery } from "#/core/queries/auth.q";
+import { USER_TYPES } from "#/core/helpers/constants.helper";
+import { ArtisanOnboarding } from "#/components/dashboard/artisan-onboarding/artisan-onboarding";
 
 /**
  * Canonical dashboard route paths — shared between the desktop sidebar,
@@ -80,11 +79,36 @@ interface Message {
 }
 
 function DashboardLayout() {
+	useMeQuery();
 	const { pathname } = useLocation();
 	const navigate = Route.useNavigate();
 	const dispatch = useAppDispatch();
 	const hasActiveChat = useAppSelector((s) => s.dashboardStore.hasActiveChat);
 	const isMobileSidebarOpen = useAppSelector((s) => s.dashboardStore.isMobileSidebarOpen);
+	const onboardingDismissed = useAppSelector((s) => s.dashboardStore.onboardingDismissed);
+	const user = useAppSelector((s) => s.authStore.user);
+	const providerProfile = useEnrichedProviderProfile();
+
+	const initials = user?.fullName
+		?.split(" ")
+		.slice(0, 2)
+		.map((w) => w[0])
+		.join("")
+		.toUpperCase() ?? "";
+
+	const locationLine = (() => {
+		const ward = providerProfile?.ward?.name;
+		const lga = providerProfile?.lga?.name;
+		const state = providerProfile?.state?.name;
+		if (ward && state) return `${ward}, ${state}`;
+		if (lga && state) return `${lga}, ${state}`;
+		return state ?? null;
+	})();
+
+	const showOnboarding =
+		user?.userType === USER_TYPES.provider &&
+		user?.providerProfile === null &&
+		!onboardingDismissed;
 	const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 	
 	// Real-time chat states
@@ -291,14 +315,14 @@ function DashboardLayout() {
 							className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/10 hover:bg-white/[0.05] hover:border-white/20 transition-all duration-200 cursor-pointer shadow-inner group"
 						>
 							<div className="w-8 h-8 rounded-full bg-[var(--hh-or-m)] flex items-center justify-center text-xs font-bold text-[#172554] shrink-0 shadow-sm border border-white/15 ring-2 ring-[var(--hh-or-m)]/10">
-								AK
+								{initials}
 							</div>
 							<div className="flex flex-col min-w-0 flex-1 text-left">
 								<p className="text-[13px] font-semibold text-white/95 leading-none mb-1 truncate">
-									Adeola Kamara
+									{user?.fullName ?? ""}
 								</p>
 								<span className="text-[10px] text-white/50 font-medium truncate">
-									Lekki, Lagos
+									{locationLine ?? user?.email ?? ""}
 								</span>
 							</div>
 							<ChevronUp size={13} className="text-white/30 group-hover:text-white/55 transition-colors shrink-0" />
@@ -313,11 +337,11 @@ function DashboardLayout() {
 					>
 						<DropdownMenuLabel className="flex items-center gap-2.5 pb-2">
 							<div className="w-7 h-7 rounded-full bg-[var(--dashboard-orange)] flex items-center justify-center text-[11px] font-bold text-white shrink-0">
-								AK
+								{initials}
 							</div>
 							<div className="flex flex-col min-w-0">
-								<span className="text-xs font-semibold text-foreground truncate">Adeola Kamara</span>
-								<span className="text-[10px] text-muted-foreground truncate">adeola@example.com</span>
+								<span className="text-xs font-semibold text-foreground truncate">{user?.fullName ?? ""}</span>
+								<span className="text-[10px] text-muted-foreground truncate">{user?.email ?? ""}</span>
 							</div>
 						</DropdownMenuLabel>
 
@@ -357,46 +381,16 @@ function DashboardLayout() {
 				</DropdownMenu>
 			</div>
 
-			{/* ── Logout Confirmation Dialog ───────────────────────────────────── */}
-			<Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
-				<DialogContent className="max-w-sm p-5 bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] shadow-2xl rounded-2xl">
-					<DialogHeader>
-						<DialogTitle className="flex items-center gap-3 text-[16px] font-extrabold text-[var(--dashboard-text)] font-syne">
-							<div className="w-9 h-9 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center shrink-0">
-								<LogOut size={15} className="text-red-500" />
-							</div>
-							Log out of Handhub?
-						</DialogTitle>
-					</DialogHeader>
-					<div className="mt-2 space-y-4">
-						<p className="text-[12.5px] leading-relaxed text-[var(--dashboard-muted)]">
-							You'll be signed out of your session. Any unsaved modifications in your workspace will be lost.
-						</p>
-						<div className="flex gap-2.5 pt-1">
-							<button
-								type="button"
-								onClick={() => setShowLogoutDialog(false)}
-								className="flex-1 py-2.5 border border-[var(--dashboard-border)] hover:bg-[var(--dashboard-bg)] text-[var(--dashboard-text)] rounded-xl text-xs font-extrabold transition-all duration-150 cursor-pointer"
-							>
-								Cancel
-							</button>
-							<button
-								type="button"
-								onClick={() => {
-									setShowLogoutDialog(false);
-									dispatch({ type: "RESET_STORE" });
-									clearStoredSession();
-									navigate({ to: "/" });
-								}}
-								className="flex-1 py-2.5 bg-red-600 hover:bg-red-750 text-white border border-red-700/10 rounded-xl text-xs font-extrabold transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-							>
-								<LogOut size={13} />
-								Yes, log out
-							</button>
-						</div>
-					</div>
-				</DialogContent>
-			</Dialog>
+			<LogoutDialog
+				open={showLogoutDialog}
+				onClose={() => setShowLogoutDialog(false)}
+				onConfirm={() => {
+					setShowLogoutDialog(false);
+					dispatch({ type: "RESET_STORE" });
+					clearStoredSession();
+					navigate({ to: "/" });
+				}}
+			/>
 		</>
 	);
 
@@ -622,6 +616,12 @@ function DashboardLayout() {
 					</form>
 				</aside>
 			)}
+
+			{/* ── Provider Onboarding Modal ─────────────────────────────────── */}
+			<ArtisanOnboarding
+				open={showOnboarding}
+				onComplete={() => dispatch(set_dashboard_flags({ onboardingDismissed: true }))}
+			/>
 
 			{/* ── Mobile Bottom Tab Bar ──────────────────────────────────────── */}
 			<nav className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-[var(--dashboard-shell)] border-t border-white/10 flex items-center px-2 py-1 safe-area-bottom">
