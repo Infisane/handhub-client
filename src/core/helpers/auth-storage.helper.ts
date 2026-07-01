@@ -1,4 +1,4 @@
-import type { AuthSession } from "#/core/services/auth.service";
+import type { AuthSession } from "#/core/types/auth.types";
 
 const STORAGE_KEY = "handhub_auth";
 

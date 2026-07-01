@@ -3,6 +3,7 @@ import { formBoxMotion } from "#/components/auth/auth-motion";
 import { SocialAuthButtons } from "#/components/auth/social-auth-buttons";
 import { Nav } from "#/components/home/nav";
 import { AppInput } from "#/components/ui/app-input";
+import { USER_TYPES, type UserType } from "#/core/helpers/constants.helper";
 import { useValidator } from "#/core/helpers/useValidator.helper";
 import { useRegisterQuery } from "#/core/queries/auth.q";
 import {
@@ -38,7 +39,7 @@ function SignUpPage() {
 
 	// Step 1 Form fields
 	const [step1Data, setStep1Data] = useState({
-		role: "customer" as "customer" | "artisan",
+		role: USER_TYPES.customer as UserType,
 		firstName: "",
 		lastName: "",
 		phone: "",
@@ -116,7 +117,7 @@ function SignUpPage() {
 				email: step1Data.email,
 				phone: step1Data.phone.replace(/\s+/g, ""),
 				password: step2Data.password,
-				userType: step1Data.role,
+				userType: step1Data.role as UserType,
 			});
 		});
 	};
@@ -198,9 +199,9 @@ function SignUpPage() {
 												<button
 													type="button"
 													className={`role-card ${
-														step1Data.role === "customer" ? "selected" : ""
+														step1Data.role === USER_TYPES.customer ? "selected" : ""
 													}`}
-													onClick={() => handleSetStep1Data("role", "customer")}
+													onClick={() => handleSetStep1Data("role", USER_TYPES.customer)}
 												>
 													<Search size={22} aria-hidden="true" />
 													<div className="rt">Find artisans</div>
@@ -209,9 +210,9 @@ function SignUpPage() {
 												<button
 													type="button"
 													className={`role-card ${
-														step1Data.role === "artisan" ? "selected" : ""
+														step1Data.role === USER_TYPES.provider ? "selected" : ""
 													}`}
-													onClick={() => handleSetStep1Data("role", "artisan")}
+													onClick={() => handleSetStep1Data("role", USER_TYPES.provider)}
 												>
 													<Hammer size={22} aria-hidden="true" />
 													<div className="rt">Offer services</div>

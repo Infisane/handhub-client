@@ -18,7 +18,7 @@ import { Nav } from "#/components/home/nav";
 import { useValidator } from "#/core/helpers/useValidator.helper";
 import { useLoginQuery } from "#/core/queries/auth.q";
 import { SignInSchema } from "#/core/schemas/auth.schema";
-import { USER_TYPES } from "#/core/helpers/constants.helper";
+import { USER_TYPES, type UserType } from "#/core/helpers/constants.helper";
 import { writeStoredSession } from "#/core/helpers/auth-storage.helper";
 import { useAppDispatch } from "#/core/hooks/useStore.hook";
 import { set_auth_session } from "#/core/redux-store/slices/auth.slice";
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_auth/signin")({
 
 function SignInPage() {
 	const navigate = useNavigate();
-	const [activeTab, setActiveTab] = useState<"cust" | "art">("cust");
+	const [activeTab, setActiveTab] = useState<UserType>(USER_TYPES.customer);
 	const [loginFormData, setLoginFormData] = useState({
 		email: "",
 		password: "",
@@ -57,7 +57,7 @@ function SignInPage() {
 			handleLoginRequest({
 				credential: loginFormData.email,
 				password: loginFormData.password,
-				userType: activeTab === "cust" ? USER_TYPES.customer : USER_TYPES.artisan,
+				userType: activeTab,
 			});
 		});
 	};
@@ -138,10 +138,10 @@ function SignInPage() {
 							<div className="tabs relative overflow-hidden">
 								<button
 									type="button"
-									className={`tab relative z-10 ${activeTab === "cust" ? "!text-white !font-semibold" : "text-[var(--txt3)]"}`}
-									onClick={() => setActiveTab("cust")}
+									className={`tab relative z-10 ${activeTab === USER_TYPES.customer ? "!text-white !font-semibold" : "text-[var(--txt3)]"}`}
+									onClick={() => setActiveTab(USER_TYPES.customer)}
 								>
-									{activeTab === "cust" && (
+									{activeTab === USER_TYPES.customer && (
 										<motion.div
 											layoutId="activeTabIndicator"
 											className="absolute inset-0 bg-[var(--or)] rounded-[var(--rs)] -z-10"
@@ -156,10 +156,10 @@ function SignInPage() {
 								</button>
 								<button
 									type="button"
-									className={`tab relative z-10 ${activeTab === "art" ? "!text-white !font-semibold" : "text-[var(--txt3)]"}`}
-									onClick={() => setActiveTab("art")}
+									className={`tab relative z-10 ${activeTab === USER_TYPES.provider ? "!text-white !font-semibold" : "text-[var(--txt3)]"}`}
+									onClick={() => setActiveTab(USER_TYPES.provider)}
 								>
-									{activeTab === "art" && (
+									{activeTab === USER_TYPES.provider && (
 										<motion.div
 											layoutId="activeTabIndicator"
 											className="absolute inset-0 bg-[var(--or)] rounded-[var(--rs)] -z-10"

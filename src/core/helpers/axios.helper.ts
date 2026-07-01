@@ -22,6 +22,9 @@ request.interceptors.response.use(
     if (error.response?.status === 401) {
       clearStoredSession();
       store.dispatch(clear_auth_session());
+      if (typeof window !== "undefined") {
+        window.location.replace("/signin");
+      }
     }
     return Promise.reject(error);
   },

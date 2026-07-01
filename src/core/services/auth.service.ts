@@ -1,30 +1,7 @@
 import { getRequestData, request } from "#/core/helpers/axios.helper";
+import type { AuthSession, AuthUser, LoginPayload, RegisterPayload } from "#/core/types/auth.types";
 
-export interface AuthUser {
-	id: string;
-	fullName: string;
-	email: string;
-	phone: string;
-	userType: "customer" | "artisan";
-	isVerified: boolean;
-	isActive: boolean;
-	city: string | null;
-	avatar: string | null;
-	createdAt: string;
-}
-
-export interface AuthSession {
-	token: string;
-	user: AuthUser;
-}
-
-export interface RegisterPayload {
-	fullName: string;
-	email: string;
-	phone: string;
-	password: string;
-	userType: "customer" | "artisan";
-}
+export type { AuthSession, AuthUser, LoginPayload, RegisterPayload };
 
 export const registerService = ({
 	payload,
@@ -37,12 +14,6 @@ export const registerService = ({
 		request.post("/api/auth/register", payload, { signal }),
 	);
 
-export interface LoginPayload {
-	credential: string;
-	password: string;
-	userType: "customer" | "artisan";
-}
-
 export const loginService = ({
 	payload,
 	signal,
@@ -53,3 +24,6 @@ export const loginService = ({
 	getRequestData<AuthSession>(
 		request.post("/api/auth/login", payload, { signal }),
 	);
+
+export const getMeService = ({ signal }: { signal?: AbortSignal } = {}) =>
+	getRequestData<AuthUser>(request.get("/api/auth/me", { signal }));

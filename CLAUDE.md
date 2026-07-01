@@ -38,6 +38,7 @@
 | Hook | `src/core/hooks/*.hook.ts` | `useStore.hook.ts` |
 | Context | `src/core/contexts/*.context.tsx` | `auth.context.tsx` |
 | Constant | `src/core/helpers/constants.helper.ts` | `USER_TYPES`, `UserType` |
+| Types | `src/core/types/*.types.ts` | `auth.types.ts` |
 
 ---
 
