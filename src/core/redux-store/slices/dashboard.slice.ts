@@ -3,11 +3,13 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 interface DashboardState {
 	hasActiveChat: boolean;
 	isMobileSidebarOpen: boolean;
+	onboardingDismissed: boolean;
 }
 
 const initialState: DashboardState = {
 	hasActiveChat: true,
 	isMobileSidebarOpen: false,
+	onboardingDismissed: false,
 };
 
 const dashboardSlice = createSlice({

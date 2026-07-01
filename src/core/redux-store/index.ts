@@ -11,6 +11,7 @@ import {
 } from "redux-persist";
 import authReducer from "./slices/auth.slice";
 import dashboardReducer from "./slices/dashboard.slice";
+import onboardingReducer from "./slices/onboarding.slice";
 
 // SSR-safe storage: Cloudflare Workers don't have localStorage.
 // On the server this is a no-op; redux-persist only rehydrates on the client.
@@ -32,6 +33,7 @@ const storage = {
 const appReducer = combineReducers({
 	authStore: authReducer,
 	dashboardStore: dashboardReducer,
+	onboardingStore: onboardingReducer,
 });
 
 type AppReducerState = ReturnType<typeof appReducer>;
