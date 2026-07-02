@@ -11,6 +11,7 @@ import {
 } from "redux-persist";
 import authReducer from "./slices/auth.slice";
 import dashboardReducer from "./slices/dashboard.slice";
+import geolocationReducer from "./slices/geolocation.slice";
 import onboardingReducer from "./slices/onboarding.slice";
 
 // SSR-safe storage: Cloudflare Workers don't have localStorage.
@@ -33,6 +34,7 @@ const storage = {
 const appReducer = combineReducers({
 	authStore: authReducer,
 	dashboardStore: dashboardReducer,
+	geolocationStore: geolocationReducer,
 	onboardingStore: onboardingReducer,
 });
 
@@ -51,7 +53,7 @@ const rootReducer = (
 const persistConfig = {
 	key: "handhub",
 	storage,
-	whitelist: ["authStore"],
+	whitelist: ["authStore", "geolocationStore"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
