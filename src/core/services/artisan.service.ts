@@ -1,6 +1,10 @@
 import { getRequestData, request } from "#/core/helpers/axios.helper";
 import type {
+	AiSearchParams,
+	AiSearchResponse,
 	AvailabilityOptions,
+	RecommendationsParams,
+	RecommendationsResponse,
 	ServiceItem,
 	UpdateProviderPayload,
 } from "#/core/types/artisan.types";
@@ -14,6 +18,28 @@ export const getAvailabilityOptionsService = ({
 }: { signal?: AbortSignal } = {}) =>
 	getRequestData<AvailabilityOptions>(
 		request.get("/api/providers/availability-options", { signal }),
+	);
+
+export const aiSearchService = ({
+	params,
+	signal,
+}: {
+	params: AiSearchParams;
+	signal?: AbortSignal;
+}) =>
+	getRequestData<AiSearchResponse>(
+		request.get("/api/ai/search", { params, signal }),
+	);
+
+export const getRecommendationsService = ({
+	params,
+	signal,
+}: {
+	params: RecommendationsParams;
+	signal?: AbortSignal;
+}) =>
+	getRequestData<RecommendationsResponse>(
+		request.get("/api/ai/recommendations", { params, signal }),
 	);
 
 export const updateProviderProfileService = ({
