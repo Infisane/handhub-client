@@ -26,6 +26,7 @@ export function DashboardHeader() {
 
 	const firstName = authUser?.fullName?.split(" ")[0] ?? "";
 	const stateName = providerProfile?.state?.name ?? null;
+	const isVerified = providerProfile?.isVerified ?? authUser?.isVerified ?? false;
 
 	return (
 		<div className="flex items-center justify-between gap-3">
@@ -45,10 +46,17 @@ export function DashboardHeader() {
 				<div className="flex items-center gap-2 text-[11px] text-[var(--dashboard-muted)] font-medium flex-wrap">
 					<span className="hidden sm:inline">{formatDate()}</span>
 					<span className="text-neutral-300 select-none hidden sm:inline">·</span>
-					<div className="flex items-center gap-1.5 bg-green-50 border border-green-200/50 rounded-full px-2.5 py-0.5 text-[9.5px] text-green-700 font-semibold shadow-sm select-none">
-						<span className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
-						{stateName ? `${stateName} · ` : ""}
-					</div>
+					{isVerified ? (
+						<div className="flex items-center gap-1.5 bg-green-50 border border-green-200/50 rounded-full px-2.5 py-0.5 text-[9.5px] text-green-700 font-semibold shadow-sm select-none">
+							<span className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+							{stateName ? `${stateName} · ` : ""}Verified
+						</div>
+					) : (
+						<div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200/50 rounded-full px-2.5 py-0.5 text-[9.5px] text-amber-700 font-semibold shadow-sm select-none">
+							<span className="w-1 h-1 rounded-full bg-amber-500" />
+							{stateName ? `${stateName} · ` : ""}Unverified
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

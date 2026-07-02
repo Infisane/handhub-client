@@ -39,6 +39,8 @@ import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
 import { useMeQuery } from "#/core/queries/auth.q";
 import { USER_TYPES } from "#/core/helpers/constants.helper";
 import { ArtisanOnboarding } from "#/components/dashboard/artisan-onboarding/artisan-onboarding";
+import { LocationAlert } from "#/components/dashboard/location-alert";
+import { useUserLocation } from "#/core/hooks/useUserLocation.hook";
 
 /**
  * Canonical dashboard route paths — shared between the desktop sidebar,
@@ -80,6 +82,7 @@ interface Message {
 
 function DashboardLayout() {
 	useMeQuery();
+	useUserLocation();
 	const { pathname } = useLocation();
 	const navigate = Route.useNavigate();
 	const dispatch = useAppDispatch();
@@ -622,6 +625,8 @@ function DashboardLayout() {
 				open={showOnboarding}
 				onComplete={() => dispatch(set_dashboard_flags({ onboardingDismissed: true }))}
 			/>
+
+			<LocationAlert />
 
 			{/* ── Mobile Bottom Tab Bar ──────────────────────────────────────── */}
 			<nav className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-[var(--dashboard-shell)] border-t border-white/10 flex items-center px-2 py-1 safe-area-bottom">
