@@ -41,7 +41,7 @@ function getInitials(name: string) {
 		.toUpperCase();
 }
 
-function getAvailability(availability: Record<string, string[]>) {
+function getAvailability(availability: Record<string, unknown>) {
 	return Object.keys(availability).length > 0
 		? { label: "Available now", className: "bg-green-50 text-green-700 border-green-200/50" }
 		: { label: "Sched. only", className: "bg-amber-50 text-amber-800 border-amber-200/50" };

@@ -5,6 +5,13 @@ export interface ServiceCategory {
 	description: string;
 }
 
+export interface Category {
+	id: string;
+	name: string;
+	icon: string;
+	description: string;
+}
+
 export interface ServiceItem {
 	id: string;
 	name: string;
@@ -37,9 +44,9 @@ export interface AiSearchProvider {
 	title: string | null;
 	businessName: string | null;
 	bio: string | null;
-	accountType: "individual" | "business" | "agency";
+	accountType: "individual" | "business" | "agency" | null;
 	hourlyRate: string;
-	minCharge: string;
+	minCharge: string | null;
 	averageRating: string;
 	reviewCount: number;
 	yearsExperience: number;
@@ -47,23 +54,23 @@ export interface AiSearchProvider {
 	isPremium: boolean;
 	approvalStatus: string;
 	portfolioImages: string[];
-	availability: Record<string, string[]>;
-	address: string;
+	availability: Record<string, unknown>;
+	address: string | null;
 	city: string | null;
-	latitude: string;
-	longitude: string;
+	latitude: string | null;
+	longitude: string | null;
 	serviceRadius: number | null;
-	state: AiSearchProviderLocation;
-	lga: AiSearchProviderLocation;
-	ward: AiSearchProviderLocation;
+	state: AiSearchProviderLocation | null;
+	lga: AiSearchProviderLocation | null;
+	ward: AiSearchProviderLocation | null;
 	categoryId: string | null;
 	services: AiSearchProviderService[];
 	createdAt: string;
 }
 
 export interface AiSearchResponse {
-	providers: AiSearchProvider[];
-	total: number;
+	data: AiSearchProvider[];
+	meta: { total: number; limit: number; offset: number };
 }
 
 export interface AiSearchParams {
@@ -91,6 +98,47 @@ export interface Recommendation {
 export interface RecommendationsResponse {
 	recommendations: Recommendation[];
 	summary: string;
+}
+
+export interface ProvidersResponse {
+	data: AiSearchProvider[];
+	meta: { total: number; limit: number; offset: number };
+}
+
+export interface GetProvidersParams {
+	q?: string;
+	categoryId?: string;
+	serviceId?: string;
+	lat?: number;
+	lon?: number;
+	radius?: number;
+	verified?: boolean;
+	minRating?: number;
+	maxRate?: number;
+	sortBy?: string;
+	limit?: number;
+	offset?: number;
+	stateId?: string;
+	lgaId?: string;
+}
+
+export interface ProviderReview {
+	id: string;
+	rating: number;
+	comment: string;
+	createdAt: string;
+	customer: { id: string; fullName: string };
+}
+
+export interface ProviderAvailabilitySlot {
+	from: string;
+	to: string;
+}
+
+export interface ProviderDetail extends Omit<AiSearchProvider, "availability"> {
+	availability: Record<string, ProviderAvailabilitySlot>;
+	ratingBreakdown: Record<string, number>;
+	reviews: ProviderReview[];
 }
 
 export interface UpdateProviderPayload {

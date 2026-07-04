@@ -6,6 +6,7 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { Toaster } from "../components/ui/sonner";
@@ -58,7 +59,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<body>
 				<Provider store={store}>
 					<PersistGate loading={null} persistor={persistor}>
-						{children}
+						<NuqsAdapter>
+							{children}
+						</NuqsAdapter>
 						<Toaster />
 						<TanStackDevtools
 							config={{
