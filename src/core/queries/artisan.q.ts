@@ -3,11 +3,14 @@ import { abortController } from "#/core/helpers/axios.helper";
 import {
 	aiSearchService,
 	getAvailabilityOptionsService,
+	getCategoriesService,
+	getProviderByIdService,
+	getProvidersService,
 	getRecommendationsService,
 	getServicesService,
 	updateProviderProfileService,
 } from "#/core/services/artisan.service";
-import type { AiSearchParams, RecommendationsParams, UpdateProviderPayload } from "#/core/types/artisan.types";
+import type { AiSearchParams, GetProvidersParams, RecommendationsParams, UpdateProviderPayload } from "#/core/types/artisan.types";
 import type { AuthUser } from "#/core/types/auth.types";
 
 export const useAiSearchQuery = (params: AiSearchParams | null) =>
@@ -26,10 +29,32 @@ export const useGetRecommendationsQuery = (params: RecommendationsParams) =>
 		staleTime: 1000 * 60 * 5,
 	});
 
+export const useGetProvidersQuery = (params?: GetProvidersParams) =>
+	useQuery({
+		queryKey: ["providers", params],
+		queryFn: ({ signal }) => getProvidersService({ params, signal }),
+		staleTime: 1000 * 60 * 5,
+	});
+
+export const useGetProviderByIdQuery = (id: string | null) =>
+	useQuery({
+		queryKey: ["provider", id],
+		queryFn: ({ signal }) => getProviderByIdService({ id: id!, signal }),
+		enabled: !!id,
+		staleTime: 1000 * 60 * 5,
+	});
+
 export const useGetAvailabilityOptionsQuery = () =>
 	useQuery({
 		queryKey: ["availability-options"],
 		queryFn: ({ signal }) => getAvailabilityOptionsService({ signal }),
+		staleTime: 1000 * 60 * 60 * 24,
+	});
+
+export const useGetCategoriesQuery = () =>
+	useQuery({
+		queryKey: ["categories"],
+		queryFn: ({ signal }) => getCategoriesService({ signal }),
 		staleTime: 1000 * 60 * 60 * 24,
 	});
 

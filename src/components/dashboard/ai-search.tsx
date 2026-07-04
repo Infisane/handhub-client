@@ -1,14 +1,15 @@
 import { ArrowRight, Sparkles, Zap } from "lucide-react";
+import { getCategoryIcon } from "#/core/helpers/category-icons.helper";
 import { useRef, useState } from "react";
-import { useAiSearchQuery, useGetServicesQuery } from "#/core/queries/artisan.q";
+import { useAiSearchQuery, useGetCategoriesQuery } from "#/core/queries/artisan.q";
 import { useAppSelector } from "#/core/hooks/useStore.hook";
-import type { AiSearchParams, AiSearchProvider, ServiceItem } from "#/core/types/artisan.types";
+import type { AiSearchParams, AiSearchProvider, Category } from "#/core/types/artisan.types";
 
 const RADIUS_OPTIONS = [5, 10, 25, 50];
 
 function ProviderCard({ provider }: { provider: AiSearchProvider }) {
 	const name = provider.businessName ?? provider.title ?? "Provider";
-	const location = `${provider.ward.name}, ${provider.lga.name}`;
+	const location = [provider.ward?.name, provider.lga?.name].filter(Boolean).join(", ");
 	const minCharge = Number(provider.minCharge);
 	const rating = Number(provider.averageRating);
 
@@ -62,7 +63,7 @@ function ProviderCard({ provider }: { provider: AiSearchProvider }) {
 
 export function AiSearch() {
 	const [searchValue, setSearchValue] = useState("");
-	const [radius, setRadius] = useState(10);
+	const [radius, setRadius] = useState(25);
 	const [submittedParams, setSubmittedParams] = useState<AiSearchParams | null>(null);
 	const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -70,7 +71,7 @@ export function AiSearch() {
 		(s) => s.geolocationStore,
 	);
 	const { data, isFetching } = useAiSearchQuery(submittedParams);
-	const { data: services, isLoading: servicesLoading } = useGetServicesQuery();
+	const { data: categories, isLoading: categoriesLoading } = useGetCategoriesQuery();
 
 	const canSearch = searchValue.trim().length > 0 && latitude !== null && longitude !== null;
 
@@ -131,27 +132,24 @@ export function AiSearch() {
 
 			{/* Quick Suggestion Pills */}
 			<div className="flex gap-1.5 mt-3 overflow-x-auto scrollbar-none pb-0.5 flex-wrap">
-				{servicesLoading
+				{categoriesLoading
 					? Array.from({ length: 5 }).map((_, i) => (
 							<div
 								key={i}
 								className="h-[26px] w-24 rounded-full bg-[var(--dashboard-purple-light)] animate-pulse"
 							/>
 						))
-					: services
-							?.filter((s: ServiceItem) => s.isActive)
-							.slice(0, 8)
-							.map((service: ServiceItem) => (
-								<button
-									key={service.id}
-									type="button"
-									onClick={() => handlePillClick(service.name)}
-									className="flex items-center gap-1 bg-[var(--dashboard-purple-light)] border border-[var(--dashboard-purple-mid)]/20 rounded-full px-2.5 py-1 text-[11px] text-[var(--dashboard-purple)] cursor-pointer hover:bg-[var(--dashboard-purple)] hover:text-white hover:border-[var(--dashboard-purple)] hover:translate-y-[-1px] transition-all duration-200 whitespace-nowrap font-semibold"
-								>
-									<span>{service.category.icon}</span>
-									{service.name}
-								</button>
-							))}
+					: categories?.map((cat: Category) => (
+							<button
+								key={cat.id}
+								type="button"
+								onClick={() => handlePillClick(cat.name)}
+								className="flex items-center gap-1 bg-[var(--dashboard-purple-light)] border border-[var(--dashboard-purple-mid)]/20 rounded-full px-2.5 py-1 text-[11px] text-[var(--dashboard-purple)] cursor-pointer hover:bg-[var(--dashboard-purple)] hover:text-white hover:border-[var(--dashboard-purple)] hover:translate-y-[-1px] transition-all duration-200 whitespace-nowrap font-semibold"
+							>
+								{(() => { const Icon = getCategoryIcon(cat.icon); return <Icon size={11} />; })()}
+								{cat.name}
+							</button>
+						))}
 			</div>
 
 			{/* Radius chips */}
@@ -203,19 +201,19 @@ export function AiSearch() {
 			)}
 
 			{/* Results */}
-			{!isFetching && data && data.providers.length > 0 && (
+			{!isFetching && data && data.data.length > 0 && (
 				<div className="mt-3 flex flex-col gap-2">
 					<p className="text-[10.5px] text-[var(--dashboard-muted)] font-semibold">
-						{data.total} match{data.total !== 1 ? "es" : ""} found
+						{data.meta.total} match{data.meta.total !== 1 ? "es" : ""} found
 					</p>
-					{data.providers.map((p: AiSearchProvider) => (
+					{data.data.map((p: AiSearchProvider) => (
 						<ProviderCard key={p.id} provider={p} />
 					))}
 				</div>
 			)}
 
 			{/* Empty state */}
-			{!isFetching && data && data.providers.length === 0 && submittedParams && (
+			{!isFetching && data && data.data.length === 0 && submittedParams && (
 				<p className="text-[12px] text-[var(--dashboard-muted)] mt-3 text-center py-2">
 					No artisans found for "{submittedParams.q}" in this area. Try a wider radius.
 				</p>

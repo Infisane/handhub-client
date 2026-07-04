@@ -3,12 +3,19 @@ import type {
 	AiSearchParams,
 	AiSearchResponse,
 	AvailabilityOptions,
+	Category,
+	GetProvidersParams,
+	ProviderDetail,
+	ProvidersResponse,
 	RecommendationsParams,
 	RecommendationsResponse,
 	ServiceItem,
 	UpdateProviderPayload,
 } from "#/core/types/artisan.types";
 import type { AuthUser } from "#/core/types/auth.types";
+
+export const getCategoriesService = ({ signal }: { signal?: AbortSignal } = {}) =>
+	getRequestData<Category[]>(request.get("/api/categories", { signal }));
 
 export const getServicesService = ({ signal }: { signal?: AbortSignal } = {}) =>
 	getRequestData<ServiceItem[]>(request.get("/api/services", { signal }));
@@ -40,6 +47,28 @@ export const getRecommendationsService = ({
 }) =>
 	getRequestData<RecommendationsResponse>(
 		request.get("/api/ai/recommendations", { params, signal }),
+	);
+
+export const getProvidersService = ({
+	params,
+	signal,
+}: {
+	params?: GetProvidersParams;
+	signal?: AbortSignal;
+} = {}) =>
+	getRequestData<ProvidersResponse>(
+		request.get("/api/providers", { params, signal }),
+	);
+
+export const getProviderByIdService = ({
+	id,
+	signal,
+}: {
+	id: string;
+	signal?: AbortSignal;
+}) =>
+	getRequestData<ProviderDetail>(
+		request.get(`/api/providers/${id}`, { signal }),
 	);
 
 export const updateProviderProfileService = ({

@@ -14,6 +14,12 @@ const config = defineConfig({
 		tanstackStart(),
 		viteReact(),
 	],
+	server: {
+    hmr: {
+      protocol: 'ws', // Use 'wss' if you are running over HTTPS
+      host: 'localhost',
+    }
+  }
 });
 
 export default config;
