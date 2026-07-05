@@ -4,12 +4,18 @@ interface DashboardState {
 	hasActiveChat: boolean;
 	isMobileSidebarOpen: boolean;
 	onboardingDismissed: boolean;
+	/** Conversation the drawer shows: an existing thread… */
+	activeThreadId: string | null;
+	/** …or a provider-profile id for a not-yet-created conversation. */
+	activeProviderId: string | null;
 }
 
 const initialState: DashboardState = {
-	hasActiveChat: true,
+	hasActiveChat: false,
 	isMobileSidebarOpen: false,
 	onboardingDismissed: false,
+	activeThreadId: null,
+	activeProviderId: null,
 };
 
 const dashboardSlice = createSlice({

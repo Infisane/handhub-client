@@ -61,7 +61,13 @@ export function RecommendedArtisans() {
 
 	const handleHireClick = (providerId: string) => {
 		setHiredArtisans((prev) => ({ ...prev, [providerId]: true }));
-		dispatch(set_dashboard_flags({ hasActiveChat: true }));
+		dispatch(
+			set_dashboard_flags({
+				hasActiveChat: true,
+				activeProviderId: providerId,
+				activeThreadId: null,
+			}),
+		);
 	};
 
 	return (

@@ -1,26 +1,32 @@
-import { createFileRoute, Outlet, Link, useLocation, redirect } from "@tanstack/react-router";
-import { readStoredSession } from "#/core/helpers/auth-storage.helper";
 import {
-	LayoutDashboard,
-	Search,
+	createFileRoute,
+	Link,
+	Outlet,
+	redirect,
+	useLocation,
+} from "@tanstack/react-router";
+import {
 	Calendar,
-	MessageSquare,
-	CreditCard,
-	Star,
-	MapPin,
-	Settings,
-	Phone,
-	FileText,
-	Lock,
-	Send,
-	Check,
-	X,
-	Menu,
 	ChevronUp,
-	User,
+	CreditCard,
 	HelpCircle,
+	LayoutDashboard,
 	LogOut,
+	MapPin,
+	Menu,
+	MessageSquare,
+	Search,
+	Settings,
+	Star,
+	User,
+	X,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ChatConversation } from "#/components/chat/chat-conversation";
+import { ArtisanOnboarding } from "#/components/dashboard/artisan-onboarding/artisan-onboarding";
+import { LocationAlert } from "#/components/dashboard/location-alert";
+import { LogoutDialog } from "#/components/dashboard/logout-dialog";
+import { HHLogo } from "#/components/hh/logo";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -29,18 +35,16 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "#/components/ui/dropdown-menu.tsx";
-import { LogoutDialog } from "#/components/dashboard/logout-dialog";
-import { useState, useRef, useEffect } from "react";
-import { HHLogo } from "#/components/hh/logo";
-import { clearStoredSession } from "#/core/helpers/auth-storage.helper";
-import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
-import { useEnrichedProviderProfile } from "#/core/hooks/useEnrichedProviderProfile.hook";
-import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
-import { useMeQuery } from "#/core/queries/auth.q";
+import {
+	clearStoredSession,
+	readStoredSession,
+} from "#/core/helpers/auth-storage.helper";
 import { USER_TYPES } from "#/core/helpers/constants.helper";
-import { ArtisanOnboarding } from "#/components/dashboard/artisan-onboarding/artisan-onboarding";
-import { LocationAlert } from "#/components/dashboard/location-alert";
+import { useEnrichedProviderProfile } from "#/core/hooks/useEnrichedProviderProfile.hook";
+import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
 import { useUserLocation } from "#/core/hooks/useUserLocation.hook";
+import { useMeQuery } from "#/core/queries/auth.q";
+import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
 
 /**
  * Canonical dashboard route paths — shared between the desktop sidebar,
@@ -57,7 +61,6 @@ export const DASHBOARD_PATHS = {
 	settings: "/dashboard/settings",
 } as const;
 
-
 export const Route = createFileRoute("/dashboard")({
 	beforeLoad: () => {
 		if (typeof window !== "undefined" && !readStoredSession()) {
@@ -67,19 +70,6 @@ export const Route = createFileRoute("/dashboard")({
 	component: DashboardLayout,
 });
 
-interface Message {
-	id: number;
-	sender: "artisan" | "user" | "system";
-	text: string;
-	time: string;
-	quote?: {
-		title: string;
-		amount: string;
-		desc: string;
-		paid: boolean;
-	};
-}
-
 function DashboardLayout() {
 	useMeQuery();
 	useUserLocation();
@@ -87,17 +77,26 @@ function DashboardLayout() {
 	const navigate = Route.useNavigate();
 	const dispatch = useAppDispatch();
 	const hasActiveChat = useAppSelector((s) => s.dashboardStore.hasActiveChat);
-	const isMobileSidebarOpen = useAppSelector((s) => s.dashboardStore.isMobileSidebarOpen);
-	const onboardingDismissed = useAppSelector((s) => s.dashboardStore.onboardingDismissed);
+	const activeThreadId = useAppSelector((s) => s.dashboardStore.activeThreadId);
+	const activeProviderId = useAppSelector(
+		(s) => s.dashboardStore.activeProviderId,
+	);
+	const isMobileSidebarOpen = useAppSelector(
+		(s) => s.dashboardStore.isMobileSidebarOpen,
+	);
+	const onboardingDismissed = useAppSelector(
+		(s) => s.dashboardStore.onboardingDismissed,
+	);
 	const user = useAppSelector((s) => s.authStore.user);
 	const providerProfile = useEnrichedProviderProfile();
 
-	const initials = user?.fullName
-		?.split(" ")
-		.slice(0, 2)
-		.map((w) => w[0])
-		.join("")
-		.toUpperCase() ?? "";
+	const initials =
+		user?.fullName
+			?.split(" ")
+			.slice(0, 2)
+			.map((w) => w[0])
+			.join("")
+			.toUpperCase() ?? "";
 
 	const locationLine = (() => {
 		const ward = providerProfile?.ward?.name;
@@ -113,43 +112,6 @@ function DashboardLayout() {
 		user?.providerProfile === null &&
 		!onboardingDismissed;
 	const [showLogoutDialog, setShowLogoutDialog] = useState(false);
-	
-	// Real-time chat states
-	const [messages, setMessages] = useState<Message[]>([
-		{
-			id: 1,
-			sender: "artisan",
-			text: "Hello! I've reviewed your request. The smoking panel sounds like an urgent issue. I can head over by 4:00 PM. Is that fine?",
-			time: "14:32",
-		},
-		{
-			id: 2,
-			sender: "user",
-			text: "Sure, that works perfectly! Please bring your full kit — the inverter has been acting up for a week now.",
-			time: "14:35",
-		},
-		{
-			id: 3,
-			sender: "artisan",
-			text: "Understood, I'll bring everything. Here's my quote for the inspection:",
-			time: "14:36",
-			quote: {
-				title: "Quote proposal",
-				amount: "₦45,000",
-				desc: "Inverter inspection fee (fixed rate)",
-				paid: false,
-			},
-		},
-	]);
-
-	const [inputText, setInputText] = useState("");
-	const [isTyping, setIsTyping] = useState(false);
-	const chatEndRef = useRef<HTMLDivElement>(null);
-
-	// Scroll to latest message
-	useEffect(() => {
-		chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-	}, [messages]);
 
 	// Lock body scroll when mobile sidebar is open
 	useEffect(() => {
@@ -163,73 +125,70 @@ function DashboardLayout() {
 		};
 	}, [isMobileSidebarOpen]);
 
-	const handleSendMessage = (textToSend: string) => {
-		if (!textToSend.trim()) return;
-
-		const userMsg: Message = {
-			id: Date.now(),
-			sender: "user",
-			text: textToSend,
-			time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-		};
-
-		setMessages((prev) => [...prev, userMsg]);
-		setInputText("");
-
-		// Simulate artisan typing a reply after 1.2s
-		setIsTyping(true);
-		setTimeout(() => {
-			setIsTyping(false);
-			const replyMsg: Message = {
-				id: Date.now() + 1,
-				sender: "artisan",
-				text: "Great! I'm packing my tools now and will head your way shortly. I will call you once I arrive.",
-				time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-			};
-			setMessages((prev) => [...prev, replyMsg]);
-		}, 2000);
-	};
-
-	const handlePayQuote = (msgId: number) => {
-		setMessages((prev) =>
-			prev.map((msg) => {
-				if (msg.id === msgId && msg.quote) {
-					return {
-						...msg,
-						quote: { ...msg.quote, paid: true },
-					};
-				}
-				return msg;
-			})
-		);
-
-		// Append a system confirmation message
-		setTimeout(() => {
-			const systemMsg: Message = {
-				id: Date.now() + 2,
-				sender: "system",
-				text: "Payment Confirmed: ₦45,000 has been secured in escrow for Inverter Inspection.",
-				time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-			};
-			setMessages((prev) => [...prev, systemMsg]);
-		}, 500);
-	};
-
 	const navItems = [
-		{ section: "Main", items: [
-			{ name: "Dashboard", icon: LayoutDashboard, path: DASHBOARD_PATHS.dashboard, badge: null },
-			{ name: "Find Artisans", icon: Search, path: DASHBOARD_PATHS.artisans, badge: 48 },
-			{ name: "Bookings", icon: Calendar, path: DASHBOARD_PATHS.bookings, badge: 3 },
-			{ name: "Messages", icon: MessageSquare, path: DASHBOARD_PATHS.messages, badge: 5 },
-		]},
-		{ section: "Manage", items: [
-			{ name: "Payments", icon: CreditCard, path: DASHBOARD_PATHS.payments, badge: null },
-			{ name: "Reviews", icon: Star, path: DASHBOARD_PATHS.reviews, badge: null },
-			{ name: "My Area", icon: MapPin, path: DASHBOARD_PATHS.myArea, badge: null },
-		]},
-		{ section: "Account", items: [
-			{ name: "Settings", icon: Settings, path: DASHBOARD_PATHS.settings, badge: null },
-		]}
+		{
+			section: "Main",
+			items: [
+				{
+					name: "Dashboard",
+					icon: LayoutDashboard,
+					path: DASHBOARD_PATHS.dashboard,
+					badge: null,
+				},
+				{
+					name: "Find Artisans",
+					icon: Search,
+					path: DASHBOARD_PATHS.artisans,
+					badge: 48,
+				},
+				{
+					name: "Bookings",
+					icon: Calendar,
+					path: DASHBOARD_PATHS.bookings,
+					badge: 3,
+				},
+				{
+					name: "Messages",
+					icon: MessageSquare,
+					path: DASHBOARD_PATHS.messages,
+					badge: 5,
+				},
+			],
+		},
+		{
+			section: "Manage",
+			items: [
+				{
+					name: "Payments",
+					icon: CreditCard,
+					path: DASHBOARD_PATHS.payments,
+					badge: null,
+				},
+				{
+					name: "Reviews",
+					icon: Star,
+					path: DASHBOARD_PATHS.reviews,
+					badge: null,
+				},
+				{
+					name: "My Area",
+					icon: MapPin,
+					path: DASHBOARD_PATHS.myArea,
+					badge: null,
+				},
+			],
+		},
+		{
+			section: "Account",
+			items: [
+				{
+					name: "Settings",
+					icon: Settings,
+					path: DASHBOARD_PATHS.settings,
+					badge: null,
+				},
+			],
+		},
 	];
 
 	// Sidebar nav content - shared between desktop and mobile
@@ -238,7 +197,10 @@ function DashboardLayout() {
 			{/* Sidebar Logo */}
 			<div
 				className="p-6 border-b border-white/10 hover:cursor-pointer transition-opacity duration-150 hover:opacity-90 flex items-center justify-between"
-				onClick={() => { navigate({ to: "/" }); onNavClick?.(); }}
+				onClick={() => {
+					navigate({ to: "/" });
+					onNavClick?.();
+				}}
 			>
 				<div>
 					<HHLogo theme="dark" height={28} />
@@ -250,7 +212,10 @@ function DashboardLayout() {
 				{onNavClick && (
 					<button
 						type="button"
-						onClick={(e) => { e.stopPropagation(); onNavClick(); }}
+						onClick={(e) => {
+							e.stopPropagation();
+							onNavClick();
+						}}
 						className="md:hidden w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-colors duration-150 ml-auto"
 						aria-label="Close sidebar"
 					>
@@ -287,17 +252,23 @@ function DashboardLayout() {
 										{isActive && (
 											<div className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-r bg-[var(--hh-or-m)]" />
 										)}
-										
+
 										{/* Explicit size and no-shrink to prevent collapsing */}
-										<Icon className={`w-4 h-4 shrink-0 transition-colors duration-150 ${
-											isActive ? "text-[var(--hh-or-m)]" : "text-white/40"
-										}`} />
-										
+										<Icon
+											className={`w-4 h-4 shrink-0 transition-colors duration-150 ${
+												isActive ? "text-[var(--hh-or-m)]" : "text-white/40"
+											}`}
+										/>
+
 										<span className="truncate">{item.name}</span>
 										{item.badge && (
-											<span className={`ml-auto text-[9.5px] px-2 py-0.5 rounded-full font-bold leading-none ${
-												isActive ? "bg-[var(--hh-or-m)]/15 text-[var(--hh-or-m)]" : "bg-white/10 text-white/50"
-											}`}>
+											<span
+												className={`ml-auto text-[9.5px] px-2 py-0.5 rounded-full font-bold leading-none ${
+													isActive
+														? "bg-[var(--hh-or-m)]/15 text-[var(--hh-or-m)]"
+														: "bg-white/10 text-white/50"
+												}`}
+											>
 												{item.badge}
 											</span>
 										)}
@@ -328,7 +299,10 @@ function DashboardLayout() {
 									{locationLine ?? user?.email ?? ""}
 								</span>
 							</div>
-							<ChevronUp size={13} className="text-white/30 group-hover:text-white/55 transition-colors shrink-0" />
+							<ChevronUp
+								size={13}
+								className="text-white/30 group-hover:text-white/55 transition-colors shrink-0"
+							/>
 						</button>
 					</DropdownMenuTrigger>
 
@@ -343,8 +317,12 @@ function DashboardLayout() {
 								{initials}
 							</div>
 							<div className="flex flex-col min-w-0">
-								<span className="text-xs font-semibold text-foreground truncate">{user?.fullName ?? ""}</span>
-								<span className="text-[10px] text-muted-foreground truncate">{user?.email ?? ""}</span>
+								<span className="text-xs font-semibold text-foreground truncate">
+									{user?.fullName ?? ""}
+								</span>
+								<span className="text-[10px] text-muted-foreground truncate">
+									{user?.email ?? ""}
+								</span>
 							</div>
 						</DropdownMenuLabel>
 
@@ -399,14 +377,17 @@ function DashboardLayout() {
 
 	return (
 		<div className="hh-dashboard flex h-screen w-screen overflow-hidden bg-[var(--dashboard-bg)]">
-
 			{/* ── Mobile Sidebar Drawer Overlay ──────────────────────────────── */}
 			{/* Backdrop */}
 			<div
 				className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden transition-opacity duration-300 ${
-					isMobileSidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+					isMobileSidebarOpen
+						? "opacity-100 pointer-events-auto"
+						: "opacity-0 pointer-events-none"
 				}`}
-				onClick={() => dispatch(set_dashboard_flags({ isMobileSidebarOpen: false }))}
+				onClick={() =>
+					dispatch(set_dashboard_flags({ isMobileSidebarOpen: false }))
+				}
 				aria-hidden="true"
 			/>
 
@@ -417,7 +398,11 @@ function DashboardLayout() {
 				}`}
 				aria-label="Mobile navigation"
 			>
-				<SidebarContent onNavClick={() => dispatch(set_dashboard_flags({ isMobileSidebarOpen: false }))} />
+				<SidebarContent
+					onNavClick={() =>
+						dispatch(set_dashboard_flags({ isMobileSidebarOpen: false }))
+					}
+				/>
 			</aside>
 
 			{/* ── Desktop Sidebar ─────────────────────────────────────────────── */}
@@ -431,199 +416,39 @@ function DashboardLayout() {
 			</div>
 
 			{/* ── Chat Panel (Right Side) ─────────────────────────────────────── */}
-			{hasActiveChat && pathname !== DASHBOARD_PATHS.messages && pathname !== DASHBOARD_PATHS.payments && pathname !== DASHBOARD_PATHS.reviews && pathname !== DASHBOARD_PATHS.settings && pathname !== DASHBOARD_PATHS.myArea && (
-				<aside className="hidden lg:flex flex-col w-[320px] bg-[var(--dashboard-card)] border-l border-[var(--dashboard-border)] h-full overflow-hidden shrink-0 animate-in slide-in-from-right duration-250">
-					{/* Chat Header */}
-					<div className="p-4 border-b border-[var(--dashboard-border)] flex items-center gap-3 bg-[var(--dashboard-card)]">
-						<div className="w-9 h-9 rounded-full bg-[var(--dashboard-orange-light)] flex items-center justify-center text-sm font-semibold text-[var(--dashboard-orange)] relative shrink-0">
-							TJ
-							<div className="w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-white absolute bottom-0 right-0" />
-						</div>
-						<div className="flex flex-col min-w-0">
-							<h3 className="text-sm font-bold text-[var(--dashboard-text)] truncate">
-								Taiwo Johnson
-							</h3>
-							<p className="text-[11px] text-green-600 font-medium">
-								Online · Licensed Electrician
-							</p>
-						</div>
-						<div className="ml-auto flex gap-1 shrink-0">
-							<button
-								type="button"
-								className="w-8 h-8 rounded-lg border border-[var(--dashboard-border)] flex items-center justify-center text-[var(--dashboard-muted)] hover:bg-[var(--dashboard-bg)] hover:text-[var(--dashboard-text)] transition-colors duration-150"
-								aria-label="Call artisan"
-							>
-								<Phone size={14} />
-							</button>
-							<button
-								type="button"
-								className="w-8 h-8 rounded-lg border border-[var(--dashboard-border)] flex items-center justify-center text-[var(--dashboard-muted)] hover:bg-[var(--dashboard-bg)] hover:text-[var(--dashboard-text)] transition-colors duration-150"
-								aria-label="View location map"
-							>
-								<MapPin size={14} />
-							</button>
-							<button
-								type="button"
-								onClick={() => dispatch(set_dashboard_flags({ hasActiveChat: false }))}
-								className="w-8 h-8 rounded-lg border border-[var(--dashboard-border)] flex items-center justify-center text-red-500 bg-red-50/10 hover:bg-red-500 hover:text-white transition-colors duration-150 cursor-pointer"
-								aria-label="Close chat"
-							>
-								<X size={14} className="stroke-[2.5]" />
-							</button>
-						</div>
-					</div>
-
-					{/* Chat active ticket tag */}
-					<div className="mx-4 mt-3 bg-[var(--dashboard-orange-light)] border border-[var(--dashboard-orange-mid)] rounded-lg p-3 flex items-center gap-2.5 shrink-0">
-						<FileText size={15} className="text-[var(--dashboard-orange)] shrink-0" />
-						<div className="min-w-0">
-							<p className="text-[12px] font-bold text-[#1E3A8A] truncate">
-								Inverter Inspection · Ticket #1042
-							</p>
-							<span className="text-[10.5px] text-[#1D4ED8] font-medium block">
-								In progress · Started 09:14 today
-							</span>
-						</div>
-					</div>
-
-					{/* Chat Messages */}
-					<div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3.5 bg-[var(--dashboard-card)]">
-						{messages.map((msg) => {
-							if (msg.sender === "system") {
-								return (
-									<div key={msg.id} className="text-center my-1.5" role="status">
-										<span className="text-[11px] bg-green-50 text-green-700 border border-green-200 rounded-full px-3.5 py-1 inline-flex items-center gap-1.5 font-medium">
-											<Check size={11} className="stroke-[3]" /> {msg.text}
-										</span>
-									</div>
-								);
+			{hasActiveChat &&
+				(activeThreadId || activeProviderId) &&
+				pathname !== DASHBOARD_PATHS.messages &&
+				pathname !== DASHBOARD_PATHS.payments &&
+				pathname !== DASHBOARD_PATHS.reviews &&
+				pathname !== DASHBOARD_PATHS.settings &&
+				pathname !== DASHBOARD_PATHS.myArea && (
+					<aside className="hidden lg:flex flex-col w-[320px] bg-[var(--dashboard-card)] border-l border-[var(--dashboard-border)] h-full overflow-hidden shrink-0 animate-in slide-in-from-right duration-250">
+						<ChatConversation
+							threadId={activeThreadId}
+							providerId={activeProviderId}
+							onThreadResolved={(id) =>
+								dispatch(
+									set_dashboard_flags({
+										activeThreadId: id,
+										activeProviderId: null,
+									}),
+								)
 							}
-
-							const isUser = msg.sender === "user";
-							return (
-								<div
-									key={msg.id}
-									className={`flex items-end gap-2 ${isUser ? "flex-row-reverse" : "flex-row"}`}
-								>
-									{!isUser && (
-										<div className="w-7 h-7 rounded-full bg-[var(--dashboard-orange-light)] flex items-center justify-center text-[10px] font-bold text-[var(--dashboard-orange)] shrink-0">
-											TJ
-										</div>
-									)}
-									<div className={`max-w-[80%] flex flex-col ${isUser ? "items-end" : "items-start"}`}>
-										<div
-											className={`p-3 rounded-2xl text-[13px] leading-relaxed shadow-sm ${
-												isUser
-													? "bg-[var(--dashboard-orange)] text-white rounded-br-none"
-													: "bg-[var(--dashboard-bg)] text-[var(--dashboard-text)] rounded-bl-none"
-											}`}
-										>
-											{msg.text}
-										</div>
-
-										{msg.quote && (
-											<div className="w-full mt-2 bg-white border border-[var(--dashboard-border)] rounded-xl p-3.5 shadow-sm max-w-[240px]">
-												<div className="text-[10px] uppercase font-bold tracking-wider text-[var(--dashboard-muted)] mb-1.5 flex items-center gap-1.5">
-													<FileText size={12} className="text-[var(--dashboard-orange)]" />
-													Quote proposal
-												</div>
-												<div className="font-syne text-[22px] font-bold text-[var(--dashboard-orange)] mb-0.5">
-													{msg.quote.amount}
-												</div>
-												<p className="text-[11.5px] text-[var(--dashboard-muted)] mb-3">
-													{msg.quote.desc}
-												</p>
-												<button
-													type="button"
-													className={`w-full py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-colors duration-150 ${
-														msg.quote.paid
-															? "bg-green-600 text-white cursor-default"
-															: "bg-[var(--dashboard-orange)] hover:bg-[var(--dashboard-blue-dark)] text-white"
-													}`}
-													onClick={() => !msg.quote?.paid && handlePayQuote(msg.id)}
-													disabled={msg.quote.paid}
-												>
-													{msg.quote.paid ? (
-														<>
-															<Check size={14} className="stroke-[3]" /> Paid ✓
-														</>
-													) : (
-														<>
-															<Lock size={13} /> Review &amp; pay now
-														</>
-													)}
-												</button>
-											</div>
-										)}
-										<span className="text-[9.5px] text-[var(--dashboard-muted)] mt-1 px-1">
-											{msg.time}
-										</span>
-									</div>
-								</div>
-							);
-						})}
-
-						{/* Loading typing indicator */}
-						{isTyping && (
-							<div className="flex items-center gap-2">
-								<div className="w-7 h-7 rounded-full bg-[var(--dashboard-orange-light)] flex items-center justify-center text-[10px] font-bold text-[var(--dashboard-orange)]">
-									TJ
-								</div>
-								<div className="bg-[var(--dashboard-bg)] px-3.5 py-2.5 rounded-2xl rounded-bl-none flex items-center gap-1">
-									<span className="w-1.5 h-1.5 bg-[var(--dashboard-muted)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-									<span className="w-1.5 h-1.5 bg-[var(--dashboard-muted)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-									<span className="w-1.5 h-1.5 bg-[var(--dashboard-muted)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-								</div>
-							</div>
-						)}
-						<div ref={chatEndRef} />
-					</div>
-
-					{/* Chat quick replies */}
-					<div className="px-4 py-2 border-t border-[var(--dashboard-border)] flex gap-1.5 overflow-x-auto scrollbar-none shrink-0 bg-[var(--dashboard-card)]">
-						{["I'm on my way", "Can we reschedule?", "Got it, thanks!"].map((text) => (
-							<button
-								key={text}
-								type="button"
-								className="px-3 py-1.5 rounded-full border border-[var(--dashboard-border)] text-[11px] text-[var(--dashboard-muted)] hover:border-[var(--dashboard-orange)] hover:text-[var(--dashboard-orange)] bg-white cursor-pointer whitespace-nowrap transition-colors duration-150 shrink-0"
-								onClick={() => handleSendMessage(text)}
-							>
-								{text}
-							</button>
-						))}
-					</div>
-
-					{/* Chat Input area */}
-					<form
-						onSubmit={(e) => {
-							e.preventDefault();
-							handleSendMessage(inputText);
-						}}
-						className="p-3 border-t border-[var(--dashboard-border)] flex items-center gap-2 bg-[var(--dashboard-card)] shrink-0"
-					>
-						<input
-							type="text"
-							className="flex-1 bg-[var(--dashboard-bg)] border border-[var(--dashboard-border)] rounded-full px-4 py-2 text-sm text-[var(--dashboard-text)] outline-none focus:border-[var(--dashboard-orange)] transition-colors duration-150"
-							placeholder="Type a message…"
-							value={inputText}
-							onChange={(e) => setInputText(e.target.value)}
-							aria-label="Chat message input"
+							onBack={() =>
+								dispatch(set_dashboard_flags({ hasActiveChat: false }))
+							}
+							compact
 						/>
-						<button
-							type="submit"
-							className="w-9 h-9 rounded-full bg-[var(--dashboard-orange)] hover:bg-[var(--dashboard-blue-dark)] text-white flex items-center justify-center cursor-pointer transition-colors duration-150 shrink-0"
-							aria-label="Send message"
-						>
-							<Send size={15} />
-						</button>
-					</form>
-				</aside>
-			)}
+					</aside>
+				)}
 
 			{/* ── Provider Onboarding Modal ─────────────────────────────────── */}
 			<ArtisanOnboarding
 				open={showOnboarding}
-				onComplete={() => dispatch(set_dashboard_flags({ onboardingDismissed: true }))}
+				onComplete={() =>
+					dispatch(set_dashboard_flags({ onboardingDismissed: true }))
+				}
 			/>
 
 			<LocationAlert />
@@ -631,10 +456,19 @@ function DashboardLayout() {
 			{/* ── Mobile Bottom Tab Bar ──────────────────────────────────────── */}
 			<nav className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-[var(--dashboard-shell)] border-t border-white/10 flex items-center px-2 py-1 safe-area-bottom">
 				{[
-					{ name: "Home", icon: LayoutDashboard, path: DASHBOARD_PATHS.dashboard },
+					{
+						name: "Home",
+						icon: LayoutDashboard,
+						path: DASHBOARD_PATHS.dashboard,
+					},
 					{ name: "Find", icon: Search, path: DASHBOARD_PATHS.artisans },
 					{ name: "Bookings", icon: Calendar, path: DASHBOARD_PATHS.bookings },
-					{ name: "Messages", icon: MessageSquare, path: DASHBOARD_PATHS.messages, badge: 5 },
+					{
+						name: "Messages",
+						icon: MessageSquare,
+						path: DASHBOARD_PATHS.messages,
+						badge: 5,
+					},
 					{ name: "More", icon: Menu, path: null },
 				].map((item) => {
 					const isActive = item.path ? pathname === item.path : false;
@@ -656,8 +490,13 @@ function DashboardLayout() {
 									: "text-white/30 hover:text-white/60"
 							}`}
 						>
-							<Icon size={20} className={`transition-transform duration-150 ${isActive ? "scale-110" : ""}`} />
-							<span className="text-[9px] font-semibold tracking-wide">{item.name}</span>
+							<Icon
+								size={20}
+								className={`transition-transform duration-150 ${isActive ? "scale-110" : ""}`}
+							/>
+							<span className="text-[9px] font-semibold tracking-wide">
+								{item.name}
+							</span>
 							{"badge" in item && item.badge && (
 								<span className="absolute top-1.5 w-4 h-4 bg-[var(--dashboard-orange)] rounded-full text-[8px] text-white font-bold flex items-center justify-center">
 									{item.badge}

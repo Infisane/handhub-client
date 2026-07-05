@@ -1,17 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
-	Sparkles,
-	Receipt,
-	Briefcase,
-	Users,
-	CreditCard,
 	ArrowUpRight,
+	Briefcase,
+	CreditCard,
 	MessageSquare,
+	Receipt,
+	Sparkles,
+	Users,
 } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
-import { DashboardHeader } from "#/components/dashboard/dashboard-header";
 import { AiSearch } from "#/components/dashboard/ai-search";
+import { DashboardHeader } from "#/components/dashboard/dashboard-header";
 import { RecommendedArtisans } from "#/components/dashboard/recommended-artisans";
+import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
 import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
 
 export const Route = createFileRoute("/dashboard/")({
@@ -21,6 +21,10 @@ export const Route = createFileRoute("/dashboard/")({
 function DashboardPage() {
 	const dispatch = useAppDispatch();
 	const hasActiveChat = useAppSelector((s) => s.dashboardStore.hasActiveChat);
+	const activeThreadId = useAppSelector((s) => s.dashboardStore.activeThreadId);
+	const activeProviderId = useAppSelector(
+		(s) => s.dashboardStore.activeProviderId,
+	);
 
 	return (
 		<main className="flex-1 p-4 sm:p-5 md:p-6 pb-24 md:pb-6 flex flex-col gap-4 md:gap-5 overflow-y-auto h-full max-h-screen bg-[var(--dashboard-bg)]">
@@ -39,7 +43,9 @@ function DashboardPage() {
 						<div className="text-[9px] uppercase font-extrabold tracking-wider text-white/70 mb-1.5">
 							Active jobs
 						</div>
-						<div className="font-syne text-3xl font-black mb-0.5 leading-none">3</div>
+						<div className="font-syne text-3xl font-black mb-0.5 leading-none">
+							3
+						</div>
 						<div className="text-[10.5px] text-white/85 font-semibold flex items-center gap-1 mt-1">
 							<span className="flex h-1.5 w-1.5 relative shrink-0">
 								<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
@@ -61,7 +67,9 @@ function DashboardPage() {
 						<div className="text-[9px] uppercase font-extrabold tracking-wider text-[var(--dashboard-muted)] mb-1.5">
 							Artisans nearby
 						</div>
-						<div className="font-syne text-3xl font-black mb-0.5 text-[var(--dashboard-text)] leading-none">48</div>
+						<div className="font-syne text-3xl font-black mb-0.5 text-[var(--dashboard-text)] leading-none">
+							48
+						</div>
 						<div className="text-[10.5px] text-[var(--dashboard-muted)] font-semibold mt-1">
 							Within 5 km radius
 						</div>
@@ -79,7 +87,9 @@ function DashboardPage() {
 						<div className="text-[9px] uppercase font-extrabold tracking-wider text-[var(--dashboard-muted)] mb-1.5">
 							Total spent
 						</div>
-						<div className="font-syne text-3xl font-black mb-0.5 text-[var(--dashboard-text)] leading-none">₦64k</div>
+						<div className="font-syne text-3xl font-black mb-0.5 text-[var(--dashboard-text)] leading-none">
+							₦64k
+						</div>
 						<div className="text-[10.5px] text-green-600 font-bold flex items-center gap-0.5 mt-1">
 							This month <ArrowUpRight size={11} className="stroke-[2.5]" />
 						</div>
@@ -153,7 +163,7 @@ function DashboardPage() {
 			</section>
 
 			{/* Floating Chat Drawer Re-opener Toggle */}
-			{!hasActiveChat && (
+			{!hasActiveChat && (activeThreadId || activeProviderId) && (
 				<button
 					type="button"
 					onClick={() => dispatch(set_dashboard_flags({ hasActiveChat: true }))}
