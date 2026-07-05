@@ -64,6 +64,24 @@ export const useChatThread = ({
 		[activeTicket, side],
 	);
 
+	// The other participant, from the viewer's perspective: a provider sees the
+	// customer (initiator); everyone else sees the provider.
+	const counterpart = useMemo(() => {
+		if (!thread) return null;
+		if (side === "provider") {
+			return {
+				name: thread.initiator?.fullName || "Customer",
+				avatar: thread.initiator?.avatar ?? null,
+				isProvider: false,
+			};
+		}
+		return {
+			name: thread.provider.businessName || thread.provider.title || "Provider",
+			avatar: thread.provider.avatar,
+			isProvider: true,
+		};
+	}, [thread, side]);
+
 	// Two send paths, both instantiated unconditionally (hooks rules): reply on
 	// an existing ticket, or open a brand-new thread by provider id.
 	const ticketSend = useSendTicketMessageQuery({
@@ -91,6 +109,8 @@ export const useChatThread = ({
 		user,
 		thread,
 		provider: thread?.provider ?? null,
+		initiator: thread?.initiator ?? null,
+		counterpart,
 		activeTicket,
 		activeInvoice,
 		messages,

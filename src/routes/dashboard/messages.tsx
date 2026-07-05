@@ -3,6 +3,7 @@ import { MessageSquare, Search, X } from "lucide-react";
 import { parseAsString, useQueryStates } from "nuqs";
 import { useMemo, useState } from "react";
 import { ChatConversation } from "#/components/chat/chat-conversation";
+import { useAppSelector } from "#/core/hooks/useStore.hook";
 import { useGetThreadsQuery } from "#/core/queries/thread.q";
 import type { ThreadSummary, TicketStatus } from "#/core/types/chat.types";
 import { cn } from "#/lib/utils.ts";
@@ -21,7 +22,15 @@ const STATUS_BADGE: Partial<
 	cancelled: { label: "Cancelled", cls: "bg-red-50 text-red-600" },
 };
 
-function threadName(thread: ThreadSummary) {
+/** The other participant's name from the viewer's perspective: a provider sees
+ *  the customer (initiator); everyone else sees the provider. */
+function threadCounterpartName(
+	thread: ThreadSummary,
+	viewerUserId: string | null,
+) {
+	if (viewerUserId && viewerUserId === thread.provider.userId) {
+		return thread.initiator?.fullName || "Customer";
+	}
 	return thread.provider.businessName || thread.provider.title || "Provider";
 }
 
@@ -52,12 +61,15 @@ function MessagesPage() {
 	const [searchQuery, setSearchQuery] = useState("");
 
 	const { data: threads = [], isLoading } = useGetThreadsQuery();
+	const viewerUserId = useAppSelector((s) => s.authStore.user?.id ?? null);
 
 	const filteredThreads = useMemo(() => {
 		if (!searchQuery.trim()) return threads;
 		const q = searchQuery.toLowerCase();
-		return threads.filter((t) => threadName(t).toLowerCase().includes(q));
-	}, [threads, searchQuery]);
+		return threads.filter((t) =>
+			threadCounterpartName(t, viewerUserId).toLowerCase().includes(q),
+		);
+	}, [threads, searchQuery, viewerUserId]);
 
 	const hasConversation = !!params.thread || !!params.provider;
 
@@ -123,7 +135,7 @@ function MessagesPage() {
 						</div>
 					) : (
 						filteredThreads.map((thread) => {
-							const name = threadName(thread);
+							const name = threadCounterpartName(thread, viewerUserId);
 							const isActive = thread.id === params.thread;
 							const badge = thread.activeTicket
 								? STATUS_BADGE[thread.activeTicket.status]

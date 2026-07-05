@@ -33,14 +33,19 @@ export function ChatConversation({
 }) {
 	const chat = useChatThread({ threadId, providerId, onThreadResolved });
 
-	// For a fresh conversation (no thread yet) fetch the provider for the header.
+	// For a fresh conversation (no thread yet) fetch the provider for the header —
+	// the viewer is always a customer hiring a provider in that case.
 	const { data: providerDetail } = useGetProviderByIdQuery(
 		chat.thread ? null : (providerId ?? null),
 	);
 
+	// Show the OTHER participant: providers see the customer, customers see the provider.
 	const name = chat.thread
-		? providerName(chat.provider?.businessName, chat.provider?.title)
+		? (chat.counterpart?.name ?? "Conversation")
 		: providerName(providerDetail?.businessName, providerDetail?.title);
+	const avatar = chat.thread ? chat.counterpart?.avatar : null;
+	// The verified badge only applies when the counterpart is a provider.
+	const showVerified = chat.thread ? !!chat.counterpart?.isProvider : true;
 
 	const initials = name
 		.split(" ")
@@ -63,18 +68,28 @@ export function ChatConversation({
 						<ArrowLeft size={18} className="text-[var(--dashboard-text)]" />
 					</button>
 				)}
-				<div className="w-9 h-9 rounded-lg bg-[var(--dashboard-orange-light)] text-[var(--dashboard-orange)] flex items-center justify-center font-black text-[12px] shrink-0">
-					{initials || "?"}
-				</div>
+				{avatar ? (
+					<img
+						src={avatar}
+						alt={name}
+						className="w-9 h-9 rounded-lg object-cover shrink-0"
+					/>
+				) : (
+					<div className="w-9 h-9 rounded-lg bg-[var(--dashboard-orange-light)] text-[var(--dashboard-orange)] flex items-center justify-center font-black text-[12px] shrink-0">
+						{initials || "?"}
+					</div>
+				)}
 				<div className="min-w-0 flex-1">
 					<div className="flex items-center gap-1">
 						<span className="font-syne font-extrabold text-[14px] text-[var(--dashboard-text)] truncate">
 							{name}
 						</span>
-						<ShieldCheck
-							size={12}
-							className="text-[var(--dashboard-orange)] shrink-0"
-						/>
+						{showVerified && (
+							<ShieldCheck
+								size={12}
+								className="text-[var(--dashboard-orange)] shrink-0"
+							/>
+						)}
 					</div>
 					{chat.activeTicket && (
 						<div className="text-[10px] text-[var(--dashboard-muted)] font-bold truncate">

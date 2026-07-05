@@ -78,12 +78,19 @@ export interface Message {
 	createdAt: string;
 }
 
-/* ── Provider stub embedded in thread payloads ───────────────── */
+/* ── Participants embedded in thread payloads ────────────────── */
 export interface ThreadProvider {
 	id: string; // provider-profile id
 	userId: string; // provider's user id
 	title: string | null;
 	businessName: string | null;
+	avatar: string | null;
+}
+
+export interface ThreadInitiator {
+	id: string; // customer's user id
+	fullName: string;
+	avatar: string | null;
 }
 
 /* ── Invoice ─────────────────────────────────────────────────── */
@@ -159,6 +166,7 @@ export interface ThreadSummary {
 	id: string;
 	provider: ThreadProvider;
 	initiatorId: string;
+	initiator: ThreadInitiator;
 	activeTicket: ThreadActiveTicket | null;
 	lastMessage: ThreadLastMessage | null;
 	updatedAt: string;
@@ -167,6 +175,7 @@ export interface ThreadSummary {
 export interface ThreadDetail {
 	id: string;
 	initiatorId: string;
+	initiator: ThreadInitiator;
 	provider: ThreadProvider;
 	tickets: Ticket[];
 }

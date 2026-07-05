@@ -18,6 +18,7 @@ import { getThreadByIdService } from "#/core/services/thread.service";
 import type {
 	Booking,
 	BookingStatus,
+	ThreadInitiator,
 	ThreadProvider,
 } from "#/core/types/chat.types";
 import { cn } from "#/lib/utils.ts";
@@ -32,6 +33,7 @@ type BookingTab = "all" | "active" | "completed" | "cancelled";
 interface BookingRow {
 	threadId: string;
 	provider: ThreadProvider;
+	initiator: ThreadInitiator;
 	booking: Booking;
 }
 
@@ -85,8 +87,12 @@ function tabOf(status: BookingStatus): BookingTab {
 	return "active";
 }
 
-function providerName(provider: ThreadProvider) {
-	return provider.businessName || provider.title || "Provider";
+/** The other party from the viewer's perspective: a provider sees the customer. */
+function counterpartName(row: BookingRow, viewerUserId: string | null) {
+	if (viewerUserId && viewerUserId === row.provider.userId) {
+		return row.initiator?.fullName || "Customer";
+	}
+	return row.provider.businessName || row.provider.title || "Provider";
 }
 
 function initialsOf(name: string) {
@@ -101,6 +107,7 @@ function initialsOf(name: string) {
 function BookingsPage() {
 	const dispatch = useAppDispatch();
 	const hasActiveChat = useAppSelector((s) => s.dashboardStore.hasActiveChat);
+	const viewerUserId = useAppSelector((s) => s.authStore.user?.id ?? null);
 	const [activeTab, setActiveTab] = useState<BookingTab>("all");
 
 	const { data: threads = [] } = useGetThreadsQuery();
@@ -137,6 +144,7 @@ function BookingsPage() {
 					out.push({
 						threadId: thread.id,
 						provider: thread.provider,
+						initiator: thread.initiator,
 						booking: ticket.booking,
 					});
 				}
@@ -289,7 +297,7 @@ function BookingsPage() {
 						)}
 					>
 						{filtered.map((row) => {
-							const name = providerName(row.provider);
+							const name = counterpartName(row, viewerUserId);
 							const cfg =
 								STATUS_CONFIG[row.booking.status] ?? STATUS_CONFIG.accepted;
 							return (
