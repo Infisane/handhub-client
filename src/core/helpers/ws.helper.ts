@@ -119,10 +119,9 @@ function open() {
 		scheduleReconnect();
 	};
 
-	ws.onerror = () => {
-		// Let onclose drive the reconnect.
-		ws.close();
-	};
+	// No onerror close(): a failed connection fires 'error' then 'close' on its
+	// own, so onclose drives the reconnect. Calling close() here would just be a
+	// redundant close on a CONNECTING socket (the "closed before established" warning).
 }
 
 export function connectChatSocket(next: ConnectArgs) {
@@ -142,14 +141,27 @@ export function disconnectChatSocket() {
 	live = false;
 	clearReconnect();
 	if (socket) {
-		socket.onopen = null;
-		socket.onmessage = null;
-		socket.onclose = null;
-		socket.onerror = null;
-		try {
-			socket.close();
-		} catch {
-			// already closing
+		const s = socket;
+		s.onmessage = null;
+		s.onclose = null;
+		s.onerror = null;
+		if (s.readyState === WebSocket.CONNECTING) {
+			// Closing a still-connecting socket logs "closed before the connection
+			// is established" (doc §3.2). Let it finish opening, then close cleanly.
+			s.onopen = () => {
+				try {
+					s.close(1000, "unmount");
+				} catch {
+					// already closing
+				}
+			};
+		} else {
+			s.onopen = null;
+			try {
+				s.close(1000, "unmount");
+			} catch {
+				// already closing
+			}
 		}
 		socket = null;
 	}
