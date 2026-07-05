@@ -40,6 +40,7 @@ import {
 	readStoredSession,
 } from "#/core/helpers/auth-storage.helper";
 import { USER_TYPES } from "#/core/helpers/constants.helper";
+import { useChatSocket } from "#/core/hooks/useChatSocket.hook";
 import { useEnrichedProviderProfile } from "#/core/hooks/useEnrichedProviderProfile.hook";
 import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
 import { useUserLocation } from "#/core/hooks/useUserLocation.hook";
@@ -73,6 +74,7 @@ export const Route = createFileRoute("/dashboard")({
 function DashboardLayout() {
 	useMeQuery();
 	useUserLocation();
+	useChatSocket();
 	const { pathname } = useLocation();
 	const navigate = Route.useNavigate();
 	const dispatch = useAppDispatch();

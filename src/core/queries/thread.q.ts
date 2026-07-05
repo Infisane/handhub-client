@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { abortController } from "#/core/helpers/axios.helper";
+import { isSocketLive } from "#/core/helpers/ws.helper";
 import {
 	getThreadByIdService,
 	getThreadsService,
@@ -7,24 +8,26 @@ import {
 } from "#/core/services/thread.service";
 import type { Message, SendMessagePayload } from "#/core/types/chat.types";
 
-/** Inbox — short-polls so new leads/messages surface without a WebSocket. */
+/** Inbox — fast fallback poll; while the WebSocket is live it drops to a slow
+ *  heartbeat that keeps re-checking liveness (so a socket drop resumes fast
+ *  polling) and reconciles anything a missed frame left stale. */
 export const useGetThreadsQuery = () =>
 	useQuery({
 		queryKey: ["threads"],
 		queryFn: ({ signal }) => getThreadsService({ signal }),
 		staleTime: 1000 * 10,
-		refetchInterval: 1000 * 10,
+		refetchInterval: () => (isSocketLive() ? 1000 * 60 : 1000 * 10),
 		refetchOnWindowFocus: true,
 	});
 
-/** Open conversation — polls faster while mounted for a near-live feel. */
+/** Open conversation — fast fallback poll; slow heartbeat while the socket is live. */
 export const useGetThreadByIdQuery = (id: string | null) =>
 	useQuery({
 		queryKey: ["thread", id],
 		queryFn: ({ signal }) => getThreadByIdService({ id: id!, signal }),
 		enabled: !!id,
 		staleTime: 1000 * 4,
-		refetchInterval: id ? 1000 * 4 : false,
+		refetchInterval: () => (isSocketLive() ? 1000 * 60 : 1000 * 4),
 		refetchOnWindowFocus: true,
 	});
 
