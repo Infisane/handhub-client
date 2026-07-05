@@ -18,7 +18,12 @@ import { ReviewForm } from "./review-form";
 const primaryBtn =
 	"flex-1 h-10 rounded-xl bg-[var(--dashboard-orange)] hover:bg-blue-600 text-white text-[12px] font-extrabold flex items-center justify-center gap-1.5 active:scale-95 shadow-md shadow-blue-500/10 transition-all disabled:opacity-50";
 const ghostBtn =
-	"h-10 px-3 rounded-xl border border-[var(--dashboard-border)] text-[12px] font-bold text-[var(--dashboard-text)] hover:bg-[var(--dashboard-bg)] flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50";
+	"h-10 px-3.5 rounded-xl border border-[var(--dashboard-border)] text-[12px] font-bold text-[var(--dashboard-text)] hover:bg-[var(--dashboard-bg)] flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50";
+// Cancel is destructive + irreversible — read as danger, and confirm first.
+const cancelBtn =
+	"h-10 px-3.5 rounded-xl border border-red-200 dark:border-red-500/30 text-[12px] font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50";
+const dangerBtn =
+	"h-10 px-3.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-[12px] font-extrabold flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50";
 
 export function TicketFooterActions({
 	threadId,
@@ -32,6 +37,7 @@ export function TicketFooterActions({
 	const [modal, setModal] = useState<"invoice" | "payment" | "review" | null>(
 		null,
 	);
+	const [confirmingCancel, setConfirmingCancel] = useState(false);
 
 	const ticketId = ticket?.id ?? "";
 	const booking = ticket?.booking ?? null;
@@ -54,9 +60,46 @@ export function TicketFooterActions({
 
 	if (!hasPrimary && !actions.canCancelTicket) return null;
 
+	// Confirmation replaces the action row so the destructive choice is explicit.
+	if (confirmingCancel) {
+		return (
+			<div className="px-4 pt-3 pb-1 border-t border-[var(--dashboard-border)] bg-[var(--dashboard-card)]">
+				<div className="rounded-xl border border-red-200 dark:border-red-500/30 bg-red-50/60 dark:bg-red-500/10 p-3 space-y-2.5">
+					<p className="text-[12px] font-semibold text-[var(--dashboard-text)] flex items-center gap-1.5">
+						<Ban size={13} className="text-red-600 shrink-0" />
+						Cancel this ticket? This closes the conversation and can’t be
+						undone.
+					</p>
+					<div className="flex items-center gap-2">
+						<button
+							type="button"
+							onClick={() => setConfirmingCancel(false)}
+							className={`${ghostBtn} flex-1`}
+						>
+							Keep ticket
+						</button>
+						<button
+							type="button"
+							disabled={cancel.isPending}
+							onClick={() =>
+								cancel.mutate(ticketId, {
+									onSettled: () => setConfirmingCancel(false),
+								})
+							}
+							className={`${dangerBtn} flex-1`}
+						>
+							<Ban size={13} />
+							{cancel.isPending ? "Cancelling…" : "Yes, cancel ticket"}
+						</button>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<>
-			<div className="px-4 pt-3 pb-1 flex items-center gap-2 border-t border-[var(--dashboard-border)] bg-[var(--dashboard-card)]">
+			<div className="px-4 pt-3 pb-1 flex flex-wrap items-center gap-2 border-t border-[var(--dashboard-border)] bg-[var(--dashboard-card)]">
 				{actions.canGenerateInvoice && (
 					<button
 						type="button"
@@ -112,13 +155,10 @@ export function TicketFooterActions({
 				{actions.canCancelTicket && (
 					<button
 						type="button"
-						disabled={cancel.isPending}
-						onClick={() => cancel.mutate(ticketId)}
-						className={ghostBtn}
-						title="Cancel ticket"
-						aria-label="Cancel ticket"
+						onClick={() => setConfirmingCancel(true)}
+						className={hasPrimary ? cancelBtn : `${cancelBtn} flex-1`}
 					>
-						<Ban size={13} />
+						<Ban size={13} /> Cancel ticket
 					</button>
 				)}
 			</div>
