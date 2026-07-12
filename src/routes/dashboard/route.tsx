@@ -22,6 +22,7 @@ import {
 	X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { cn } from "#/lib/utils.ts";
 import { ChatConversation } from "#/components/chat/chat-conversation";
 import { ArtisanOnboarding } from "#/components/dashboard/artisan-onboarding/artisan-onboarding";
 import { LocationAlert } from "#/components/dashboard/location-alert";
@@ -70,6 +71,31 @@ export const Route = createFileRoute("/dashboard")({
 	},
 	component: DashboardLayout,
 });
+
+/** User avatar: shows the profile image when available, otherwise the initials.
+ *  Falls back to initials if the image fails to load. */
+function UserAvatarBadge({
+	avatar,
+	initials,
+	className,
+}: {
+	avatar: string | null | undefined;
+	initials: string;
+	className: string;
+}) {
+	const [failed, setFailed] = useState(false);
+	if (avatar && !failed) {
+		return (
+			<img
+				src={avatar}
+				alt=""
+				onError={() => setFailed(true)}
+				className={cn(className, "object-cover")}
+			/>
+		);
+	}
+	return <div className={className}>{initials}</div>;
+}
 
 function DashboardLayout() {
 	useMeQuery();
@@ -290,9 +316,11 @@ function DashboardLayout() {
 							type="button"
 							className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/10 hover:bg-white/[0.05] hover:border-white/20 transition-all duration-200 cursor-pointer shadow-inner group"
 						>
-							<div className="w-8 h-8 rounded-full bg-[var(--hh-or-m)] flex items-center justify-center text-xs font-bold text-[#172554] shrink-0 shadow-sm border border-white/15 ring-2 ring-[var(--hh-or-m)]/10">
-								{initials}
-							</div>
+							<UserAvatarBadge
+								avatar={user?.avatar}
+								initials={initials}
+								className="w-8 h-8 rounded-full bg-[var(--hh-or-m)] flex items-center justify-center text-xs font-bold text-[#172554] shrink-0 shadow-sm border border-white/15 ring-2 ring-[var(--hh-or-m)]/10"
+							/>
 							<div className="flex flex-col min-w-0 flex-1 text-left">
 								<p className="text-[13px] font-semibold text-white/95 leading-none mb-1 truncate">
 									{user?.fullName ?? ""}
@@ -315,9 +343,11 @@ function DashboardLayout() {
 						className="w-56 mb-1"
 					>
 						<DropdownMenuLabel className="flex items-center gap-2.5 pb-2">
-							<div className="w-7 h-7 rounded-full bg-[var(--dashboard-orange)] flex items-center justify-center text-[11px] font-bold text-white shrink-0">
-								{initials}
-							</div>
+							<UserAvatarBadge
+								avatar={user?.avatar}
+								initials={initials}
+								className="w-7 h-7 rounded-full bg-[var(--dashboard-orange)] flex items-center justify-center text-[11px] font-bold text-white shrink-0"
+							/>
 							<div className="flex flex-col min-w-0">
 								<span className="text-xs font-semibold text-foreground truncate">
 									{user?.fullName ?? ""}
