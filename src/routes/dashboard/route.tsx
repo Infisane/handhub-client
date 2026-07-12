@@ -22,7 +22,7 @@ import {
 	X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { cn } from "#/lib/utils.ts";
+import { UserAvatarBadge } from "#/components/ui/user-avatar-badge";
 import { ChatConversation } from "#/components/chat/chat-conversation";
 import { ArtisanOnboarding } from "#/components/dashboard/artisan-onboarding/artisan-onboarding";
 import { LocationAlert } from "#/components/dashboard/location-alert";
@@ -71,31 +71,6 @@ export const Route = createFileRoute("/dashboard")({
 	},
 	component: DashboardLayout,
 });
-
-/** User avatar: shows the profile image when available, otherwise the initials.
- *  Falls back to initials if the image fails to load. */
-function UserAvatarBadge({
-	avatar,
-	initials,
-	className,
-}: {
-	avatar: string | null | undefined;
-	initials: string;
-	className: string;
-}) {
-	const [failed, setFailed] = useState(false);
-	if (avatar && !failed) {
-		return (
-			<img
-				src={avatar}
-				alt=""
-				onError={() => setFailed(true)}
-				className={cn(className, "object-cover")}
-			/>
-		);
-	}
-	return <div className={className}>{initials}</div>;
-}
 
 function DashboardLayout() {
 	useMeQuery();
