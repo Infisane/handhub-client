@@ -216,6 +216,29 @@ The WebSocket server is **already live** (not future work), but **correctness ne
 
 > Don't treat this as "REST now, WebSocket blocked on backend later" — the socket layer is done and documented here. It's purely a frontend adoption choice: ship REST-first for speed, layer WS in when you want the real-time UX.
 
+### 3.2 Troubleshooting
+
+**"WebSocket is closed before the connection is established."** This is a **client-side lifecycle** warning, not a server rejection — the socket was `close()`d (or discarded) while still in `CONNECTING`. The server handshake is fine (verified: it returns `101` then `auth_ok`). Almost always it's **React 18 StrictMode** in dev running effects twice (open → cleanup closes the connecting socket → re-open); it won't appear in production. Fix by creating the socket once (store in a ref, stable deps) and deferring close until it's open:
+
+```js
+useEffect(() => {
+  const ws = new WebSocket('ws://localhost:8088/ws');
+  wsRef.current = ws;
+  ws.onopen = () => ws.send(JSON.stringify({ event: 'auth', data: { token } }));
+  return () => {
+    if (ws.readyState === WebSocket.CONNECTING) {
+      ws.addEventListener('open', () => ws.close(1000, 'unmount'));
+    } else {
+      ws.close(1000, 'unmount');
+    }
+  };
+}, [token]);
+```
+
+Confirm via DevTools → Network → **WS**: a socket sitting at `101 Switching Protocols` means it connected fine and the warning was the benign double-mount.
+
+Also: never call `ws.send(...)` before `onopen` fires (queue outbound messages until then), and remember the auth frame uses the **`{ event, data }`** envelope — `{ "event": "auth", "data": { "token": "..." } }` — not `{ type, payload }` (that shape is server→client only).
+
 ---
 
 ## 4. The Flow as UI States

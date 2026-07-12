@@ -44,12 +44,12 @@ const TABS: {
 		icon: Bell,
 		desc: "Configure email, push, and SMS alerts",
 	},
-	{
-		id: "payments_settings",
-		label: "Billing & Escrow",
-		icon: CreditCard,
-		desc: "Default pay card and auto-funding",
-	},
+	// {
+	// 	id: "payments_settings",
+	// 	label: "Billing & Escrow",
+	// 	icon: CreditCard,
+	// 	desc: "Default pay card and auto-funding",
+	// },
 ];
 
 const motionProps = {
