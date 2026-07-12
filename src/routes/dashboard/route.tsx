@@ -22,7 +22,6 @@ import {
 	X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { UserAvatarBadge } from "#/components/ui/user-avatar-badge";
 import { ChatConversation } from "#/components/chat/chat-conversation";
 import { ArtisanOnboarding } from "#/components/dashboard/artisan-onboarding/artisan-onboarding";
 import { LocationAlert } from "#/components/dashboard/location-alert";
@@ -36,6 +35,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "#/components/ui/dropdown-menu.tsx";
+import { UserAvatarBadge } from "#/components/ui/user-avatar-badge";
 import {
 	clearStoredSession,
 	readStoredSession,
@@ -173,12 +173,18 @@ function DashboardLayout() {
 					path: DASHBOARD_PATHS.reviews,
 					badge: null,
 				},
-				{
-					name: "My Area",
-					icon: MapPin,
-					path: DASHBOARD_PATHS.myArea,
-					badge: null,
-				},
+				// My Area (dispatch zones) is a provider-only concept — customers
+				// have no service area to manage.
+				...(user?.userType === USER_TYPES.provider
+					? [
+							{
+								name: "My Area",
+								icon: MapPin,
+								path: DASHBOARD_PATHS.myArea,
+								badge: null,
+							},
+						]
+					: []),
 			],
 		},
 		{

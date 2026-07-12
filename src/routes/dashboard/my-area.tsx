@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
 	AlertCircle,
@@ -23,6 +23,8 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "#/components/ui/dialog.tsx";
+import { readStoredSession } from "#/core/helpers/auth-storage.helper";
+import { USER_TYPES } from "#/core/helpers/constants.helper";
 import { useAppSelector } from "#/core/hooks/useStore.hook";
 import {
 	useGetLgasQuery,
@@ -45,6 +47,16 @@ import type {
 import { cn } from "#/lib/utils.ts";
 
 export const Route = createFileRoute("/dashboard/my-area")({
+	// Provider-only — customers have no service area to manage. Client-side
+	// only (SSR can't read localStorage), same constraint as the dashboard
+	// shell's auth guard.
+	beforeLoad: () => {
+		if (typeof window === "undefined") return;
+		const session = readStoredSession();
+		if (session?.user.userType !== USER_TYPES.provider) {
+			throw redirect({ to: "/dashboard" });
+		}
+	},
 	component: MyAreaPage,
 });
 
