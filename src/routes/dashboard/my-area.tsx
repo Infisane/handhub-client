@@ -21,8 +21,7 @@ import {
 	Minus,
 	Map as MapIcon,
 } from "lucide-react";
-import { useState, useContext, useMemo, useRef, useEffect } from "react";
-import { DashboardContext } from "./route";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { cn } from "#/lib/utils.ts";
 import {
 	Dialog,
@@ -763,7 +762,6 @@ function ZoneDetailPanel({ zone, onClose }: { zone: Zone; onClose: () => void })
 
 /* ── Main Page ──────────────────────────────────────────────── */
 function MyAreaPage() {
-	const { hasActiveChat } = useContext(DashboardContext);
 	const [zones, setZones] = useState<Zone[]>(MOCK_ZONES);
 	const [selectedZoneId, setSelectedZoneId] = useState<string | null>("z1");
 	const [isAvailable, setIsAvailable] = useState(true);

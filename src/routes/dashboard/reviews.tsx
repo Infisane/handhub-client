@@ -13,8 +13,9 @@ import {
 	Clock,
 	Award,
 } from "lucide-react";
-import { useState, useContext, useMemo } from "react";
-import { DashboardContext } from "./route";
+import { useState, useMemo } from "react";
+import { useAppDispatch } from "#/core/hooks/useStore.hook";
+import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
 import { cn } from "#/lib/utils.ts";
 import {
 	Dialog,
@@ -98,7 +99,7 @@ const INITIAL_PENDING_REVIEWS: PendingReview[] = [
 
 /* ── Main Component ────────────────────────────────────────── */
 function ReviewsPage() {
-	const { setIsMobileSidebarOpen } = useContext(DashboardContext);
+	const dispatch = useAppDispatch();
 
 	// Core state
 	const [writtenReviews, setWrittenReviews] = useState<WrittenReview[]>(INITIAL_WRITTEN_REVIEWS);
@@ -270,7 +271,7 @@ function ReviewsPage() {
 					<div className="flex items-center gap-3">
 						<button
 							type="button"
-							onClick={() => setIsMobileSidebarOpen(true)}
+							onClick={() => dispatch(set_dashboard_flags({ isMobileSidebarOpen: true }))}
 							className="md:hidden w-9 h-9 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] flex items-center justify-center text-[var(--dashboard-text)] hover:bg-[var(--dashboard-orange-light)] transition-all shrink-0 shadow-xs"
 							aria-label="Open navigation"
 						>

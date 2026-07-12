@@ -1,25 +1,14 @@
 import { motion } from "framer-motion";
 import { Sliders, Sparkles } from "lucide-react";
-import type { Dispatch, SetStateAction } from "react";
+import { useState } from "react";
 import { SettingsToggle } from "./settings-toggle.tsx";
 
-interface PaymentsTabProps {
-	autoFund: boolean;
-	setAutoFund: Dispatch<SetStateAction<boolean>>;
-	threshold: string;
-	setThreshold: Dispatch<SetStateAction<string>>;
-	defaultCard: string;
-	setDefaultCard: Dispatch<SetStateAction<string>>;
-}
-
-export function PaymentsTab({
-	autoFund,
-	setAutoFund,
-	threshold,
-	setThreshold,
-	defaultCard,
-	setDefaultCard,
-}: PaymentsTabProps) {
+// Billing/Escrow is out of scope for the settings API wiring — this tab remains
+// a self-contained mock until the wallet-integration work covers it.
+export function PaymentsTab() {
+	const [autoFund, setAutoFund] = useState(false);
+	const [threshold, setThreshold] = useState("20000");
+	const [defaultCard, setDefaultCard] = useState("card-1");
 	return (
 		<>
 			<div>
@@ -33,10 +22,14 @@ export function PaymentsTab({
 
 			{/* Default method select */}
 			<div className="space-y-1.5">
-				<label className="text-[10.5px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block">
+				<label
+					htmlFor="pay-default-card"
+					className="text-[10.5px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block"
+				>
 					Default Funding Source Card
 				</label>
 				<select
+					id="pay-default-card"
 					value={defaultCard}
 					onChange={(e) => setDefaultCard(e.target.value)}
 					className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] text-[12.5px] text-[var(--dashboard-text)] font-semibold outline-none focus:border-[var(--dashboard-orange)]"
@@ -78,7 +71,10 @@ export function PaymentsTab({
 						animate={{ height: "auto", opacity: 1 }}
 						className="space-y-2 border-t border-[var(--dashboard-border)]/40 pt-4"
 					>
-						<label className="text-[10px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block">
+						<label
+							htmlFor="pay-threshold"
+							className="text-[10px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block"
+						>
 							Minimum Top-up Trigger Threshold (₦)
 						</label>
 						<div className="flex gap-3 items-center">
@@ -87,6 +83,7 @@ export function PaymentsTab({
 								className="text-[var(--dashboard-muted)] shrink-0"
 							/>
 							<input
+								id="pay-threshold"
 								type="range"
 								min="10000"
 								max="100000"

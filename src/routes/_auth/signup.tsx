@@ -1,3 +1,15 @@
+import { AuthLeftPanel } from "#/components/auth/auth-left-panel";
+import { formBoxMotion } from "#/components/auth/auth-motion";
+import { SocialAuthButtons } from "#/components/auth/social-auth-buttons";
+import { Nav } from "#/components/home/nav";
+import { AppInput } from "#/components/ui/app-input";
+import { USER_TYPES, type UserType } from "#/core/helpers/constants.helper";
+import { useValidator } from "#/core/helpers/useValidator.helper";
+import { useRegisterQuery } from "#/core/queries/auth.q";
+import {
+	SignUpStep1Schema,
+	SignUpStep2Schema,
+} from "#/core/schemas/auth.schema";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -6,6 +18,8 @@ import {
 	Check,
 	Hammer,
 	LayoutDashboard,
+	Loader2,
+	Lock,
 	Mail,
 	MapPin,
 	Phone,
@@ -14,11 +28,6 @@ import {
 	Users,
 } from "lucide-react";
 import { useState } from "react";
-import { AuthLeftPanel } from "#/components/auth/auth-left-panel";
-import { formBoxMotion } from "#/components/auth/auth-motion";
-import { PasswordField } from "#/components/auth/password-field";
-import { SocialAuthButtons } from "#/components/auth/social-auth-buttons";
-import { Nav } from "#/components/home/nav";
 
 export const Route = createFileRoute("/_auth/signup")({
 	component: SignUpPage,
@@ -29,20 +38,46 @@ function SignUpPage() {
 	const [step, setStep] = useState<1 | 2 | 3>(1);
 
 	// Step 1 Form fields
-	const [role, setRole] = useState<"customer" | "artisan">("customer");
-	const [firstName, setFirstName] = useState("");
-	const [lastName, setLastName] = useState("");
-	const [phone, setPhone] = useState("");
-	const [email, setEmail] = useState("");
+	const [step1Data, setStep1Data] = useState({
+		role: USER_TYPES.customer as UserType,
+		firstName: "",
+		lastName: "",
+		phone: "",
+		email: "",
+	});
 
 	// Step 2 Form fields
-	const [password, setPassword] = useState("");
-	const [confirmPassword, setConfirmPassword] = useState("");
-	const [showPassword, setShowPassword] = useState(false);
-	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-	const [city, setCity] = useState("");
-	const [termsCk, setTermsCk] = useState(true);
-	const [marketingCk, setMarketingCk] = useState(false);
+	const [step2Data, setStep2Data] = useState({
+		password: "",
+		confirmPassword: "",
+		termsCk: true,
+		marketingCk: false,
+	});
+
+	const handleSetStep1Data = (field: keyof typeof step1Data, value: string) => {
+		setStep1Data((prev) => ({ ...prev, [field]: value }));
+	}
+	const handleSetStep2Data = (field: keyof typeof step2Data, value: string | boolean) => {
+		setStep2Data((prev) => ({ ...prev, [field]: value }));
+	}
+
+	const {
+		validate: validateStep1,
+		revalidate: revalidateStep1,
+		errors: step1Errors,
+	} = useValidator({
+		schema: SignUpStep1Schema,
+		store: step1Data,
+	});
+
+	const {
+		validate: validateStep2,
+		revalidate: revalidateStep2,
+		errors: step2Errors,
+	} = useValidator({
+		schema: SignUpStep2Schema,
+		store: step2Data,
+	});
 
 	// Password strength calculations
 	const getPasswordStrength = (val: string) => {
@@ -63,26 +98,28 @@ function SignUpPage() {
 		};
 	};
 
-	const strength = getPasswordStrength(password);
+	const strength = getPasswordStrength(step2Data.password);
+
+	const registerMutation = useRegisterQuery({
+		onSuccessCallback: () => setStep(3),
+	});
 
 	const handleStep1Submit = (e: React.FormEvent) => {
 		e.preventDefault();
-		// Advance to next step
-		setStep(2);
+		validateStep1(() => setStep(2));
 	};
 
 	const handleStep2Submit = (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!termsCk) {
-			alert("Please agree to our Terms of Service and Privacy Policy.");
-			return;
-		}
-		if (password !== confirmPassword) {
-			alert("Passwords do not match.");
-			return;
-		}
-		// Create account completed, advance to success page
-		setStep(3);
+		validateStep2(() => {
+			registerMutation.mutate({
+				fullName: `${step1Data.firstName} ${step1Data.lastName}`.trim(),
+				email: step1Data.email,
+				phone: step1Data.phone.replace(/\s+/g, ""),
+				password: step2Data.password,
+				userType: step1Data.role as UserType,
+			});
+		});
 	};
 
 	const rightElement = (
@@ -162,9 +199,9 @@ function SignUpPage() {
 												<button
 													type="button"
 													className={`role-card ${
-														role === "customer" ? "selected" : ""
+														step1Data.role === USER_TYPES.customer ? "selected" : ""
 													}`}
-													onClick={() => setRole("customer")}
+													onClick={() => handleSetStep1Data("role", USER_TYPES.customer)}
 												>
 													<Search size={22} aria-hidden="true" />
 													<div className="rt">Find artisans</div>
@@ -173,9 +210,9 @@ function SignUpPage() {
 												<button
 													type="button"
 													className={`role-card ${
-														role === "artisan" ? "selected" : ""
+														step1Data.role === USER_TYPES.provider ? "selected" : ""
 													}`}
-													onClick={() => setRole("artisan")}
+													onClick={() => handleSetStep1Data("role", USER_TYPES.provider)}
 												>
 													<Hammer size={22} aria-hidden="true" />
 													<div className="rt">Offer services</div>
@@ -187,64 +224,68 @@ function SignUpPage() {
 										<div className="row2">
 											<div className="field">
 												<label htmlFor="signup-fname">First name</label>
-												<input
+												<AppInput
 													id="signup-fname"
-													className="inp"
 													type="text"
-													required
-													value={firstName}
-													onChange={(e) => setFirstName(e.target.value)}
+													value={step1Data.firstName}
+													onChange={(e) => {
+														handleSetStep1Data("firstName", e.target.value);
+														revalidateStep1("firstName", e.target.value);
+													}}
 													placeholder="Adeola"
 													aria-label="First name"
+													error={step1Errors.firstName}
 												/>
 											</div>
 											<div className="field">
 												<label htmlFor="signup-lname">Last name</label>
-												<input
+												<AppInput
 													id="signup-lname"
-													className="inp"
 													type="text"
-													required
-													value={lastName}
-													onChange={(e) => setLastName(e.target.value)}
+													value={step1Data.lastName}
+													onChange={(e) => {
+														handleSetStep1Data("lastName", e.target.value);
+														revalidateStep1("lastName", e.target.value);
+													}}
 													placeholder="Kamara"
 													aria-label="Last name"
+													error={step1Errors.lastName}
 												/>
 											</div>
 										</div>
 
 										<div className="field">
 											<label htmlFor="signup-phone">Phone number</label>
-											<div className="inp-wrap">
-												<Phone className="inp-icon" size={16} aria-hidden="true" />
-												<input
-													id="signup-phone"
-													className="inp has-icon"
-													type="tel"
-													required
-													value={phone}
-													onChange={(e) => setPhone(e.target.value)}
-													placeholder="+234 800 000 0000"
-													aria-label="Phone number"
-												/>
-											</div>
+											<AppInput
+												id="signup-phone"
+												type="tel"
+												icon={<Phone size={16} aria-hidden="true" />}
+												value={step1Data.phone}
+												onChange={(e) => {
+													handleSetStep1Data("phone", e.target.value);
+													revalidateStep1("phone", e.target.value);
+												}}
+												placeholder="+234 800 000 0000"
+												aria-label="Phone number"
+												error={step1Errors.phone}
+											/>
 										</div>
 
 										<div className="field">
 											<label htmlFor="signup-email">Email address</label>
-											<div className="inp-wrap">
-												<Mail className="inp-icon" size={16} aria-hidden="true" />
-												<input
-													id="signup-email"
-													className="inp has-icon"
-													type="email"
-													required
-													value={email}
-													onChange={(e) => setEmail(e.target.value)}
-													placeholder="you@example.com"
-													aria-label="Email address"
-												/>
-											</div>
+											<AppInput
+												id="signup-email"
+												type="email"
+												icon={<Mail size={16} aria-hidden="true" />}
+												value={step1Data.email}
+												onChange={(e) => {
+													handleSetStep1Data("email", e.target.value);
+													revalidateStep1("email", e.target.value);
+												}}
+												placeholder="you@example.com"
+												aria-label="Email address"
+												error={step1Errors.email}
+											/>
 										</div>
 
 										<button type="submit" className="btn-full">
@@ -277,14 +318,18 @@ function SignUpPage() {
 
 										<div className="field">
 											<label htmlFor="signup-pw">Create password</label>
-											<PasswordField
+											<AppInput
 												id="signup-pw"
-												value={password}
-												onChange={setPassword}
-												show={showPassword}
-												onToggleShow={() => setShowPassword(!showPassword)}
+												type="password"
+												icon={<Lock size={16} aria-hidden="true" />}
+												value={step2Data.password}
+												onChange={(e) => {
+													handleSetStep2Data("password", e.target.value);
+													revalidateStep2("password", e.target.value);
+												}}
 												placeholder="At least 8 characters"
-												ariaLabel="New password"
+												aria-label="New password"
+												error={step2Errors.password}
 											/>
 											<div className="strength" id="strength-bars">
 												<div
@@ -328,61 +373,45 @@ function SignUpPage() {
 
 										<div className="field">
 											<label htmlFor="signup-pwconfirm">Confirm password</label>
-											<PasswordField
+											<AppInput
 												id="signup-pwconfirm"
-												value={confirmPassword}
-												onChange={setConfirmPassword}
-												show={showConfirmPassword}
-												onToggleShow={() =>
-													setShowConfirmPassword(!showConfirmPassword)
-												}
+												type="password"
+												icon={<Lock size={16} aria-hidden="true" />}
+												value={step2Data.confirmPassword}
+												onChange={(e) => {
+													handleSetStep2Data("confirmPassword", e.target.value);
+													revalidateStep2("confirmPassword", e.target.value);
+												}}
 												placeholder="Repeat your password"
-												ariaLabel="Confirm password"
+												aria-label="Confirm password"
+												error={step2Errors.confirmPassword}
 											/>
-										</div>
-
-										<div className="field">
-											<label htmlFor="signup-city">City</label>
-											<div className="inp-wrap">
-												<MapPin className="inp-icon" size={16} aria-hidden="true" />
-												<select
-													id="signup-city"
-													className="select"
-													required
-													value={city}
-													onChange={(e) => setCity(e.target.value)}
-													style={{ paddingLeft: "40px" }}
-													aria-label="Select city"
-												>
-													<option value="">Select your city</option>
-													<option value="Lagos">Lagos</option>
-													<option value="Abuja">Abuja</option>
-													<option value="Port Harcourt">Port Harcourt</option>
-													<option value="Ibadan">Ibadan</option>
-													<option value="Kano">Kano</option>
-													<option value="Enugu">Enugu</option>
-												</select>
-											</div>
 										</div>
 
 										<div className="check-row">
 											<input
 												type="checkbox"
 												id="terms-ck"
-												checked={termsCk}
-												onChange={(e) => setTermsCk(e.target.checked)}
+												checked={step2Data.termsCk}
+												onChange={(e) => {
+													handleSetStep2Data("termsCk", e.target.checked);
+													revalidateStep2("termsCk", e.target.checked);
+												}}
 											/>
 											<label htmlFor="terms-ck">
 												I agree to the <a href="#terms">Terms of Service</a> and{" "}
 												<a href="#privacy">Privacy Policy</a>
 											</label>
 										</div>
+										{step2Errors.termsCk && (
+											<p className="field-error">{step2Errors.termsCk}</p>
+										)}
 										<div className="check-row">
 											<input
 												type="checkbox"
 												id="marketing-ck"
-												checked={marketingCk}
-												onChange={(e) => setMarketingCk(e.target.checked)}
+												checked={step2Data.marketingCk}
+												onChange={(e) => handleSetStep2Data("marketingCk", e.target.checked)}
 											/>
 											<label htmlFor="marketing-ck">
 												Send me updates about new artisans and features in my area
@@ -405,8 +434,23 @@ function SignUpPage() {
 											>
 												<ArrowLeft size={16} aria-hidden="true" />
 											</button>
-											<button type="submit" className="btn-full">
-												<ArrowRight size={16} aria-hidden="true" /> Create account
+											<button
+												type="submit"
+												className="btn-full"
+												disabled={registerMutation.isPending}
+											>
+												{registerMutation.isPending ? (
+													<Loader2
+														size={16}
+														className="animate-spin"
+														aria-hidden="true"
+													/>
+												) : (
+													<ArrowRight size={16} aria-hidden="true" />
+												)}
+												{registerMutation.isPending
+													? "Creating account..."
+													: "Create account"}
 											</button>
 										</div>
 									</motion.form>
@@ -447,10 +491,10 @@ function SignUpPage() {
 											<button
 												type="button"
 												className="btn-full"
-												onClick={() => navigate({ to: "/" })}
+												onClick={() => navigate({ to: "/signin" })}
 											>
 												<LayoutDashboard size={17} aria-hidden="true" /> Go to
-												dashboard
+												signin
 											</button>
 											<p className="terms" style={{ marginTop: "16px" }}>
 												Didn't get the email?{" "}

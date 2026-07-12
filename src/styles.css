@@ -504,6 +504,7 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
   --txt3: var(--hh-txt3);
   --bdr: var(--hh-border);
   --bdr2: var(--hh-border2);
+  --err: #EF4444;
   --r: 14px;
   --rs: 8px;
 
@@ -863,6 +864,17 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
 
 .hh-auth .inp-trail:hover {
   color: var(--txt);
+}
+
+.hh-auth .inp.has-error,
+.hh-auth .select.has-error {
+  border-color: var(--err);
+}
+
+.hh-auth .field-error {
+  color: var(--err);
+  font-size: 12px;
+  margin-top: 6px;
 }
 
 .hh-auth .row2 {

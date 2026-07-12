@@ -1,87 +1,96 @@
-import type { Dispatch, SetStateAction } from "react";
+import { useState } from "react";
+import {
+	useGetNotificationPreferencesQuery,
+	useUpdateNotificationPreferencesQuery,
+} from "#/core/queries/settings.q";
+import type { NotificationPreferenceKey } from "#/core/types/settings.types";
+import { SettingsSaveBar, useSavedFlash } from "./settings-save-bar.tsx";
 import { SettingsToggle } from "./settings-toggle.tsx";
 
-interface NotificationsTabProps {
-	notifBooking: boolean;
-	setNotifBooking: Dispatch<SetStateAction<boolean>>;
-	notifChat: boolean;
-	setNotifChat: Dispatch<SetStateAction<boolean>>;
-	notifQuote: boolean;
-	setNotifQuote: Dispatch<SetStateAction<boolean>>;
-	notifEscrow: boolean;
-	setNotifEscrow: Dispatch<SetStateAction<boolean>>;
-	notifPromo: boolean;
-	setNotifPromo: Dispatch<SetStateAction<boolean>>;
-}
-
-export function NotificationsTab({
-	notifBooking,
-	setNotifBooking,
-	notifChat,
-	setNotifChat,
-	notifQuote,
-	setNotifQuote,
-	notifEscrow,
-	setNotifEscrow,
-	notifPromo,
-	setNotifPromo,
-}: NotificationsTabProps) {
-	const items = [
+const ITEMS: { key: NotificationPreferenceKey; title: string; desc: string }[] =
+	[
 		{
-			id: "booking",
+			key: "bookingUpdates",
 			title: "Booking Status Alerts",
-			desc: "Email and push updates when booking is scheduled, in-progress, or finalized.",
-			checked: notifBooking,
-			onChange: () => setNotifBooking(!notifBooking),
+			desc: "When a booking is accepted, in progress, completed, or cancelled.",
 		},
 		{
-			id: "chat",
-			title: "New Chat messages",
-			desc: "Instant push notification when an active artisan sends a message.",
-			checked: notifChat,
-			onChange: () => setNotifChat(!notifChat),
+			key: "chatMessages",
+			title: "New Chat Messages",
+			desc: "When a provider or customer sends a message in a thread.",
 		},
 		{
-			id: "quote",
-			title: "Quote Proposals Received",
-			desc: "SMS notification when an expert uploads a fixed proposal rate sheet.",
-			checked: notifQuote,
-			onChange: () => setNotifQuote(!notifQuote),
+			key: "quotesAndInvoices",
+			title: "Quotes & Invoices",
+			desc: "When an invoice is issued, accepted, rejected, or recalled.",
 		},
 		{
-			id: "escrow",
-			title: "Escrow Transaction updates",
-			desc: "Alerts when payments are secured, cleared, or active refund balances are pending.",
-			checked: notifEscrow,
-			onChange: () => setNotifEscrow(!notifEscrow),
+			key: "escrowAndPayments",
+			title: "Escrow & Payments",
+			desc: "When a payment is held, released, or refunded.",
 		},
 		{
-			id: "promo",
-			title: "Discounts & Promotional campaigns",
-			desc: "Occasional updates on seasonal home maintenance coupons and deals.",
-			checked: notifPromo,
-			onChange: () => setNotifPromo(!notifPromo),
+			key: "promotions",
+			title: "Discounts & Promotions",
+			desc: "Occasional updates on seasonal deals and coupons.",
 		},
 	];
 
+const EMPTY_PREFS: Record<NotificationPreferenceKey, boolean> = {
+	bookingUpdates: true,
+	chatMessages: true,
+	quotesAndInvoices: true,
+	escrowAndPayments: true,
+	promotions: false,
+};
+
+export function NotificationsTab() {
+	const { data: prefs } = useGetNotificationPreferencesQuery();
+	const [state, setState] = useState(EMPTY_PREFS);
+	const [seededId, setSeededId] = useState<string | null>(null);
+	const [saved, flashSaved] = useSavedFlash();
+
+	// Seed from the loaded preferences (adjust state during render — no effect).
+	if (prefs && prefs.id !== seededId) {
+		setSeededId(prefs.id);
+		setState({
+			bookingUpdates: prefs.bookingUpdates,
+			chatMessages: prefs.chatMessages,
+			quotesAndInvoices: prefs.quotesAndInvoices,
+			escrowAndPayments: prefs.escrowAndPayments,
+			promotions: prefs.promotions,
+		});
+	}
+
+	const update = useUpdateNotificationPreferencesQuery({
+		onSuccessCallback: () => flashSaved(),
+	});
+
+	const toggle = (key: NotificationPreferenceKey) =>
+		setState((prev) => ({ ...prev, [key]: !prev[key] }));
+
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		update.mutate(state);
+	};
+
 	return (
-		<>
+		<form onSubmit={handleSubmit} className="space-y-5">
 			<div>
-				<h3 className="font-syne font-extrabold text-[15px] sm:text-[16px] text-[var(--dashboard-text)] leading-none mb-1 flex items-center gap-2">
+				<h3 className="font-syne font-extrabold text-[15px] sm:text-[16px] text-[var(--dashboard-text)] leading-none mb-1">
 					Notification Center
 				</h3>
 				<p className="text-[11px] text-[var(--dashboard-muted)]">
-					Define when and how you receive alerts from handhub system
+					Choose which updates you want saved to your preferences.
 				</p>
 			</div>
 
-			{/* List of custom switch buttons */}
 			<div className="space-y-3.5 bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-2xl p-5 shadow-xs">
-				{items.map((item, i) => (
+				{ITEMS.map((item, i) => (
 					<div
-						key={item.id}
+						key={item.key}
 						className={`flex items-center justify-between gap-3 text-[12.5px] ${
-							i < items.length - 1
+							i < ITEMS.length - 1
 								? "border-b border-[var(--dashboard-border)]/40 pb-3"
 								: ""
 						}`}
@@ -95,13 +104,15 @@ export function NotificationsTab({
 							</p>
 						</div>
 						<SettingsToggle
-							checked={item.checked}
-							onChange={item.onChange}
+							checked={state[item.key]}
+							onChange={() => toggle(item.key)}
 							aria-label={`Toggle ${item.title}`}
 						/>
 					</div>
 				))}
 			</div>
-		</>
+
+			<SettingsSaveBar isSaving={update.isPending} saved={saved} />
+		</form>
 	);
 }
