@@ -125,9 +125,21 @@ function FindPage() {
 
 	const results = filtered();
 
+	// Open the chat drawer targeting a provider. The thread + ticket are created
+	// lazily on the first message (POST /threads/:providerId/messages).
+	const openChatWith = (providerId: string) => {
+		dispatch(
+			set_dashboard_flags({
+				hasActiveChat: true,
+				activeProviderId: providerId,
+				activeThreadId: null,
+			}),
+		);
+	};
+
 	const handleHire = (id: string) => {
 		setHiredIds((prev) => ({ ...prev, [id]: true }));
-		dispatch(set_dashboard_flags({ hasActiveChat: true }));
+		openChatWith(id);
 	};
 
 	const clearSearch = () => {
@@ -525,7 +537,7 @@ function FindPage() {
 				isHired={!!selectedProviderId && !!hiredIds[selectedProviderId]}
 				onClose={() => setSelectedProviderId(null)}
 				onHire={(id) => { handleHire(id); setSelectedProviderId(null); }}
-				onMessage={() => { dispatch(set_dashboard_flags({ hasActiveChat: true })); setSelectedProviderId(null); }}
+				onMessage={() => { if (selectedProviderId) openChatWith(selectedProviderId); setSelectedProviderId(null); }}
 			/>
 		</main>
 	);

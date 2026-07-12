@@ -1,80 +1,104 @@
-import { Eye, EyeOff, ShieldAlert } from "lucide-react";
-import type { Dispatch, SetStateAction } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { getApiErrorMessage } from "#/core/helpers/error-handler.helper";
+import { useValidator } from "#/core/helpers/useValidator.helper";
+import { useChangePasswordQuery } from "#/core/queries/settings.q";
+import { ChangePasswordSchema } from "#/core/schemas/settings.schema";
 import { cn } from "#/lib/utils.ts";
-import { SettingsToggle } from "./settings-toggle.tsx";
-
-interface SecurityTabProps {
-	currentPassword: string;
-	setCurrentPassword: Dispatch<SetStateAction<string>>;
-	newPassword: string;
-	setNewPassword: Dispatch<SetStateAction<string>>;
-	confirmPassword: string;
-	setConfirmPassword: Dispatch<SetStateAction<string>>;
-	showCurrent: boolean;
-	setShowCurrent: Dispatch<SetStateAction<boolean>>;
-	showNew: boolean;
-	setShowNew: Dispatch<SetStateAction<boolean>>;
-	showConfirm: boolean;
-	setShowConfirm: Dispatch<SetStateAction<boolean>>;
-	twoFactor: boolean;
-	setTwoFactor: Dispatch<SetStateAction<boolean>>;
-}
+import { SettingsSaveBar, useSavedFlash } from "./settings-save-bar.tsx";
 
 const labelCls =
 	"text-[10.5px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block";
 const passwordInputCls =
 	"w-full pl-3.5 pr-9 py-2 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] font-mono text-[12.5px] text-[var(--dashboard-text)] placeholder-[var(--dashboard-muted)] outline-none focus:border-[var(--dashboard-orange)]";
+const errorCls = "text-[10.5px] text-red-500 font-semibold";
 
 // Stable keys for the 4 strength segments (avoids array-index keys).
 const STRENGTH_SEGMENTS = ["seg-1", "seg-2", "seg-3", "seg-4"];
 
-export function SecurityTab({
-	currentPassword,
-	setCurrentPassword,
-	newPassword,
-	setNewPassword,
-	confirmPassword,
-	setConfirmPassword,
-	showCurrent,
-	setShowCurrent,
-	showNew,
-	setShowNew,
-	showConfirm,
-	setShowConfirm,
-	twoFactor,
-	setTwoFactor,
-}: SecurityTabProps) {
+const EMPTY_FORM = {
+	currentPassword: "",
+	newPassword: "",
+	confirmPassword: "",
+};
+
+export function SecurityTab() {
+	const [form, setForm] = useState(EMPTY_FORM);
+	const [showCurrent, setShowCurrent] = useState(false);
+	const [showNew, setShowNew] = useState(false);
+	const [showConfirm, setShowConfirm] = useState(false);
+	const [serverError, setServerError] = useState<string | null>(null);
+	const [saved, flashSaved] = useSavedFlash();
+
+	const { validate, revalidate, errors } = useValidator({
+		schema: ChangePasswordSchema,
+		store: form,
+	});
+
+	const changePassword = useChangePasswordQuery({
+		onSuccessCallback: () => {
+			toast.success("Password changed successfully");
+			setForm(EMPTY_FORM);
+			setServerError(null);
+			flashSaved();
+		},
+	});
+
+	const setField = (field: keyof typeof form, value: string) => {
+		setForm((prev) => ({ ...prev, [field]: value }));
+		revalidate(field, value);
+		if (field === "currentPassword") setServerError(null);
+	};
+
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		validate(() =>
+			changePassword.mutate(
+				{
+					currentPassword: form.currentPassword,
+					newPassword: form.newPassword,
+				},
+				{
+					onError: (err) => setServerError(getApiErrorMessage(err) ?? null),
+				},
+			),
+		);
+	};
+
 	// Password strength: +1 each for length, uppercase, digit, symbol.
 	const strength = (() => {
-		if (!newPassword) return 0;
+		if (!form.newPassword) return 0;
 		let score = 0;
-		if (newPassword.length >= 8) score++;
-		if (/[A-Z]/.test(newPassword)) score++;
-		if (/[0-9]/.test(newPassword)) score++;
-		if (/[^A-Za-z0-9]/.test(newPassword)) score++;
+		if (form.newPassword.length >= 8) score++;
+		if (/[A-Z]/.test(form.newPassword)) score++;
+		if (/[0-9]/.test(form.newPassword)) score++;
+		if (/[^A-Za-z0-9]/.test(form.newPassword)) score++;
 		return score;
 	})();
 
 	return (
-		<>
+		<form onSubmit={handleSubmit} className="space-y-5">
 			<div>
-				<h3 className="font-syne font-extrabold text-[15px] sm:text-[16px] text-[var(--dashboard-text)] leading-none mb-1 flex items-center gap-2">
+				<h3 className="font-syne font-extrabold text-[15px] sm:text-[16px] text-[var(--dashboard-text)] leading-none mb-1">
 					Security Credentials
 				</h3>
 				<p className="text-[11px] text-[var(--dashboard-muted)]">
-					Update password logs and secure authentication tools
+					Change your account password
 				</p>
 			</div>
 
-			{/* Password modification segment */}
 			<div className="space-y-4">
 				<div className="space-y-1.5">
-					<label className={labelCls}>Current Password</label>
+					<label htmlFor="sec-current" className={labelCls}>
+						Current Password
+					</label>
 					<div className="relative">
 						<input
+							id="sec-current"
 							type={showCurrent ? "text" : "password"}
-							value={currentPassword}
-							onChange={(e) => setCurrentPassword(e.target.value)}
+							value={form.currentPassword}
+							onChange={(e) => setField("currentPassword", e.target.value)}
 							placeholder="••••••••"
 							className={passwordInputCls}
 						/>
@@ -82,20 +106,27 @@ export function SecurityTab({
 							type="button"
 							onClick={() => setShowCurrent(!showCurrent)}
 							className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--dashboard-muted)]"
+							aria-label={showCurrent ? "Hide password" : "Show password"}
 						>
 							{showCurrent ? <EyeOff size={14} /> : <Eye size={14} />}
 						</button>
 					</div>
+					{(errors.currentPassword || serverError) && (
+						<p className={errorCls}>{errors.currentPassword ?? serverError}</p>
+					)}
 				</div>
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<div className="space-y-1.5">
-						<label className={labelCls}>New Password</label>
+						<label htmlFor="sec-new" className={labelCls}>
+							New Password
+						</label>
 						<div className="relative">
 							<input
+								id="sec-new"
 								type={showNew ? "text" : "password"}
-								value={newPassword}
-								onChange={(e) => setNewPassword(e.target.value)}
+								value={form.newPassword}
+								onChange={(e) => setField("newPassword", e.target.value)}
 								placeholder="••••••••"
 								className={passwordInputCls}
 							/>
@@ -103,13 +134,13 @@ export function SecurityTab({
 								type="button"
 								onClick={() => setShowNew(!showNew)}
 								className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--dashboard-muted)]"
+								aria-label={showNew ? "Hide password" : "Show password"}
 							>
 								{showNew ? <EyeOff size={14} /> : <Eye size={14} />}
 							</button>
 						</div>
 
-						{/* Strength indicator line */}
-						{newPassword && (
+						{form.newPassword && (
 							<div className="space-y-1 mt-1">
 								<div className="flex gap-1 h-1.5">
 									{STRENGTH_SEGMENTS.map((seg, i) => (
@@ -119,7 +150,7 @@ export function SecurityTab({
 												"flex-1 h-full rounded-full transition-all",
 												i < strength
 													? strength <= 2
-														? "bg-red-500 animate-pulse"
+														? "bg-red-500"
 														: strength === 3
 															? "bg-amber-500"
 															: "bg-green-500"
@@ -133,15 +164,21 @@ export function SecurityTab({
 								</span>
 							</div>
 						)}
+						{errors.newPassword && (
+							<p className={errorCls}>{errors.newPassword}</p>
+						)}
 					</div>
 
 					<div className="space-y-1.5">
-						<label className={labelCls}>Confirm New Password</label>
+						<label htmlFor="sec-confirm" className={labelCls}>
+							Confirm New Password
+						</label>
 						<div className="relative">
 							<input
+								id="sec-confirm"
 								type={showConfirm ? "text" : "password"}
-								value={confirmPassword}
-								onChange={(e) => setConfirmPassword(e.target.value)}
+								value={form.confirmPassword}
+								onChange={(e) => setField("confirmPassword", e.target.value)}
 								placeholder="••••••••"
 								className={passwordInputCls}
 							/>
@@ -149,38 +186,23 @@ export function SecurityTab({
 								type="button"
 								onClick={() => setShowConfirm(!showConfirm)}
 								className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--dashboard-muted)]"
+								aria-label={showConfirm ? "Hide password" : "Show password"}
 							>
 								{showConfirm ? <EyeOff size={14} /> : <Eye size={14} />}
 							</button>
 						</div>
+						{errors.confirmPassword && (
+							<p className={errorCls}>{errors.confirmPassword}</p>
+						)}
 					</div>
 				</div>
 			</div>
 
-			{/* 2-Factor Authentication slider card */}
-			<div className="border border-[var(--dashboard-border)] rounded-2xl p-4.5 space-y-3 bg-[var(--dashboard-card)] shadow-xs relative overflow-hidden flex items-center justify-between">
-				<div className="flex gap-3 items-center min-w-0">
-					<div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 shrink-0">
-						<ShieldAlert size={16} />
-					</div>
-					<div className="min-w-0">
-						<h4 className="text-[13px] font-extrabold text-[var(--dashboard-text)] leading-none mb-1">
-							Two-Factor Authentication (2FA)
-						</h4>
-						<p className="text-[10.5px] text-[var(--dashboard-muted)] leading-normal">
-							Request a unique passcode via SMS or email for each payment
-							authorization
-						</p>
-					</div>
-				</div>
-
-				<SettingsToggle
-					size="md"
-					checked={twoFactor}
-					onChange={() => setTwoFactor(!twoFactor)}
-					aria-label="Toggle two-factor authentication"
-				/>
-			</div>
-		</>
+			<SettingsSaveBar
+				isSaving={changePassword.isPending}
+				saved={saved}
+				label="Change Password"
+			/>
+		</form>
 	);
 }
