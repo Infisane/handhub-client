@@ -1,25 +1,13 @@
 import { Trash2, Upload } from "lucide-react";
-import type { ChangeEvent } from "react";
-import { useRef } from "react";
-
-export interface ProfileFormValues {
-	fullName: string;
-	phone: string;
-	address: string;
-	bio: string;
-}
-
-interface ProfileTabProps {
-	form: ProfileFormValues;
-	onChange: (field: keyof ProfileFormValues, value: string) => void;
-	email: string;
-	avatar: string | null;
-	onAvatarSelected: (e: ChangeEvent<HTMLInputElement>) => void;
-	isUploading: boolean;
-	uploadError: string | null;
-	onAvatarDelete: () => void;
-	errors: Record<string, string>;
-}
+import { useRef, useState } from "react";
+import { useValidator } from "#/core/helpers/useValidator.helper";
+import { useFileUpload } from "#/core/hooks/useFileUpload.hook";
+import {
+	useGetUserProfileQuery,
+	useUpdateUserProfileQuery,
+} from "#/core/queries/settings.q";
+import { ProfileSchema } from "#/core/schemas/settings.schema";
+import { SettingsSaveBar, useSavedFlash } from "./settings-save-bar.tsx";
 
 const inputCls =
 	"w-full px-3.5 py-2 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] text-[12.5px] font-semibold text-[var(--dashboard-text)] placeholder-[var(--dashboard-muted)] outline-none focus:border-[var(--dashboard-orange)]";
@@ -37,21 +25,58 @@ function initialsOf(name: string) {
 	);
 }
 
-export function ProfileTab({
-	form,
-	onChange,
-	email,
-	avatar,
-	onAvatarSelected,
-	isUploading,
-	uploadError,
-	onAvatarDelete,
-	errors,
-}: ProfileTabProps) {
+const EMPTY_FORM = { fullName: "", phone: "", address: "", bio: "" };
+
+export function ProfileTab() {
+	const { data: profile } = useGetUserProfileQuery();
+	const [form, setForm] = useState(EMPTY_FORM);
+	const [avatar, setAvatar] = useState<string | null>(null);
+	const [seededId, setSeededId] = useState<string | null>(null);
+	const [saved, flashSaved] = useSavedFlash();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
+	// Seed the editable copy from the loaded profile (adjust state during render —
+	// no effect). Re-seeds only when a different profile arrives.
+	if (profile && profile.id !== seededId) {
+		setSeededId(profile.id);
+		setForm({
+			fullName: profile.fullName ?? "",
+			phone: profile.phone ?? "",
+			address: profile.address ?? "",
+			bio: profile.bio ?? "",
+		});
+		setAvatar(profile.avatar ?? null);
+	}
+
+	const { validate, revalidate, errors } = useValidator({
+		schema: ProfileSchema,
+		store: form,
+	});
+
+	const update = useUpdateUserProfileQuery({
+		onSuccessCallback: (updated) => {
+			setAvatar(updated.avatar ?? null);
+			flashSaved();
+		},
+	});
+
+	const { handleFileChange, isUploading, uploadError } = useFileUpload({
+		folder: "profile-photo",
+		onSuccess: (publicUrl) => update.mutate({ avatar: publicUrl }),
+	});
+
+	const setField = (field: keyof typeof form, value: string) => {
+		setForm((prev) => ({ ...prev, [field]: value }));
+		revalidate(field, value);
+	};
+
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		validate(() => update.mutate(form));
+	};
+
 	return (
-		<>
+		<form onSubmit={handleSubmit} className="space-y-5">
 			<div>
 				<h3 className="font-syne font-extrabold text-[15px] sm:text-[16px] text-[var(--dashboard-text)] leading-none mb-1">
 					Personal Profile Details
@@ -79,7 +104,7 @@ export function ProfileTab({
 						ref={fileInputRef}
 						type="file"
 						accept="image/jpeg,image/png,image/webp"
-						onChange={onAvatarSelected}
+						onChange={handleFileChange}
 						className="hidden"
 					/>
 					<div className="flex gap-2">
@@ -96,7 +121,7 @@ export function ProfileTab({
 							<button
 								type="button"
 								disabled={isUploading}
-								onClick={onAvatarDelete}
+								onClick={() => update.mutate({ avatar: "" })}
 								className="py-1.5 px-3 border border-[var(--dashboard-border)] hover:bg-[var(--dashboard-bg)] text-[var(--dashboard-muted)] rounded-lg text-[10.5px] font-bold cursor-pointer flex items-center gap-1 disabled:opacity-60"
 							>
 								<Trash2 size={12} /> Delete
@@ -125,7 +150,7 @@ export function ProfileTab({
 						id="pf-fullName"
 						type="text"
 						value={form.fullName}
-						onChange={(e) => onChange("fullName", e.target.value)}
+						onChange={(e) => setField("fullName", e.target.value)}
 						placeholder="Your full name"
 						className={inputCls}
 					/>
@@ -143,7 +168,7 @@ export function ProfileTab({
 					<input
 						id="pf-email"
 						type="email"
-						value={email}
+						value={profile?.email ?? ""}
 						readOnly
 						disabled
 						className={`${inputCls} opacity-70 cursor-not-allowed`}
@@ -162,7 +187,7 @@ export function ProfileTab({
 						id="pf-phone"
 						type="text"
 						value={form.phone}
-						onChange={(e) => onChange("phone", e.target.value)}
+						onChange={(e) => setField("phone", e.target.value)}
 						placeholder="+234 812 345 6789"
 						className={inputCls}
 					/>
@@ -176,7 +201,7 @@ export function ProfileTab({
 						id="pf-address"
 						type="text"
 						value={form.address}
-						onChange={(e) => onChange("address", e.target.value)}
+						onChange={(e) => setField("address", e.target.value)}
 						placeholder="Lekki, Lagos"
 						className={inputCls}
 					/>
@@ -191,11 +216,13 @@ export function ProfileTab({
 					id="pf-bio"
 					rows={3}
 					value={form.bio}
-					onChange={(e) => onChange("bio", e.target.value)}
+					onChange={(e) => setField("bio", e.target.value)}
 					placeholder="Short description…"
 					className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] text-[12.5px] text-[var(--dashboard-text)] placeholder-[var(--dashboard-muted)] outline-none focus:border-[var(--dashboard-orange)] resize-none"
 				/>
 			</div>
-		</>
+
+			<SettingsSaveBar isSaving={update.isPending} saved={saved} />
+		</form>
 	);
 }
