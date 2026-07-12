@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell, Check, CreditCard, Lock, Settings, User } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { NotificationsTab } from "#/components/dashboard/settings/notifications-tab.tsx";
 import { PaymentsTab } from "#/components/dashboard/settings/payments-tab.tsx";
@@ -66,23 +66,34 @@ function SettingsPage() {
 
 	/* ── Profile ─────────────────────────────────────────────── */
 	const { data: profile } = useGetUserProfileQuery();
-	const [fullName, setFullName] = useState("");
-	const [phone, setPhone] = useState("");
-	const [address, setAddress] = useState("");
-	const [bio, setBio] = useState("");
+	const [profileForm, setProfileForm] = useState({
+		fullName: "",
+		phone: "",
+		address: "",
+		bio: "",
+	});
 	const [avatar, setAvatar] = useState<string | null>(null);
 	const [profileErrors, setProfileErrors] = useState<Record<string, string>>(
 		{},
 	);
+	const [seededProfileId, setSeededProfileId] = useState<string | null>(null);
 
-	useEffect(() => {
-		if (!profile) return;
-		setFullName(profile.fullName ?? "");
-		setPhone(profile.phone ?? "");
-		setAddress(profile.address ?? "");
-		setBio(profile.bio ?? "");
+	// Seed the editable copy from the loaded profile (adjust state during render —
+	// no effect). Re-seeds only when a genuinely different profile arrives, so
+	// in-flight edits and mutation results aren't clobbered on cache updates.
+	if (profile && profile.id !== seededProfileId) {
+		setSeededProfileId(profile.id);
+		setProfileForm({
+			fullName: profile.fullName ?? "",
+			phone: profile.phone ?? "",
+			address: profile.address ?? "",
+			bio: profile.bio ?? "",
+		});
 		setAvatar(profile.avatar ?? null);
-	}, [profile]);
+	}
+
+	const setProfileField = (field: keyof typeof profileForm, value: string) =>
+		setProfileForm((prev) => ({ ...prev, [field]: value }));
 
 	const updateProfile = useUpdateUserProfileQuery({
 		onSuccessCallback: (updated) => {
@@ -121,9 +132,10 @@ function SettingsPage() {
 	/* ── Notifications ───────────────────────────────────────── */
 	const { data: prefs } = useGetNotificationPreferencesQuery();
 	const [prefState, setPrefState] = useState(EMPTY_PREFS);
+	const [seededPrefsId, setSeededPrefsId] = useState<string | null>(null);
 
-	useEffect(() => {
-		if (!prefs) return;
+	if (prefs && prefs.id !== seededPrefsId) {
+		setSeededPrefsId(prefs.id);
 		setPrefState({
 			bookingUpdates: prefs.bookingUpdates,
 			chatMessages: prefs.chatMessages,
@@ -131,7 +143,7 @@ function SettingsPage() {
 			escrowAndPayments: prefs.escrowAndPayments,
 			promotions: prefs.promotions,
 		});
-	}, [prefs]);
+	}
 
 	const updatePrefs = useUpdateNotificationPreferencesQuery({
 		onSuccessCallback: () => flashSaved(),
@@ -152,7 +164,7 @@ function SettingsPage() {
 		e.preventDefault();
 
 		if (activeTab === "profile") {
-			const parsed = ProfileSchema.safeParse({ fullName, phone, address, bio });
+			const parsed = ProfileSchema.safeParse(profileForm);
 			if (!parsed.success) {
 				setProfileErrors(fieldErrors(parsed.error.issues));
 				return;
@@ -340,15 +352,9 @@ function SettingsPage() {
 									className="space-y-5"
 								>
 									<ProfileTab
-										fullName={fullName}
-										setFullName={setFullName}
+										form={profileForm}
+										onChange={setProfileField}
 										email={profile?.email ?? ""}
-										phone={phone}
-										setPhone={setPhone}
-										address={address}
-										setAddress={setAddress}
-										bio={bio}
-										setBio={setBio}
 										avatar={avatar}
 										onAvatarSelected={handleFileChange}
 										isUploading={isUploading}

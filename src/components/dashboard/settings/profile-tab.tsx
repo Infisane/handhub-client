@@ -1,17 +1,18 @@
 import { Trash2, Upload } from "lucide-react";
-import type { ChangeEvent, Dispatch, SetStateAction } from "react";
+import type { ChangeEvent } from "react";
 import { useRef } from "react";
 
-interface ProfileTabProps {
+export interface ProfileFormValues {
 	fullName: string;
-	setFullName: Dispatch<SetStateAction<string>>;
-	email: string;
 	phone: string;
-	setPhone: Dispatch<SetStateAction<string>>;
 	address: string;
-	setAddress: Dispatch<SetStateAction<string>>;
 	bio: string;
-	setBio: Dispatch<SetStateAction<string>>;
+}
+
+interface ProfileTabProps {
+	form: ProfileFormValues;
+	onChange: (field: keyof ProfileFormValues, value: string) => void;
+	email: string;
 	avatar: string | null;
 	onAvatarSelected: (e: ChangeEvent<HTMLInputElement>) => void;
 	isUploading: boolean;
@@ -37,15 +38,9 @@ function initialsOf(name: string) {
 }
 
 export function ProfileTab({
-	fullName,
-	setFullName,
+	form,
+	onChange,
 	email,
-	phone,
-	setPhone,
-	address,
-	setAddress,
-	bio,
-	setBio,
 	avatar,
 	onAvatarSelected,
 	isUploading,
@@ -71,12 +66,12 @@ export function ProfileTab({
 				{avatar ? (
 					<img
 						src={avatar}
-						alt={fullName}
+						alt={form.fullName}
 						className="w-14 h-14 rounded-full object-cover shrink-0 ring-4 ring-[var(--dashboard-orange-light)]/20 shadow-md"
 					/>
 				) : (
 					<div className="w-14 h-14 rounded-full bg-[var(--dashboard-orange)] flex items-center justify-center text-lg font-black text-white shrink-0 ring-4 ring-[var(--dashboard-orange-light)]/20 shadow-md">
-						{initialsOf(fullName)}
+						{initialsOf(form.fullName)}
 					</div>
 				)}
 				<div className="space-y-1.5 min-w-0">
@@ -129,8 +124,8 @@ export function ProfileTab({
 					<input
 						id="pf-fullName"
 						type="text"
-						value={fullName}
-						onChange={(e) => setFullName(e.target.value)}
+						value={form.fullName}
+						onChange={(e) => onChange("fullName", e.target.value)}
 						placeholder="Your full name"
 						className={inputCls}
 					/>
@@ -166,8 +161,8 @@ export function ProfileTab({
 					<input
 						id="pf-phone"
 						type="text"
-						value={phone}
-						onChange={(e) => setPhone(e.target.value)}
+						value={form.phone}
+						onChange={(e) => onChange("phone", e.target.value)}
 						placeholder="+234 812 345 6789"
 						className={inputCls}
 					/>
@@ -180,8 +175,8 @@ export function ProfileTab({
 					<input
 						id="pf-address"
 						type="text"
-						value={address}
-						onChange={(e) => setAddress(e.target.value)}
+						value={form.address}
+						onChange={(e) => onChange("address", e.target.value)}
 						placeholder="Lekki, Lagos"
 						className={inputCls}
 					/>
@@ -195,8 +190,8 @@ export function ProfileTab({
 				<textarea
 					id="pf-bio"
 					rows={3}
-					value={bio}
-					onChange={(e) => setBio(e.target.value)}
+					value={form.bio}
+					onChange={(e) => onChange("bio", e.target.value)}
 					placeholder="Short description…"
 					className="w-full px-3.5 py-2.5 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] text-[12.5px] text-[var(--dashboard-text)] placeholder-[var(--dashboard-muted)] outline-none focus:border-[var(--dashboard-orange)] resize-none"
 				/>
