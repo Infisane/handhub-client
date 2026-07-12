@@ -36,6 +36,8 @@ export interface ProviderProfile {
 	latitude: string;
 	longitude: string;
 	serviceRadius: number | null;
+	isAvailable: boolean;
+	aiIntakeEnabled: boolean;
 	hourlyRate: string;
 	minCharge: string;
 	availability: Record<string, string[]>;
