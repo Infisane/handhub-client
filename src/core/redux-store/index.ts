@@ -4,10 +4,10 @@ import {
 	PAUSE,
 	PERSIST,
 	PURGE,
-	REGISTER,
-	REHYDRATE,
 	persistReducer,
 	persistStore,
+	REGISTER,
+	REHYDRATE,
 } from "redux-persist";
 import authReducer from "./slices/auth.slice";
 import dashboardReducer from "./slices/dashboard.slice";
@@ -68,6 +68,10 @@ export const store = configureStore({
 		}),
 });
 
-export const persistor = persistStore(store);
+// redux-persist's persistStore dispatches PERSIST, whose persistoid schedules a
+// setTimeout — a disallowed global-scope operation on Cloudflare Workers. It also
+// only rehydrates in the browser, so only create the persistor on the client.
+export const persistor =
+	typeof window !== "undefined" ? persistStore(store) : null;
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
