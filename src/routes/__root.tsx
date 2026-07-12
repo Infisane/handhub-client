@@ -8,9 +8,8 @@ import {
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { Provider } from "react-redux";
-import { PersistGate } from "redux-persist/integration/react";
 import { Toaster } from "../components/ui/sonner";
-import { persistor, store } from "../core/redux-store";
+import { store } from "../core/redux-store";
 
 import appCss from "../styles.css?url";
 
@@ -58,23 +57,19 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			</head>
 			<body>
 				<Provider store={store}>
-					<PersistGate loading={null} persistor={persistor}>
-						<NuqsAdapter>
-							{children}
-						</NuqsAdapter>
-						<Toaster />
-						<TanStackDevtools
-							config={{
-								position: "bottom-right",
-							}}
-							plugins={[
-								{
-									name: "Tanstack Router",
-									render: <TanStackRouterDevtoolsPanel />,
-								},
-							]}
-						/>
-					</PersistGate>
+					<NuqsAdapter>{children}</NuqsAdapter>
+					<Toaster />
+					<TanStackDevtools
+						config={{
+							position: "bottom-right",
+						}}
+						plugins={[
+							{
+								name: "Tanstack Router",
+								render: <TanStackRouterDevtoolsPanel />,
+							},
+						]}
+					/>
 				</Provider>
 				<Scripts />
 			</body>
