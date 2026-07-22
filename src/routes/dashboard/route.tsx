@@ -116,6 +116,15 @@ function DashboardLayout() {
 		!onboardingDismissed;
 	const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
+	// beforeLoad can't check localStorage during SSR, so a typed URL / full page
+	// load skips that guard entirely. This client-only check catches it once
+	// hydrated.
+	useEffect(() => {
+		if (!readStoredSession()) {
+			navigate({ to: "/signin" });
+		}
+	}, [navigate]);
+
 	// Lock body scroll when mobile sidebar is open
 	useEffect(() => {
 		if (isMobileSidebarOpen) {
