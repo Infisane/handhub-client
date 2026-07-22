@@ -1,9 +1,22 @@
-import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	Outlet,
+	redirect,
+	useLocation,
+} from "@tanstack/react-router";
 import { HHLogo } from "#/components/hh/logo";
 import { Nav } from "#/components/home/nav";
 import { Separator } from "#/components/ui/separator";
+import { readStoredSession } from "#/core/helpers/auth-storage.helper";
 
-export const Route = createFileRoute("/_public")({ component: Layout });
+export const Route = createFileRoute("/_public")({
+	beforeLoad: () => {
+		if (typeof window !== "undefined" && readStoredSession()) {
+			throw redirect({ to: "/dashboard" });
+		}
+	},
+	component: Layout,
+});
 
 const FOOTER_COLS = [
 	{
@@ -68,7 +81,8 @@ function Layout() {
 				<Separator style={{ background: "var(--hh-border)" }} />
 				<div className="flex items-center justify-between pt-6">
 					<p className="text-[12px]" style={{ color: "var(--hh-txt3)" }}>
-						© {new Date().getFullYear()} Handhub Technologies Ltd. All rights reserved.
+						© {new Date().getFullYear()} Handhub Technologies Ltd. All rights
+						reserved.
 					</p>
 					<div className="flex gap-2.5">
 						{["X", "IG", "in"].map((label) => (
