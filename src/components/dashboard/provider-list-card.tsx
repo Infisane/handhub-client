@@ -232,7 +232,7 @@ export function ProviderListCard({
 						</>
 					) : effectiveRate > 0 ? (
 						<>
-							<Zap size={11} className="stroke-[2.5]" /> Hire · {rateLabel}
+							<Zap size={11} className="stroke-[2.5]" /> Hire 
 						</>
 					) : (
 						<>

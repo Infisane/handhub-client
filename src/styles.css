@@ -391,6 +391,9 @@ a {
 
 .hh-page a { color: inherit; text-decoration: none; }
 
+/* Clears the iPhone home-indicator area for fixed bottom bars */
+.safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
 .hh-search-input::placeholder { color: var(--hh-txt3); }
 
 /* Handhub button system */

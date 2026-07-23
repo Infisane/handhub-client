@@ -55,7 +55,7 @@ export function ChatConversation({
 		.join("");
 
 	return (
-		<div className="flex-1 flex flex-col h-full overflow-hidden bg-[var(--dashboard-bg)]">
+		<div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-[var(--dashboard-bg)]">
 			{/* Header */}
 			<div className="shrink-0 bg-[var(--dashboard-card)] border-b border-[var(--dashboard-border)] px-4 py-3 flex items-center gap-3">
 				{onBack && (

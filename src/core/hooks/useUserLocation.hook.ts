@@ -9,14 +9,15 @@ export const useUserLocation = () => {
 	// errors don't downgrade a "granted" status back to "loading".
 	const hasCoords = useRef(false);
 
-	const { coords, isGeolocationAvailable, positionError } = useGeolocated({
-		positionOptions: {
-			enableHighAccuracy: false,
-			maximumAge: 1000 * 60 * 5,
-		},
-		watchPosition: true,
-		suppressLocationOnMount: false,
-	});
+	const { coords, isGeolocationAvailable, positionError, getPosition } =
+		useGeolocated({
+			positionOptions: {
+				enableHighAccuracy: false,
+				maximumAge: 1000 * 60 * 5,
+			},
+			watchPosition: true,
+			suppressLocationOnMount: false,
+		});
 
 	useEffect(() => {
 		// Strict false: undefined means the hook hasn't resolved yet (SSR/hydration).
@@ -51,4 +52,6 @@ export const useUserLocation = () => {
 			dispatch(set_geolocation({ status: "loading" }));
 		}
 	}, [coords, isGeolocationAvailable, positionError, dispatch]);
+
+	return { getPosition };
 };
