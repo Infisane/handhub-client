@@ -192,7 +192,7 @@ function MessagesPage() {
 			{/* Workspace */}
 			<div
 				className={cn(
-					"flex-1 flex flex-col h-full",
+					"flex-1 flex flex-col h-full min-w-0",
 					!hasConversation && "hidden md:flex",
 				)}
 			>
