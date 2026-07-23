@@ -1,32 +1,71 @@
-import { useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import type { AuthSession, LoginPayload, RegisterPayload } from "#/core/types/auth.types";
-import { getMeService, loginService, registerService } from "#/core/services/auth.service";
-import { abortController } from "../helpers/axios.helper";
+import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
 import { set_auth_session } from "#/core/redux-store/slices/auth.slice";
+import {
+	getMeService,
+	loginService,
+	registerService,
+	resendEmailVerificationService,
+	verifyEmailService,
+} from "#/core/services/auth.service";
+import type {
+	AuthGateResponse,
+	LoginPayload,
+	RegisterPayload,
+	RequestOtpPayload,
+	VerifyOtpPayload,
+} from "#/core/types/auth.types";
+import { abortController } from "../helpers/axios.helper";
 
 export const useRegisterQuery = ({
 	onSuccessCallback,
 }: {
-	onSuccessCallback?: () => void;
+	onSuccessCallback?: (response: AuthGateResponse) => void;
 } = {}) => {
 	return useMutation({
 		mutationFn: (payload: RegisterPayload) =>
 			registerService({ payload, signal: abortController.signal }),
-		onSuccess: () => onSuccessCallback?.(),
+		onSuccess: (response) => onSuccessCallback?.(response),
 	});
 };
 
 export const useLoginQuery = ({
 	onSuccessCallback,
 }: {
-	onSuccessCallback?: (session: AuthSession) => void;
+	onSuccessCallback?: (response: AuthGateResponse) => void;
 } = {}) => {
 	return useMutation({
 		mutationFn: (payload: LoginPayload) =>
 			loginService({ payload, signal: abortController.signal }),
-		onSuccess: (session) => onSuccessCallback?.(session),
+		onSuccess: (response) => onSuccessCallback?.(response),
+	});
+};
+
+export const useResendEmailVerificationQuery = ({
+	onSuccessCallback,
+}: {
+	onSuccessCallback?: () => void;
+} = {}) => {
+	return useMutation({
+		mutationFn: (payload: RequestOtpPayload) =>
+			resendEmailVerificationService({
+				payload,
+				signal: abortController.signal,
+			}),
+		onSuccess: () => onSuccessCallback?.(),
+	});
+};
+
+export const useVerifyEmailQuery = ({
+	onSuccessCallback,
+}: {
+	onSuccessCallback?: () => void;
+} = {}) => {
+	return useMutation({
+		mutationFn: (payload: VerifyOtpPayload) =>
+			verifyEmailService({ payload, signal: abortController.signal }),
+		onSuccess: () => onSuccessCallback?.(),
 	});
 };
 

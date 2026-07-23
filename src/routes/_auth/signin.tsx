@@ -10,18 +10,20 @@ import {
 	Users,
 } from "lucide-react";
 import { useState } from "react";
-import { AppInput } from "#/components/ui/app-input";
+import { toast } from "sonner";
 import { AuthLeftPanel } from "#/components/auth/auth-left-panel";
 import { formBoxMotion, itemVariants } from "#/components/auth/auth-motion";
 import { SocialAuthButtons } from "#/components/auth/social-auth-buttons";
+import { VerifyEmailDialog } from "#/components/auth/verify-email-dialog";
 import { Nav } from "#/components/home/nav";
-import { useValidator } from "#/core/helpers/useValidator.helper";
-import { useLoginQuery } from "#/core/queries/auth.q";
-import { SignInSchema } from "#/core/schemas/auth.schema";
-import { USER_TYPES, type UserType } from "#/core/helpers/constants.helper";
+import { AppInput } from "#/components/ui/app-input";
 import { writeStoredSession } from "#/core/helpers/auth-storage.helper";
+import { USER_TYPES, type UserType } from "#/core/helpers/constants.helper";
+import { useValidator } from "#/core/helpers/useValidator.helper";
 import { useAppDispatch } from "#/core/hooks/useStore.hook";
+import { useLoginQuery } from "#/core/queries/auth.q";
 import { set_auth_session } from "#/core/redux-store/slices/auth.slice";
+import { SignInSchema } from "#/core/schemas/auth.schema";
 
 export const Route = createFileRoute("/_auth/signin")({
 	component: SignInPage,
@@ -35,6 +37,7 @@ function SignInPage() {
 		password: "",
 	});
 	const [rememberMe, setRememberMe] = useState(true);
+	const [showVerifyDialog, setShowVerifyDialog] = useState(false);
 
 	const { validate, revalidate, errors } = useValidator({
 		schema: SignInSchema,
@@ -43,13 +46,21 @@ function SignInPage() {
 
 	const dispatch = useAppDispatch();
 
-	const { mutate: handleLoginRequest, isPending: isLoginPending } = useLoginQuery({
-		onSuccessCallback: (session) => {
-			dispatch(set_auth_session({ token: session.token, user: session.user }));
-			writeStoredSession(session);
-			navigate({ to: "/dashboard" });
-		},
-	});
+	const { mutate: handleLoginRequest, isPending: isLoginPending } =
+		useLoginQuery({
+			onSuccessCallback: (response) => {
+				if (response.token && response.user) {
+					dispatch(
+						set_auth_session({ token: response.token, user: response.user }),
+					);
+					writeStoredSession({ token: response.token, user: response.user });
+					navigate({ to: "/dashboard" });
+					return;
+				}
+				toast(response.message ?? "Please verify your email before logging in");
+				setShowVerifyDialog(true);
+			},
+		});
 
 	const handleSignIn = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -183,7 +194,10 @@ function SignInPage() {
 										icon={<Mail size={16} aria-hidden="true" />}
 										value={loginFormData.email}
 										onChange={(e) => {
-											setLoginFormData({ ...loginFormData, email: e.target.value });
+											setLoginFormData({
+												...loginFormData,
+												email: e.target.value,
+											});
 											revalidate("email", e.target.value);
 										}}
 										placeholder="you@example.com"
@@ -205,7 +219,10 @@ function SignInPage() {
 										icon={<Lock size={16} aria-hidden="true" />}
 										value={loginFormData.password}
 										onChange={(e) => {
-											setLoginFormData({ ...loginFormData, password: e.target.value });
+											setLoginFormData({
+												...loginFormData,
+												password: e.target.value,
+											});
 											revalidate("password", e.target.value);
 										}}
 										placeholder="••••••••"
@@ -244,7 +261,10 @@ function SignInPage() {
 								</button>
 							</form>
 
-							<SocialAuthButtons verb="Sign in" dividerLabel="or continue with" />
+							<SocialAuthButtons
+								verb="Sign in"
+								dividerLabel="or continue with"
+							/>
 							<p className="terms">
 								By signing in you agree to our{" "}
 								<a href="#terms">Terms of Service</a> and{" "}
@@ -254,6 +274,19 @@ function SignInPage() {
 					</div>
 				</div>
 			</div>
+
+			<VerifyEmailDialog
+				open={showVerifyDialog}
+				email={loginFormData.email}
+				onClose={() => setShowVerifyDialog(false)}
+				onVerified={() =>
+					handleLoginRequest({
+						credential: loginFormData.email,
+						password: loginFormData.password,
+						userType: activeTab,
+					})
+				}
+			/>
 		</div>
 	);
 }
