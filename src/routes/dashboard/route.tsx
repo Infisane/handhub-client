@@ -139,9 +139,14 @@ function DashboardLayout() {
 	// instead — it already has a correct responsive list/conversation layout.
 	useEffect(() => {
 		if (!shouldShowChatSurface || window.innerWidth >= 1024) return;
+		// Only pass the one identifier that's actually set — navigate()'s search
+		// serializer doesn't know nuqs's "null means omit this param" convention,
+		// so `{ thread: null }` would land in the URL as the literal string "null".
 		navigate({
 			to: DASHBOARD_PATHS.messages,
-			search: { thread: activeThreadId, provider: activeProviderId },
+			search: activeThreadId
+				? { thread: activeThreadId }
+				: { provider: activeProviderId },
 		});
 		dispatch(
 			set_dashboard_flags({
