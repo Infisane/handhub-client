@@ -125,6 +125,39 @@ function DashboardLayout() {
 		}
 	}, [navigate]);
 
+	const shouldShowChatSurface =
+		hasActiveChat &&
+		(activeThreadId || activeProviderId) &&
+		pathname !== DASHBOARD_PATHS.messages &&
+		pathname !== DASHBOARD_PATHS.payments &&
+		pathname !== DASHBOARD_PATHS.reviews &&
+		pathname !== DASHBOARD_PATHS.settings &&
+		pathname !== DASHBOARD_PATHS.myArea;
+
+	// The chat side panel is desktop-only (`hidden lg:flex` below). Below that
+	// breakpoint there's no room for it, so send the user to the Messages page
+	// instead — it already has a correct responsive list/conversation layout.
+	useEffect(() => {
+		if (!shouldShowChatSurface || window.innerWidth >= 1024) return;
+		navigate({
+			to: DASHBOARD_PATHS.messages,
+			search: { thread: activeThreadId, provider: activeProviderId },
+		});
+		dispatch(
+			set_dashboard_flags({
+				hasActiveChat: false,
+				activeThreadId: null,
+				activeProviderId: null,
+			}),
+		);
+	}, [
+		shouldShowChatSurface,
+		activeThreadId,
+		activeProviderId,
+		navigate,
+		dispatch,
+	]);
+
 	// Lock body scroll when mobile sidebar is open
 	useEffect(() => {
 		if (isMobileSidebarOpen) {
@@ -438,32 +471,26 @@ function DashboardLayout() {
 			</div>
 
 			{/* ── Chat Panel (Right Side) ─────────────────────────────────────── */}
-			{hasActiveChat &&
-				(activeThreadId || activeProviderId) &&
-				pathname !== DASHBOARD_PATHS.messages &&
-				pathname !== DASHBOARD_PATHS.payments &&
-				pathname !== DASHBOARD_PATHS.reviews &&
-				pathname !== DASHBOARD_PATHS.settings &&
-				pathname !== DASHBOARD_PATHS.myArea && (
-					<aside className="hidden lg:flex flex-col w-[320px] bg-[var(--dashboard-card)] border-l border-[var(--dashboard-border)] h-full overflow-hidden shrink-0 animate-in slide-in-from-right duration-250">
-						<ChatConversation
-							threadId={activeThreadId}
-							providerId={activeProviderId}
-							onThreadResolved={(id) =>
-								dispatch(
-									set_dashboard_flags({
-										activeThreadId: id,
-										activeProviderId: null,
-									}),
-								)
-							}
-							onBack={() =>
-								dispatch(set_dashboard_flags({ hasActiveChat: false }))
-							}
-							compact
-						/>
-					</aside>
-				)}
+			{shouldShowChatSurface && (
+				<aside className="hidden lg:flex flex-col w-[320px] bg-[var(--dashboard-card)] border-l border-[var(--dashboard-border)] h-full overflow-hidden shrink-0 animate-in slide-in-from-right duration-250">
+					<ChatConversation
+						threadId={activeThreadId}
+						providerId={activeProviderId}
+						onThreadResolved={(id) =>
+							dispatch(
+								set_dashboard_flags({
+									activeThreadId: id,
+									activeProviderId: null,
+								}),
+							)
+						}
+						onBack={() =>
+							dispatch(set_dashboard_flags({ hasActiveChat: false }))
+						}
+						compact
+					/>
+				</aside>
+			)}
 
 			{/* ── Provider Onboarding Modal ─────────────────────────────────── */}
 			<ArtisanOnboarding
