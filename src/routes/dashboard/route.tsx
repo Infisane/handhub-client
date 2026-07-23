@@ -74,7 +74,7 @@ export const Route = createFileRoute("/dashboard")({
 
 function DashboardLayout() {
 	useMeQuery();
-	useUserLocation();
+	const { getPosition: retryLocation } = useUserLocation();
 	useChatSocket();
 	const { pathname } = useLocation();
 	const navigate = Route.useNavigate();
@@ -473,7 +473,7 @@ function DashboardLayout() {
 				}
 			/>
 
-			<LocationAlert />
+			<LocationAlert onRetry={retryLocation} />
 
 			{/* ── Mobile Bottom Tab Bar ──────────────────────────────────────── */}
 			<nav className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-[var(--dashboard-shell)] border-t border-white/10 flex items-center px-2 py-1 safe-area-bottom">

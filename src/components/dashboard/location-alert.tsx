@@ -1,7 +1,11 @@
-import { Loader2, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { useAppSelector } from "#/core/hooks/useStore.hook";
 
-export function LocationAlert() {
+interface LocationAlertProps {
+	onRetry: () => void;
+}
+
+export function LocationAlert({ onRetry }: LocationAlertProps) {
 	const status = useAppSelector((s) => s.geolocationStore.status);
 
 	if (status === "granted" || status === "idle" || status === "loading") {
@@ -22,10 +26,13 @@ export function LocationAlert() {
 						Enable location in your browser settings to find artisans near you.
 					</p>
 				</div>
-				<Loader2
-					size={14}
-					className="text-amber-500 animate-spin shrink-0 ml-1"
-				/>
+				<button
+					type="button"
+					onClick={onRetry}
+					className="shrink-0 ml-1 px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 border border-amber-200/60 text-amber-800 text-[11px] font-bold transition-colors cursor-pointer"
+				>
+					Try again
+				</button>
 			</div>
 		</div>
 	);
