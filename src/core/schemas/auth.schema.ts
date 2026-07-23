@@ -35,3 +35,8 @@ export const SignUpStep2Schema = z
 		path: ["termsCk"],
 	});
 export type SignUpStep2 = z.infer<typeof SignUpStep2Schema>;
+
+export const VerifyOtpSchema = z.object({
+	otp: z.string().length(6, "Enter the 6-digit code"),
+});
+export type VerifyOtp = z.infer<typeof VerifyOtpSchema>;

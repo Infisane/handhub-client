@@ -1,5 +1,13 @@
 import { getRequestData, request } from "#/core/helpers/axios.helper";
-import type { AuthSession, AuthUser, LoginPayload, RegisterPayload } from "#/core/types/auth.types";
+import type {
+	AuthGateResponse,
+	AuthSession,
+	AuthUser,
+	LoginPayload,
+	RegisterPayload,
+	RequestOtpPayload,
+	VerifyOtpPayload,
+} from "#/core/types/auth.types";
 
 export type { AuthSession, AuthUser, LoginPayload, RegisterPayload };
 
@@ -10,7 +18,7 @@ export const registerService = ({
 	payload: RegisterPayload;
 	signal?: AbortSignal;
 }) =>
-	getRequestData<unknown>(
+	getRequestData<AuthGateResponse>(
 		request.post("/api/auth/register", payload, { signal }),
 	);
 
@@ -21,9 +29,31 @@ export const loginService = ({
 	payload: LoginPayload;
 	signal?: AbortSignal;
 }) =>
-	getRequestData<AuthSession>(
+	getRequestData<AuthGateResponse>(
 		request.post("/api/auth/login", payload, { signal }),
 	);
 
 export const getMeService = ({ signal }: { signal?: AbortSignal } = {}) =>
 	getRequestData<AuthUser>(request.get("/api/auth/me", { signal }));
+
+export const resendEmailVerificationService = ({
+	payload,
+	signal,
+}: {
+	payload: RequestOtpPayload;
+	signal?: AbortSignal;
+}) =>
+	getRequestData<{ message: string }>(
+		request.post("/api/auth/email-verification/resend", payload, { signal }),
+	);
+
+export const verifyEmailService = ({
+	payload,
+	signal,
+}: {
+	payload: VerifyOtpPayload;
+	signal?: AbortSignal;
+}) =>
+	getRequestData<{ message: string }>(
+		request.post("/api/auth/email-verification/verify", payload, { signal }),
+	);

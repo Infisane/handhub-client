@@ -1,15 +1,3 @@
-import { AuthLeftPanel } from "#/components/auth/auth-left-panel";
-import { formBoxMotion } from "#/components/auth/auth-motion";
-import { SocialAuthButtons } from "#/components/auth/social-auth-buttons";
-import { Nav } from "#/components/home/nav";
-import { AppInput } from "#/components/ui/app-input";
-import { USER_TYPES, type UserType } from "#/core/helpers/constants.helper";
-import { useValidator } from "#/core/helpers/useValidator.helper";
-import { useRegisterQuery } from "#/core/queries/auth.q";
-import {
-	SignUpStep1Schema,
-	SignUpStep2Schema,
-} from "#/core/schemas/auth.schema";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -17,7 +5,6 @@ import {
 	ArrowRight,
 	Check,
 	Hammer,
-	LayoutDashboard,
 	Loader2,
 	Lock,
 	Mail,
@@ -28,6 +15,22 @@ import {
 	Users,
 } from "lucide-react";
 import { useState } from "react";
+import { AuthLeftPanel } from "#/components/auth/auth-left-panel";
+import { formBoxMotion } from "#/components/auth/auth-motion";
+import { SocialAuthButtons } from "#/components/auth/social-auth-buttons";
+import { VerifyEmailDialog } from "#/components/auth/verify-email-dialog";
+import { Nav } from "#/components/home/nav";
+import { AppInput } from "#/components/ui/app-input";
+import { writeStoredSession } from "#/core/helpers/auth-storage.helper";
+import { USER_TYPES, type UserType } from "#/core/helpers/constants.helper";
+import { useValidator } from "#/core/helpers/useValidator.helper";
+import { useAppDispatch } from "#/core/hooks/useStore.hook";
+import { useRegisterQuery } from "#/core/queries/auth.q";
+import { set_auth_session } from "#/core/redux-store/slices/auth.slice";
+import {
+	SignUpStep1Schema,
+	SignUpStep2Schema,
+} from "#/core/schemas/auth.schema";
 
 export const Route = createFileRoute("/_auth/signup")({
 	component: SignUpPage,
@@ -35,7 +38,10 @@ export const Route = createFileRoute("/_auth/signup")({
 
 function SignUpPage() {
 	const navigate = useNavigate();
-	const [step, setStep] = useState<1 | 2 | 3>(1);
+	const dispatch = useAppDispatch();
+	const [step, setStep] = useState<1 | 2>(1);
+	const [showVerifyDialog, setShowVerifyDialog] = useState(false);
+	const [sessionStored, setSessionStored] = useState(false);
 
 	// Step 1 Form fields
 	const [step1Data, setStep1Data] = useState({
@@ -56,10 +62,13 @@ function SignUpPage() {
 
 	const handleSetStep1Data = (field: keyof typeof step1Data, value: string) => {
 		setStep1Data((prev) => ({ ...prev, [field]: value }));
-	}
-	const handleSetStep2Data = (field: keyof typeof step2Data, value: string | boolean) => {
+	};
+	const handleSetStep2Data = (
+		field: keyof typeof step2Data,
+		value: string | boolean,
+	) => {
 		setStep2Data((prev) => ({ ...prev, [field]: value }));
-	}
+	};
 
 	const {
 		validate: validateStep1,
@@ -101,7 +110,16 @@ function SignUpPage() {
 	const strength = getPasswordStrength(step2Data.password);
 
 	const registerMutation = useRegisterQuery({
-		onSuccessCallback: () => setStep(3),
+		onSuccessCallback: (response) => {
+			if (response.token && response.user) {
+				dispatch(
+					set_auth_session({ token: response.token, user: response.user }),
+				);
+				writeStoredSession({ token: response.token, user: response.user });
+				setSessionStored(true);
+			}
+			setShowVerifyDialog(true);
+		},
 	});
 
 	const handleStep1Submit = (e: React.FormEvent) => {
@@ -183,7 +201,6 @@ function SignUpPage() {
 										<div className="step-dots">
 											<div className="dot active" />
 											<div className="dot" />
-											<div className="dot" />
 										</div>
 										<h1 className="form-h">Create your account</h1>
 										<p className="form-sub" style={{ marginBottom: "20px" }}>
@@ -199,9 +216,13 @@ function SignUpPage() {
 												<button
 													type="button"
 													className={`role-card ${
-														step1Data.role === USER_TYPES.customer ? "selected" : ""
+														step1Data.role === USER_TYPES.customer
+															? "selected"
+															: ""
 													}`}
-													onClick={() => handleSetStep1Data("role", USER_TYPES.customer)}
+													onClick={() =>
+														handleSetStep1Data("role", USER_TYPES.customer)
+													}
 												>
 													<Search size={22} aria-hidden="true" />
 													<div className="rt">Find artisans</div>
@@ -210,9 +231,13 @@ function SignUpPage() {
 												<button
 													type="button"
 													className={`role-card ${
-														step1Data.role === USER_TYPES.provider ? "selected" : ""
+														step1Data.role === USER_TYPES.provider
+															? "selected"
+															: ""
 													}`}
-													onClick={() => handleSetStep1Data("role", USER_TYPES.provider)}
+													onClick={() =>
+														handleSetStep1Data("role", USER_TYPES.provider)
+													}
 												>
 													<Hammer size={22} aria-hidden="true" />
 													<div className="rt">Offer services</div>
@@ -291,7 +316,10 @@ function SignUpPage() {
 										<button type="submit" className="btn-full">
 											<ArrowRight size={17} aria-hidden="true" /> Continue
 										</button>
-										<SocialAuthButtons verb="Sign up" dividerLabel="or sign up with" />
+										<SocialAuthButtons
+											verb="Sign up"
+											dividerLabel="or sign up with"
+										/>
 									</motion.form>
 								)}
 
@@ -309,7 +337,6 @@ function SignUpPage() {
 										<div className="step-dots">
 											<div className="dot done" />
 											<div className="dot active" />
-											<div className="dot" />
 										</div>
 										<h1 className="form-h">Secure your account</h1>
 										<p className="form-sub" style={{ marginBottom: "24px" }}>
@@ -411,10 +438,13 @@ function SignUpPage() {
 												type="checkbox"
 												id="marketing-ck"
 												checked={step2Data.marketingCk}
-												onChange={(e) => handleSetStep2Data("marketingCk", e.target.checked)}
+												onChange={(e) =>
+													handleSetStep2Data("marketingCk", e.target.checked)
+												}
 											/>
 											<label htmlFor="marketing-ck">
-												Send me updates about new artisans and features in my area
+												Send me updates about new artisans and features in my
+												area
 											</label>
 										</div>
 
@@ -455,61 +485,20 @@ function SignUpPage() {
 										</div>
 									</motion.form>
 								)}
-
-								{/* Step 3 View (Success screen) */}
-								{step === 3 && (
-									<motion.div
-										key="step3"
-										id="step3-wrap"
-										initial={{ opacity: 0, scale: 0.98 }}
-										animate={{ opacity: 1, scale: 1 }}
-										transition={{ duration: 0.25, ease: "easeOut" }}
-									>
-										<div className="step-dots">
-											<div className="dot done" />
-											<div className="dot done" />
-											<div className="dot active" />
-										</div>
-										<div className="success-screen">
-											<div className="success-icon">
-												<Check size={26} aria-hidden="true" />
-											</div>
-											<h1 className="form-h" style={{ marginBottom: "8px" }}>
-												You're in!
-											</h1>
-											<p
-												style={{
-													fontSize: "13.5px",
-													color: "var(--txt3)",
-													marginBottom: "28px",
-													lineHeight: "1.65",
-												}}
-											>
-												Your Handhub account is ready. A verification link has been
-												sent to your email.
-											</p>
-											<button
-												type="button"
-												className="btn-full"
-												onClick={() => navigate({ to: "/signin" })}
-											>
-												<LayoutDashboard size={17} aria-hidden="true" /> Go to
-												signin
-											</button>
-											<p className="terms" style={{ marginTop: "16px" }}>
-												Didn't get the email?{" "}
-												<a href="#resend" style={{ color: "var(--or)" }}>
-													Resend verification
-												</a>
-											</p>
-										</div>
-									</motion.div>
-								)}
 							</AnimatePresence>
 						</motion.div>
 					</div>
 				</div>
 			</div>
+
+			<VerifyEmailDialog
+				open={showVerifyDialog}
+				email={step1Data.email}
+				onClose={() => setShowVerifyDialog(false)}
+				onVerified={() =>
+					navigate({ to: sessionStored ? "/dashboard" : "/signin" })
+				}
+			/>
 		</div>
 	);
 }
