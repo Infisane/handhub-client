@@ -118,7 +118,7 @@ function MessagesPage() {
 					</div>
 				</div>
 
-				<div className="flex-1 overflow-y-auto p-2 space-y-1.5 scrollbar-none">
+				<div className="flex-1 overflow-y-auto p-2 pb-24 md:pb-2 space-y-1.5 scrollbar-none">
 					{isLoading ? (
 						Array.from({ length: 5 }).map((_, i) => (
 							<div
@@ -192,7 +192,7 @@ function MessagesPage() {
 			{/* Workspace */}
 			<div
 				className={cn(
-					"flex-1 flex flex-col h-full",
+					"flex-1 flex flex-col h-full min-w-0",
 					!hasConversation && "hidden md:flex",
 				)}
 			>

@@ -179,9 +179,7 @@ export function RecommendedArtisans() {
 										<span className="flex items-center justify-center gap-1 font-bold">
 											<Check size={12} className="stroke-[3]" /> Requested
 										</span>
-									) : minCharge > 0
-										? `Hire · ₦${minCharge.toLocaleString()}`
-										: "Hire"}
+									) : "Hire"}
 								</button>
 							</motion.div>
 						);

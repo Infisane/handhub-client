@@ -74,7 +74,7 @@ export const Route = createFileRoute("/dashboard")({
 
 function DashboardLayout() {
 	useMeQuery();
-	useUserLocation();
+	const { getPosition: retryLocation } = useUserLocation();
 	useChatSocket();
 	const { pathname } = useLocation();
 	const navigate = Route.useNavigate();
@@ -124,6 +124,44 @@ function DashboardLayout() {
 			navigate({ to: "/signin" });
 		}
 	}, [navigate]);
+
+	const shouldShowChatSurface =
+		hasActiveChat &&
+		(activeThreadId || activeProviderId) &&
+		pathname !== DASHBOARD_PATHS.messages &&
+		pathname !== DASHBOARD_PATHS.payments &&
+		pathname !== DASHBOARD_PATHS.reviews &&
+		pathname !== DASHBOARD_PATHS.settings &&
+		pathname !== DASHBOARD_PATHS.myArea;
+
+	// The chat side panel is desktop-only (`hidden lg:flex` below). Below that
+	// breakpoint there's no room for it, so send the user to the Messages page
+	// instead — it already has a correct responsive list/conversation layout.
+	useEffect(() => {
+		if (!shouldShowChatSurface || window.innerWidth >= 1024) return;
+		// Only pass the one identifier that's actually set — navigate()'s search
+		// serializer doesn't know nuqs's "null means omit this param" convention,
+		// so `{ thread: null }` would land in the URL as the literal string "null".
+		navigate({
+			to: DASHBOARD_PATHS.messages,
+			search: activeThreadId
+				? { thread: activeThreadId }
+				: { provider: activeProviderId },
+		});
+		dispatch(
+			set_dashboard_flags({
+				hasActiveChat: false,
+				activeThreadId: null,
+				activeProviderId: null,
+			}),
+		);
+	}, [
+		shouldShowChatSurface,
+		activeThreadId,
+		activeProviderId,
+		navigate,
+		dispatch,
+	]);
 
 	// Lock body scroll when mobile sidebar is open
 	useEffect(() => {
@@ -398,7 +436,7 @@ function DashboardLayout() {
 	);
 
 	return (
-		<div className="hh-dashboard flex h-screen w-screen overflow-hidden bg-[var(--dashboard-bg)]">
+		<div className="hh-dashboard flex h-dvh w-screen overflow-hidden bg-[var(--dashboard-bg)]">
 			{/* ── Mobile Sidebar Drawer Overlay ──────────────────────────────── */}
 			{/* Backdrop */}
 			<div
@@ -438,32 +476,26 @@ function DashboardLayout() {
 			</div>
 
 			{/* ── Chat Panel (Right Side) ─────────────────────────────────────── */}
-			{hasActiveChat &&
-				(activeThreadId || activeProviderId) &&
-				pathname !== DASHBOARD_PATHS.messages &&
-				pathname !== DASHBOARD_PATHS.payments &&
-				pathname !== DASHBOARD_PATHS.reviews &&
-				pathname !== DASHBOARD_PATHS.settings &&
-				pathname !== DASHBOARD_PATHS.myArea && (
-					<aside className="hidden lg:flex flex-col w-[320px] bg-[var(--dashboard-card)] border-l border-[var(--dashboard-border)] h-full overflow-hidden shrink-0 animate-in slide-in-from-right duration-250">
-						<ChatConversation
-							threadId={activeThreadId}
-							providerId={activeProviderId}
-							onThreadResolved={(id) =>
-								dispatch(
-									set_dashboard_flags({
-										activeThreadId: id,
-										activeProviderId: null,
-									}),
-								)
-							}
-							onBack={() =>
-								dispatch(set_dashboard_flags({ hasActiveChat: false }))
-							}
-							compact
-						/>
-					</aside>
-				)}
+			{shouldShowChatSurface && (
+				<aside className="hidden lg:flex flex-col w-[320px] bg-[var(--dashboard-card)] border-l border-[var(--dashboard-border)] h-full overflow-hidden shrink-0 animate-in slide-in-from-right duration-250">
+					<ChatConversation
+						threadId={activeThreadId}
+						providerId={activeProviderId}
+						onThreadResolved={(id) =>
+							dispatch(
+								set_dashboard_flags({
+									activeThreadId: id,
+									activeProviderId: null,
+								}),
+							)
+						}
+						onBack={() =>
+							dispatch(set_dashboard_flags({ hasActiveChat: false }))
+						}
+						compact
+					/>
+				</aside>
+			)}
 
 			{/* ── Provider Onboarding Modal ─────────────────────────────────── */}
 			<ArtisanOnboarding
@@ -473,7 +505,7 @@ function DashboardLayout() {
 				}
 			/>
 
-			<LocationAlert />
+			<LocationAlert onRetry={retryLocation} />
 
 			{/* ── Mobile Bottom Tab Bar ──────────────────────────────────────── */}
 			<nav className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-[var(--dashboard-shell)] border-t border-white/10 flex items-center px-2 py-1 safe-area-bottom">
