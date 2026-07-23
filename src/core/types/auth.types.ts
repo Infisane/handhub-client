@@ -66,6 +66,9 @@ export interface AuthUser {
 	isVerified: boolean;
 	isActive: boolean;
 	avatar: string | null;
+	emailVerifiedAt?: string;
+	lastLoginAt?: string;
+	firstLoginAt?: string;
 	createdAt: string;
 	updatedAt: string;
 	providerProfile?: ProviderProfile | null;
@@ -88,4 +91,23 @@ export interface LoginPayload {
 	credential: string;
 	password: string;
 	userType: UserType;
+}
+
+/** Shared shape for /auth/register and /auth/login — both can now return a
+ *  200 with no token when email verification is required. Check for `token`
+ *  presence, not status code, to know which case you got. */
+export interface AuthGateResponse {
+	token?: string;
+	user?: AuthUser;
+	emailVerificationRequired: boolean;
+	message?: string;
+}
+
+export interface RequestOtpPayload {
+	email: string;
+}
+
+export interface VerifyOtpPayload {
+	email: string;
+	otp: string;
 }
