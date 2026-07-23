@@ -436,7 +436,7 @@ function DashboardLayout() {
 	);
 
 	return (
-		<div className="hh-dashboard flex h-screen w-screen overflow-hidden bg-[var(--dashboard-bg)]">
+		<div className="hh-dashboard flex h-dvh w-screen overflow-hidden bg-[var(--dashboard-bg)]">
 			{/* ── Mobile Sidebar Drawer Overlay ──────────────────────────────── */}
 			{/* Backdrop */}
 			<div

@@ -32,7 +32,7 @@ export function MessageComposer({
 	};
 
 	return (
-		<div className="bg-[var(--dashboard-card)] border-t border-[var(--dashboard-border)] p-4 space-y-3">
+		<div className="bg-[var(--dashboard-card)] border-t border-[var(--dashboard-border)] p-4 pb-24 md:pb-4 space-y-3">
 			{showQuickReplies && (
 				<div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-0.5">
 					{quickReplies.map((reply) => (
