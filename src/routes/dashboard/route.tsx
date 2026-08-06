@@ -390,7 +390,7 @@ function DashboardLayout() {
 							<UserAvatarBadge
 								avatar={user?.avatar}
 								initials={initials}
-								className="w-7 h-7 rounded-full bg-[var(--dashboard-orange)] flex items-center justify-center text-[11px] font-bold text-white shrink-0"
+								className="w-7 h-7 rounded-full bg-[var(--hh-or-m)] flex items-center justify-center text-[11px] font-bold text-white shrink-0"
 							/>
 							<div className="flex flex-col min-w-0">
 								<span className="text-xs font-semibold text-foreground truncate">
