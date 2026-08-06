@@ -784,16 +784,58 @@ function FindPage() {
 											? "repeat(auto-fill,minmax(220px,1fr))"
 											: "1fr",
 								}}
+								aria-hidden
 							>
 								{["s1", "s2", "s3", "s4", "s5", "s6"].map((key) => (
 									<div
 										key={key}
-										className="rounded-2xl border h-[260px] animate-pulse"
+										className="rounded-2xl border p-5 flex flex-col gap-4 animate-pulse"
 										style={{
 											borderColor: "var(--hh-border2)",
 											background: "var(--hh-card)",
 										}}
-									/>
+									>
+										<div className="flex gap-3">
+											<div
+												className="w-12 h-12 rounded-xl shrink-0"
+												style={{ background: "var(--hh-border)" }}
+											/>
+											<div className="flex flex-col gap-2 flex-1 pt-1">
+												<div
+													className="h-3.5 rounded w-3/4"
+													style={{ background: "var(--hh-border)" }}
+												/>
+												<div
+													className="h-3 rounded w-1/2"
+													style={{ background: "var(--hh-border)" }}
+												/>
+											</div>
+										</div>
+										<div
+											className="h-14 rounded-xl"
+											style={{ background: "var(--hh-border)" }}
+										/>
+										<div className="flex gap-1.5">
+											<div
+												className="h-6 rounded-full w-16"
+												style={{ background: "var(--hh-border)" }}
+											/>
+											<div
+												className="h-6 rounded-full w-20"
+												style={{ background: "var(--hh-border)" }}
+											/>
+										</div>
+										<div className="flex gap-2 mt-auto">
+											<div
+												className="flex-1 h-9 rounded-xl"
+												style={{ background: "var(--hh-border)" }}
+											/>
+											<div
+												className="flex-1 h-9 rounded-xl"
+												style={{ background: "var(--hh-border)" }}
+											/>
+										</div>
+									</div>
 								))}
 							</div>
 						) : results.length === 0 ? (
