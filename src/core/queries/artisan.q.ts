@@ -10,7 +10,12 @@ import {
 	getServicesService,
 	updateProviderProfileService,
 } from "#/core/services/artisan.service";
-import type { AiSearchParams, GetProvidersParams, RecommendationsParams, UpdateProviderPayload } from "#/core/types/artisan.types";
+import type {
+	AiSearchParams,
+	GetProvidersParams,
+	RecommendationsParams,
+	UpdateProviderPayload,
+} from "#/core/types/artisan.types";
 import type { AuthUser } from "#/core/types/auth.types";
 
 export const useAiSearchQuery = (params: AiSearchParams | null) =>
@@ -29,10 +34,14 @@ export const useGetRecommendationsQuery = (params: RecommendationsParams) =>
 		staleTime: 1000 * 60 * 5,
 	});
 
-export const useGetProvidersQuery = (params?: GetProvidersParams) =>
+export const useGetProvidersQuery = (
+	params?: GetProvidersParams,
+	enabled = true,
+) =>
 	useQuery({
 		queryKey: ["providers", params],
 		queryFn: ({ signal }) => getProvidersService({ params, signal }),
+		enabled,
 		staleTime: 1000 * 60 * 5,
 	});
 

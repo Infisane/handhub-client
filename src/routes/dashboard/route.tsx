@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import {
 	createFileRoute,
 	Link,
@@ -45,7 +46,10 @@ import { useChatSocket } from "#/core/hooks/useChatSocket.hook";
 import { useEnrichedProviderProfile } from "#/core/hooks/useEnrichedProviderProfile.hook";
 import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
 import { useUserLocation } from "#/core/hooks/useUserLocation.hook";
+import { useGetProvidersQuery } from "#/core/queries/artisan.q";
 import { useMeQuery } from "#/core/queries/auth.q";
+import { useGetBookingsQuery } from "#/core/queries/booking.q";
+import { useGetUnreadCountQuery } from "#/core/queries/thread.q";
 import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
 
 /**
@@ -90,6 +94,18 @@ function DashboardLayout() {
 	const onboardingDismissed = useAppSelector(
 		(s) => s.dashboardStore.onboardingDismissed,
 	);
+	const queryClient = useQueryClient();
+
+	const { latitude, longitude } = useAppSelector((s) => s.geolocationStore);
+	const hasCoords = latitude !== null && longitude !== null;
+	const { data: nearbyProviders } = useGetProvidersQuery(
+		{ lat: latitude ?? undefined, lon: longitude ?? undefined, radius: 5 },
+		hasCoords,
+	);
+	const { data: activeBookings } = useGetBookingsQuery({
+		status: "in_progress",
+	});
+	const { data: unread } = useGetUnreadCountQuery();
 	const user = useAppSelector((s) => s.authStore.user);
 	const providerProfile = useEnrichedProviderProfile();
 
@@ -189,19 +205,19 @@ function DashboardLayout() {
 					name: "Find Artisans",
 					icon: Search,
 					path: DASHBOARD_PATHS.artisans,
-					badge: 48,
+					badge: nearbyProviders?.meta.total ?? null,
 				},
 				{
 					name: "Bookings",
 					icon: Calendar,
 					path: DASHBOARD_PATHS.bookings,
-					badge: 3,
+					badge: activeBookings?.length ?? null,
 				},
 				{
 					name: "Messages",
 					icon: MessageSquare,
 					path: DASHBOARD_PATHS.messages,
-					badge: 5,
+					badge: unread?.count ?? null,
 				},
 			],
 		},
@@ -489,9 +505,10 @@ function DashboardLayout() {
 								}),
 							)
 						}
-						onBack={() =>
-							dispatch(set_dashboard_flags({ hasActiveChat: false }))
-						}
+						onBack={() => {
+							dispatch(set_dashboard_flags({ hasActiveChat: false }));
+							queryClient.invalidateQueries({ queryKey: ["unread-count"] });
+						}}
 						compact
 					/>
 				</aside>
@@ -521,7 +538,7 @@ function DashboardLayout() {
 						name: "Messages",
 						icon: MessageSquare,
 						path: DASHBOARD_PATHS.messages,
-						badge: 5,
+						badge: unread?.count ?? null,
 					},
 					{ name: "More", icon: Menu, path: null },
 				].map((item) => {

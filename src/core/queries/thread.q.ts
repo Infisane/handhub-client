@@ -4,6 +4,7 @@ import { isSocketLive } from "#/core/helpers/ws.helper";
 import {
 	getThreadByIdService,
 	getThreadsService,
+	getUnreadCountService,
 	sendThreadMessageService,
 } from "#/core/services/thread.service";
 import type { Message, SendMessagePayload } from "#/core/types/chat.types";
@@ -15,6 +16,18 @@ export const useGetThreadsQuery = () =>
 	useQuery({
 		queryKey: ["threads"],
 		queryFn: ({ signal }) => getThreadsService({ signal }),
+		staleTime: 1000 * 10,
+		refetchInterval: () => (isSocketLive() ? 1000 * 60 : 1000 * 10),
+		refetchOnWindowFocus: true,
+	});
+
+/** Badge count — only decrements once a thread/ticket is actually fetched
+ *  server-side, not on push alone, so callers should invalidate ["unread-count"]
+ *  when leaving a conversation they just read (see ChatConversation onBack). */
+export const useGetUnreadCountQuery = () =>
+	useQuery({
+		queryKey: ["unread-count"],
+		queryFn: ({ signal }) => getUnreadCountService({ signal }),
 		staleTime: 1000 * 10,
 		refetchInterval: () => (isSocketLive() ? 1000 * 60 : 1000 * 10),
 		refetchOnWindowFocus: true,
