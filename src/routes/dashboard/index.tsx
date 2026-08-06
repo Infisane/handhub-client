@@ -1,22 +1,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
+	ArrowDownRight,
 	ArrowUpRight,
 	Briefcase,
 	CreditCard,
 	MessageSquare,
-	Receipt,
-	Sparkles,
 	Users,
 } from "lucide-react";
 import { AiSearch } from "#/components/dashboard/ai-search";
 import { DashboardHeader } from "#/components/dashboard/dashboard-header";
 import { RecommendedArtisans } from "#/components/dashboard/recommended-artisans";
+import { formatNaira, parseMoney } from "#/core/helpers/money.helper";
 import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
+import { useGetProvidersQuery } from "#/core/queries/artisan.q";
+import { useGetBookingsQuery } from "#/core/queries/booking.q";
+import { useGetUnreadCountQuery } from "#/core/queries/thread.q";
+import { useGetWalletQuery } from "#/core/queries/wallet.q";
 import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
 
 export const Route = createFileRoute("/dashboard/")({
 	component: DashboardPage,
 });
+
+const NEARBY_RADIUS_KM = 5;
 
 function DashboardPage() {
 	const dispatch = useAppDispatch();
@@ -25,6 +31,35 @@ function DashboardPage() {
 	const activeProviderId = useAppSelector(
 		(s) => s.dashboardStore.activeProviderId,
 	);
+
+	const { latitude, longitude } = useAppSelector((s) => s.geolocationStore);
+	const hasCoords = latitude !== null && longitude !== null;
+
+	const { data: activeBookings } = useGetBookingsQuery({
+		status: "in_progress",
+	});
+	const activeJobsCount = activeBookings?.length ?? 0;
+	const newTodayCount =
+		activeBookings?.filter(
+			(b) => new Date(b.createdAt).toDateString() === new Date().toDateString(),
+		).length ?? 0;
+
+	const { data: nearbyProviders } = useGetProvidersQuery(
+		{
+			lat: latitude ?? undefined,
+			lon: longitude ?? undefined,
+			radius: NEARBY_RADIUS_KM,
+		},
+		hasCoords,
+	);
+	const nearbyCount = nearbyProviders?.meta.total ?? 0;
+
+	const { data: wallet } = useGetWalletQuery();
+	const currentMonthSpend = parseMoney(wallet?.monthlyTotals.currentMonth);
+	const previousMonthSpend = parseMoney(wallet?.monthlyTotals.previousMonth);
+	const spendTrendUp = currentMonthSpend >= previousMonthSpend;
+
+	const { data: unread } = useGetUnreadCountQuery();
 
 	return (
 		<main className="flex-1 p-4 sm:p-5 md:p-6 pb-24 md:pb-6 flex flex-col gap-4 md:gap-5 overflow-y-auto h-full max-h-screen bg-[var(--dashboard-bg)]">
@@ -44,14 +79,16 @@ function DashboardPage() {
 							Active jobs
 						</div>
 						<div className="font-syne text-3xl font-black mb-0.5 leading-none">
-							3
+							{activeJobsCount}
 						</div>
 						<div className="text-[10.5px] text-white/85 font-semibold flex items-center gap-1 mt-1">
 							<span className="flex h-1.5 w-1.5 relative shrink-0">
 								<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
 								<span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
 							</span>
-							↑ 1 new today
+							{newTodayCount > 0
+								? `↑ ${newTodayCount} new today`
+								: "No new jobs today"}
 						</div>
 					</div>
 				</div>
@@ -68,10 +105,12 @@ function DashboardPage() {
 							Artisans nearby
 						</div>
 						<div className="font-syne text-3xl font-black mb-0.5 text-[var(--dashboard-text)] leading-none">
-							48
+							{hasCoords ? nearbyCount : "—"}
 						</div>
 						<div className="text-[10.5px] text-[var(--dashboard-muted)] font-semibold mt-1">
-							Within 5 km radius
+							{hasCoords
+								? `Within ${NEARBY_RADIUS_KM} km radius`
+								: "Enable location to see nearby artisans"}
 						</div>
 					</div>
 				</div>
@@ -88,10 +127,17 @@ function DashboardPage() {
 							Total spent
 						</div>
 						<div className="font-syne text-3xl font-black mb-0.5 text-[var(--dashboard-text)] leading-none">
-							₦64k
+							{formatNaira(currentMonthSpend)}
 						</div>
-						<div className="text-[10.5px] text-green-600 font-bold flex items-center gap-0.5 mt-1">
-							This month <ArrowUpRight size={11} className="stroke-[2.5]" />
+						<div
+							className={`text-[10.5px] font-bold flex items-center gap-0.5 mt-1 ${spendTrendUp ? "text-green-600" : "text-red-500"}`}
+						>
+							This month{" "}
+							{spendTrendUp ? (
+								<ArrowUpRight size={11} className="stroke-[2.5]" />
+							) : (
+								<ArrowDownRight size={11} className="stroke-[2.5]" />
+							)}
 						</div>
 					</div>
 				</div>
@@ -100,67 +146,6 @@ function DashboardPage() {
 			<AiSearch />
 
 			<RecommendedArtisans />
-
-			{/* Recent Activities Section */}
-			<section>
-				<h3 className="font-syne font-bold text-sm text-[var(--dashboard-text)] mb-3.5 select-none">
-					Recent activity
-				</h3>
-				<div className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-2xl p-5 flex flex-col relative shadow-sm">
-					<div className="absolute left-[39px] top-6 bottom-6 w-[1.5px] bg-neutral-100" />
-
-					<div className="relative flex items-start gap-4 pb-5 last:pb-0">
-						<div className="w-8.5 h-8.5 rounded-xl bg-[var(--dashboard-orange-light)] border border-[var(--dashboard-orange-mid)]/40 flex items-center justify-center text-[var(--dashboard-orange)] shrink-0 z-10 shadow-sm">
-							<Receipt size={14} className="stroke-[2.5]" />
-						</div>
-						<div className="min-w-0 pt-0.5">
-							<p className="text-[13.5px] font-bold text-[var(--dashboard-text)] leading-snug">
-								Taiwo Johnson accepted your booking
-							</p>
-							<span className="text-[11px] text-[var(--dashboard-muted)] font-medium">
-								Inverter panel inspection · Today
-							</span>
-						</div>
-						<span className="ml-auto text-[11px] text-[var(--dashboard-muted)] whitespace-nowrap font-semibold pl-2 pt-0.5">
-							09:14
-						</span>
-					</div>
-
-					<div className="relative flex items-start gap-4 pb-5 last:pb-0">
-						<div className="w-8.5 h-8.5 rounded-xl bg-[var(--dashboard-purple-light)] border border-[var(--dashboard-purple-mid)]/40 flex items-center justify-center text-[var(--dashboard-purple)] shrink-0 z-10 shadow-sm">
-							<Sparkles size={14} />
-						</div>
-						<div className="min-w-0 pt-0.5">
-							<p className="text-[13.5px] font-bold text-[var(--dashboard-text)] leading-snug">
-								AI matched 3 plumbers for your pipe request
-							</p>
-							<span className="text-[11px] text-[var(--dashboard-muted)] font-medium">
-								Based on location + urgency
-							</span>
-						</div>
-						<span className="ml-auto text-[11px] text-[var(--dashboard-muted)] whitespace-nowrap font-semibold pl-2 pt-0.5">
-							08:50
-						</span>
-					</div>
-
-					<div className="relative flex items-start gap-4 last:pb-0">
-						<div className="w-8.5 h-8.5 rounded-xl bg-green-50 border border-green-200/50 flex items-center justify-center text-green-700 shrink-0 z-10 shadow-sm">
-							<Receipt size={14} />
-						</div>
-						<div className="min-w-0 pt-0.5">
-							<p className="text-[13.5px] font-bold text-[var(--dashboard-text)] leading-snug">
-								Payment confirmed — ₦45,000
-							</p>
-							<span className="text-[11px] text-[var(--dashboard-muted)] font-medium">
-								Fatima Abubakar · Carpentry work
-							</span>
-						</div>
-						<span className="ml-auto text-[11px] text-[var(--dashboard-muted)] whitespace-nowrap font-semibold pl-2 pt-0.5">
-							Yesterday
-						</span>
-					</div>
-				</div>
-			</section>
 
 			{/* Floating Chat Drawer Re-opener Toggle */}
 			{!hasActiveChat && (activeThreadId || activeProviderId) && (
@@ -172,9 +157,11 @@ function DashboardPage() {
 				>
 					<div className="relative">
 						<MessageSquare size={22} className="stroke-[2.2]" />
-						<span className="absolute -top-2.5 -right-2.5 bg-red-500 text-white text-[9px] font-extrabold w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white shadow-sm ring-2 ring-red-500/10">
-							5
-						</span>
+						{!!unread?.count && (
+							<span className="absolute -top-2.5 -right-2.5 bg-red-500 text-white text-[9px] font-extrabold w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white shadow-sm ring-2 ring-red-500/10">
+								{unread.count}
+							</span>
+						)}
 					</div>
 				</button>
 			)}

@@ -1,254 +1,155 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import {
-	Star,
-	Search,
-	X,
-	Plus,
-	MessageSquare,
-	ChevronRight,
-	ThumbsUp,
-	Edit2,
-	Trash2,
-	Clock,
 	Award,
+	ChevronRight,
+	Clock,
+	MessageSquare,
+	Plus,
+	Search,
+	Star,
+	X,
 } from "lucide-react";
-import { useState, useMemo } from "react";
-import { useAppDispatch } from "#/core/hooks/useStore.hook";
-import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
-import { cn } from "#/lib/utils.ts";
+import { useMemo, useState } from "react";
 import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
 } from "#/components/ui/dialog.tsx";
+import { formatNaira } from "#/core/helpers/money.helper";
+import { useAppDispatch } from "#/core/hooks/useStore.hook";
+import { useGetBookingsQuery } from "#/core/queries/booking.q";
+import {
+	useCreateReviewQuery,
+	useGetMyReviewsQuery,
+} from "#/core/queries/review.q";
+import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
+import type { Booking } from "#/core/types/chat.types";
+import { cn } from "#/lib/utils.ts";
 
-export const Route = createFileRoute("/dashboard/reviews")({ 
+export const Route = createFileRoute("/dashboard/reviews")({
 	component: ReviewsPage,
 });
 
-/* ── Types ─────────────────────────────────────────────────── */
-interface WrittenReview {
-	id: string;
-	artisanName: string;
-	artisanTrade: string;
-	avatarInitials: string;
-	avatarBgClass: string;
-	rating: number;
-	date: string;
-	jobTitle: string;
-	comment: string;
-	tags: string[];
-	recommended: boolean;
+function initialsOf(name: string) {
+	return name
+		.split(" ")
+		.filter(Boolean)
+		.slice(0, 2)
+		.map((w) => w[0]?.toUpperCase())
+		.join("");
 }
-
-interface PendingReview {
-	id: string; // Booking Ticket ID
-	artisanName: string;
-	artisanTrade: string;
-	avatarInitials: string;
-	avatarBgClass: string;
-	jobTitle: string;
-	date: string;
-	cost: string;
-}
-
-/* ── Seed Data ──────────────────────────────────────────────── */
-const INITIAL_WRITTEN_REVIEWS: WrittenReview[] = [
-	{
-		id: "rev-1",
-		artisanName: "Emeka Nwosu",
-		artisanTrade: "Master Plumber",
-		avatarInitials: "EM",
-		avatarBgClass: "bg-[#E0F2FE] text-[#0369A1]",
-		rating: 5,
-		date: "May 29, 2026",
-		jobTitle: "Kitchen Sink Leak Repair",
-		comment: "Emeka arrived right on time and was extremely professional. He quickly identified the split PVC pipe under the kitchen bottom drawer cabinet and replaced it within 30 minutes. Tested everything thoroughly for leaks before leaving. The sink area is completely sealed now. Highly recommended!",
-		tags: ["Punctual", "Fair Pricing", "Expert Work"],
-		recommended: true,
-	},
-	{
-		id: "rev-2",
-		artisanName: "Fatima Abubakar",
-		artisanTrade: "Carpenter & Joiner",
-		avatarInitials: "FA",
-		avatarBgClass: "bg-[#FDF4E3] text-[#B7791F]",
-		rating: 4,
-		date: "April 20, 2026",
-		jobTitle: "Door Frame Realignment",
-		comment: "Very neat job. Fatima fixed two warped bedroom door frames that wouldn't close properly. She worked diligently and vacuumed the wood shavings afterwards. The only reason for 4 stars is she was about 15 minutes late, but she communicated clearly beforehand.",
-		tags: ["Clean Workspace", "Highly Skilled"],
-		recommended: true,
-	},
-];
-
-const INITIAL_PENDING_REVIEWS: PendingReview[] = [
-	{
-		id: "#1039",
-		artisanName: "Biodun Kareem",
-		artisanTrade: "AC Technician",
-		avatarInitials: "BK",
-		avatarBgClass: "bg-[#E2FBF0] text-[#0F766E]",
-		jobTitle: "AC Servicing (3 Lounge Units)",
-		date: "Yesterday, May 30",
-		cost: "₦27,000",
-	},
-];
 
 /* ── Main Component ────────────────────────────────────────── */
 function ReviewsPage() {
 	const dispatch = useAppDispatch();
 
-	// Core state
-	const [writtenReviews, setWrittenReviews] = useState<WrittenReview[]>(INITIAL_WRITTEN_REVIEWS);
-	const [pendingReviews, setPendingReviews] = useState<PendingReview[]>(INITIAL_PENDING_REVIEWS);
 	const [searchQuery, setSearchQuery] = useState("");
-	const [filterRating, setFilterRating] = useState<"all" | "5" | "4" | "3">("all");
+	const [filterRating, setFilterRating] = useState<"all" | "5" | "4" | "3">(
+		"all",
+	);
 
-	// Add/Edit review modal states
 	const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-	const [currentPending, setCurrentPending] = useState<PendingReview | null>(null);
-	const [editingReview, setEditingReview] = useState<WrittenReview | null>(null);
+	const [currentPending, setCurrentPending] = useState<Booking | null>(null);
 
-	// Form states
 	const [formRating, setFormRating] = useState<number>(5);
 	const [formHoverRating, setFormHoverRating] = useState<number | null>(null);
 	const [formComment, setFormComment] = useState("");
-	const [formTags, setFormTags] = useState<string[]>([]);
-	const [formRecommended, setFormRecommended] = useState(true);
 
-	// Tags options
-	const tagOptions = ["Punctual", "Fair Pricing", "Expert Work", "Clean Workspace", "Highly Skilled", "Polite"];
+	const { data: myReviews } = useGetMyReviewsQuery();
+	const { data: pendingBookings } = useGetBookingsQuery({
+		status: "completed",
+		reviewed: false,
+	});
+	// Enrichment join — Review has no artisan name/job title, Booking does.
+	const { data: reviewedBookings } = useGetBookingsQuery({
+		status: "completed",
+		reviewed: true,
+	});
+
+	const createReview = useCreateReviewQuery({
+		onSuccessCallback: () => {
+			setIsReviewModalOpen(false);
+			setCurrentPending(null);
+			setFormComment("");
+		},
+	});
+
+	const enrichedReviews = useMemo(() => {
+		const bookingsById = new Map(
+			(reviewedBookings ?? []).map((b) => [b.id, b]),
+		);
+		return (myReviews ?? []).map((review) => {
+			const booking = bookingsById.get(review.bookingId);
+			return {
+				review,
+				artisanName: booking?.provider?.businessName ?? "Provider",
+				jobTitle: booking?.serviceTitle ?? "Service",
+			};
+		});
+	}, [myReviews, reviewedBookings]);
 
 	// Computed statistics
 	const stats = useMemo(() => {
-		if (writtenReviews.length === 0) {
+		const reviews = myReviews ?? [];
+		if (reviews.length === 0) {
 			return { average: 0, total: 0, breakdown: [0, 0, 0, 0, 0] };
 		}
-		const total = writtenReviews.length;
-		const sum = writtenReviews.reduce((acc, r) => acc + r.rating, 0);
-		const average = parseFloat((sum / total).toFixed(1));
+		const total = reviews.length;
+		const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+		const average = Number.parseFloat((sum / total).toFixed(1));
 
 		const counts = [0, 0, 0, 0, 0]; // index 0 for 5★, index 4 for 1★
-		writtenReviews.forEach((r) => {
+		for (const r of reviews) {
 			const index = 5 - r.rating;
 			if (index >= 0 && index < 5) counts[index]++;
-		});
+		}
 
 		const breakdown = counts.map((c) => Math.round((c / total) * 100));
 		return { average, total, breakdown };
-	}, [writtenReviews]);
+	}, [myReviews]);
 
 	// Filtered feed
 	const filteredReviews = useMemo(() => {
-		return writtenReviews.filter((r) => {
-			// Rating filter
+		return enrichedReviews.filter(({ review, artisanName, jobTitle }) => {
 			if (filterRating !== "all") {
-				const target = parseInt(filterRating);
+				const target = Number.parseInt(filterRating, 10);
 				if (target === 3) {
-					if (r.rating > 3) return false;
-				} else {
-					if (r.rating !== target) return false;
+					if (review.rating > 3) return false;
+				} else if (review.rating !== target) {
+					return false;
 				}
 			}
 
-			// Search filter
 			if (searchQuery.trim()) {
 				const q = searchQuery.toLowerCase();
 				return (
-					r.artisanName.toLowerCase().includes(q) ||
-					r.artisanTrade.toLowerCase().includes(q) ||
-					r.comment.toLowerCase().includes(q) ||
-					r.jobTitle.toLowerCase().includes(q)
+					artisanName.toLowerCase().includes(q) ||
+					jobTitle.toLowerCase().includes(q) ||
+					review.comment.toLowerCase().includes(q)
 				);
 			}
 
 			return true;
 		});
-	}, [writtenReviews, filterRating, searchQuery]);
+	}, [enrichedReviews, filterRating, searchQuery]);
 
-	// Toggle tag helper
-	const handleTagToggle = (tag: string) => {
-		setFormTags((prev) =>
-			prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-		);
-	};
-
-	// Open reviewer for a pending item
-	const handleOpenReviewer = (pending: PendingReview) => {
+	const handleOpenReviewer = (pending: Booking) => {
 		setCurrentPending(pending);
-		setEditingReview(null);
 		setFormRating(5);
 		setFormComment("");
-		setFormTags([]);
-		setFormRecommended(true);
 		setIsReviewModalOpen(true);
 	};
 
-	// Open editor for an existing review
-	const handleOpenEditor = (review: WrittenReview) => {
-		setEditingReview(review);
-		setCurrentPending(null);
-		setFormRating(review.rating);
-		setFormComment(review.comment);
-		setFormTags(review.tags);
-		setFormRecommended(review.recommended);
-		setIsReviewModalOpen(true);
-	};
-
-	// Submit review (both write and edit)
 	const handleSubmitReview = (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!formComment.trim()) return;
-
-		if (editingReview) {
-			// Edit mode
-			setWrittenReviews((prev) =>
-				prev.map((r) =>
-					r.id === editingReview.id
-						? {
-								...r,
-								rating: formRating,
-								comment: formComment.trim(),
-								tags: formTags,
-								recommended: formRecommended,
-							}
-						: r
-				)
-			);
-		} else if (currentPending) {
-			// Write mode
-			const newReview: WrittenReview = {
-				id: `rev-${Date.now()}`,
-				artisanName: currentPending.artisanName,
-				artisanTrade: currentPending.artisanTrade,
-				avatarInitials: currentPending.avatarInitials,
-				avatarBgClass: currentPending.avatarBgClass,
-				rating: formRating,
-				date: "Today, Just now",
-				jobTitle: currentPending.jobTitle,
-				comment: formComment.trim(),
-				tags: formTags,
-				recommended: formRecommended,
-			};
-
-			setWrittenReviews((prev) => [newReview, ...prev]);
-			// Remove from pending
-			setPendingReviews((prev) => prev.filter((p) => p.id !== currentPending.id));
-		}
-
-		setIsReviewModalOpen(false);
-		setCurrentPending(null);
-		setEditingReview(null);
-	};
-
-	// Delete review
-	const handleDeleteReview = (id: string) => {
-		if (window.confirm("Are you sure you want to delete this review?")) {
-			setWrittenReviews((prev) => prev.filter((r) => r.id !== id));
-		}
+		if (!formComment.trim() || !currentPending) return;
+		createReview.mutate({
+			bookingId: currentPending.id,
+			rating: formRating,
+			comment: formComment.trim(),
+		});
 	};
 
 	// Layout animations
@@ -259,19 +160,26 @@ function ReviewsPage() {
 
 	const itemVariants = {
 		hidden: { opacity: 0, y: 12 },
-		show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 120, damping: 18 } },
+		show: {
+			opacity: 1,
+			y: 0,
+			transition: { type: "spring" as const, stiffness: 120, damping: 18 },
+		},
 	};
+
+	const modalArtisanName = currentPending?.provider?.businessName ?? "Provider";
 
 	return (
 		<main className="flex-1 flex flex-col h-full overflow-hidden bg-[var(--dashboard-bg)]">
-			
 			{/* ── Top Bar Header & Page Title ───────────────────────────────────────── */}
 			<div className="shrink-0 bg-[var(--dashboard-bg)] px-5 sm:px-8 pt-5 sm:pt-7 pb-4 space-y-4 border-b border-[var(--dashboard-border)]">
 				<div className="flex items-center justify-between gap-3">
 					<div className="flex items-center gap-3">
 						<button
 							type="button"
-							onClick={() => dispatch(set_dashboard_flags({ isMobileSidebarOpen: true }))}
+							onClick={() =>
+								dispatch(set_dashboard_flags({ isMobileSidebarOpen: true }))
+							}
 							className="md:hidden w-9 h-9 rounded-xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] flex items-center justify-center text-[var(--dashboard-text)] hover:bg-[var(--dashboard-orange-light)] transition-all shrink-0 shadow-xs"
 							aria-label="Open navigation"
 						>
@@ -282,7 +190,8 @@ function ReviewsPage() {
 								My Reviews
 							</h2>
 							<p className="text-[12px] text-[var(--dashboard-muted)] font-medium">
-								Share feedback about your artisan bookings and manage past ratings
+								Share feedback about your artisan bookings and manage past
+								ratings
 							</p>
 						</div>
 					</div>
@@ -295,20 +204,23 @@ function ReviewsPage() {
 						<div className="absolute top-0 right-0 w-24 h-24 bg-yellow-500/5 rounded-full blur-xl group-hover:bg-yellow-500/10 transition-all" />
 						<div className="font-syne font-black text-[46px] sm:text-[52px] text-[var(--dashboard-text)] leading-none tracking-tighter flex items-end gap-1.5">
 							{stats.average}
-							<span className="text-[20px] text-[var(--dashboard-muted)] font-extrabold pb-2">/5</span>
+							<span className="text-[20px] text-[var(--dashboard-muted)] font-extrabold pb-2">
+								/5
+							</span>
 						</div>
-						
+
 						{/* Render Average Stars */}
 						<div className="flex gap-1 my-2">
 							{Array.from({ length: 5 }).map((_, i) => (
 								<Star
-									key={i}
+									// biome-ignore lint/suspicious/noArrayIndexKey: static fixed-length star row
+									key={`avg-star-${i}`}
 									size={16}
 									className={cn(
 										"stroke-[2.5]",
 										i < Math.round(stats.average)
 											? "text-amber-500 fill-amber-500"
-											: "text-[var(--dashboard-border)]"
+											: "text-[var(--dashboard-border)]",
 									)}
 								/>
 							))}
@@ -333,9 +245,16 @@ function ReviewsPage() {
 							{stats.breakdown.map((pct, idx) => {
 								const ratingNum = 5 - idx;
 								return (
-									<div key={ratingNum} className="flex items-center gap-3 text-[11.5px]">
+									<div
+										key={ratingNum}
+										className="flex items-center gap-3 text-[11.5px]"
+									>
 										<span className="w-8 font-bold text-[var(--dashboard-muted)] text-right shrink-0 flex items-center justify-end gap-0.5 leading-none">
-											{ratingNum} <Star size={10} className="fill-amber-500 text-amber-500 inline" />
+											{ratingNum}{" "}
+											<Star
+												size={10}
+												className="fill-amber-500 text-amber-500 inline"
+											/>
 										</span>
 										<div className="flex-1 h-2 rounded-full bg-[var(--dashboard-bg)] overflow-hidden border border-[var(--dashboard-border)]/50">
 											<div
@@ -356,52 +275,53 @@ function ReviewsPage() {
 
 			{/* ── main content area scroll feed ─────────────────────────────────── */}
 			<div className="flex-1 overflow-y-auto p-5 sm:p-8 space-y-7 scrollbar-none pb-24 sm:pb-8">
-				
 				{/* ── Pending Reviews Alert Section ──────────────────────────────────── */}
-				{pendingReviews.length > 0 && (
+				{!!pendingBookings?.length && (
 					<div className="space-y-3">
 						<h3 className="font-syne font-extrabold text-[14.5px] text-[var(--dashboard-text)] flex items-center gap-1.5">
-							<Clock size={15} className="text-[var(--dashboard-orange)] animate-pulse" />
+							<Clock
+								size={15}
+								className="text-[var(--dashboard-orange)] animate-pulse"
+							/>
 							Pending Feedback Tasks
 						</h3>
 
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-							{pendingReviews.map((pending) => (
-								<div
-									key={pending.id}
-									className="bg-blue-50/50 dark:bg-blue-500/5 border border-blue-200/50 dark:border-blue-900/10 rounded-2xl p-4.5 flex gap-3.5 items-center justify-between shadow-xs"
-								>
-									<div className="flex items-center gap-3 min-w-0">
-										<div className={cn("w-10 h-10 rounded-xl flex items-center justify-center font-black text-[12.5px] shrink-0 shadow-xs", pending.avatarBgClass)}>
-											{pending.avatarInitials}
-										</div>
-										<div className="min-w-0">
-											<div className="flex items-center gap-1.5">
-												<span className="font-syne font-extrabold text-[13.5px] text-[var(--dashboard-text)] leading-none truncate">
-													{pending.artisanName}
+							{pendingBookings.map((pending) => {
+								const artisanName =
+									pending.provider?.businessName ?? "Provider";
+								return (
+									<div
+										key={pending.id}
+										className="bg-blue-50/50 dark:bg-blue-500/5 border border-blue-200/50 dark:border-blue-900/10 rounded-2xl p-4.5 flex gap-3.5 items-center justify-between shadow-xs"
+									>
+										<div className="flex items-center gap-3 min-w-0">
+											<div className="w-10 h-10 rounded-xl bg-[var(--dashboard-orange-light)] text-[var(--dashboard-orange)] flex items-center justify-center font-black text-[12.5px] shrink-0 shadow-xs">
+												{initialsOf(artisanName)}
+											</div>
+											<div className="min-w-0">
+												<span className="font-syne font-extrabold text-[13.5px] text-[var(--dashboard-text)] leading-none truncate block">
+													{artisanName}
 												</span>
-												<span className="text-[10px] text-[var(--dashboard-muted)] font-bold uppercase shrink-0">
-													{pending.artisanTrade}
+												<p className="text-[11.5px] text-[var(--dashboard-muted)] truncate mt-1 leading-none font-semibold">
+													{pending.serviceTitle}
+												</p>
+												<span className="text-[9.5px] text-[var(--dashboard-muted)] mt-1.5 block leading-none">
+													{formatNaira(pending.price)}
 												</span>
 											</div>
-											<p className="text-[11.5px] text-[var(--dashboard-muted)] truncate mt-1 leading-none font-semibold">
-												{pending.jobTitle}
-											</p>
-											<span className="text-[9.5px] text-[var(--dashboard-muted)] mt-1.5 block leading-none">
-												Completed {pending.date}
-											</span>
 										</div>
-									</div>
 
-									<button
-										type="button"
-										onClick={() => handleOpenReviewer(pending)}
-										className="py-1.5 px-3.5 bg-[var(--dashboard-orange)] hover:bg-blue-600 text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-1 cursor-pointer shadow-md shadow-blue-500/10 active:scale-95 transition-all shrink-0"
-									>
-										Rate Job <ChevronRight size={13} className="stroke-[3]" />
-									</button>
-								</div>
-							))}
+										<button
+											type="button"
+											onClick={() => handleOpenReviewer(pending)}
+											className="py-1.5 px-3.5 bg-[var(--dashboard-orange)] hover:bg-blue-600 text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-1 cursor-pointer shadow-md shadow-blue-500/10 active:scale-95 transition-all shrink-0"
+										>
+											Rate Job <ChevronRight size={13} className="stroke-[3]" />
+										</button>
+									</div>
+								);
+							})}
 						</div>
 					</div>
 				)}
@@ -414,13 +334,15 @@ function ReviewsPage() {
 								Written Evaluations Feed
 							</h3>
 							<p className="text-[11.5px] text-[var(--dashboard-muted)] font-medium">
-								Read, search, edit, or remove review comments you have logged
+								Feedback you've logged for completed bookings
 							</p>
 						</div>
 
-						{/* search and rating tabs filter */}
 						<div className="flex items-center gap-2 max-w-sm w-full sm:w-60 relative self-end shrink-0">
-							<Search size={13} className="absolute left-3 text-[var(--dashboard-muted)] pointer-events-none" />
+							<Search
+								size={13}
+								className="absolute left-3 text-[var(--dashboard-muted)] pointer-events-none"
+							/>
 							<input
 								type="text"
 								value={searchQuery}
@@ -451,7 +373,7 @@ function ReviewsPage() {
 									"px-3.5 py-1.5 rounded-t-xl text-[12px] font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1",
 									filterRating === tab
 										? "border-[var(--dashboard-orange)] text-[var(--dashboard-orange)] bg-[var(--dashboard-orange-light)]/10"
-										: "border-transparent text-[var(--dashboard-muted)] hover:text-[var(--dashboard-text)]"
+										: "border-transparent text-[var(--dashboard-muted)] hover:text-[var(--dashboard-text)]",
 								)}
 							>
 								{tab === "all" ? (
@@ -460,7 +382,12 @@ function ReviewsPage() {
 									"3★ & Lower"
 								) : (
 									<>
-										{tab} <Star size={10} className="fill-amber-500 text-amber-500 inline pb-0.25" /> Stars
+										{tab}{" "}
+										<Star
+											size={10}
+											className="fill-amber-500 text-amber-500 inline pb-0.25"
+										/>{" "}
+										Stars
 									</>
 								)}
 							</button>
@@ -480,108 +407,62 @@ function ReviewsPage() {
 							animate="show"
 							className="space-y-4"
 						>
-							{filteredReviews.map((review) => (
+							{filteredReviews.map(({ review, artisanName, jobTitle }) => (
 								<motion.div
 									key={review.id}
 									variants={itemVariants}
 									className="bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] rounded-2xl p-5 space-y-4 shadow-xs relative group"
 								>
-									{/* Top Header segment: Partner avatar & metadata */}
 									<div className="flex items-start justify-between gap-3">
 										<div className="flex items-center gap-3 min-w-0">
-											<div className={cn("w-10 h-10 rounded-xl flex items-center justify-center font-black text-[12.5px] shrink-0 shadow-xs", review.avatarBgClass)}>
-												{review.avatarInitials}
+											<div className="w-10 h-10 rounded-xl bg-[var(--dashboard-orange-light)] text-[var(--dashboard-orange)] flex items-center justify-center font-black text-[12.5px] shrink-0 shadow-xs">
+												{initialsOf(artisanName)}
 											</div>
 											<div className="min-w-0">
-												<div className="flex items-center gap-1.5 flex-wrap">
-													<h4 className="font-syne font-extrabold text-[14px] text-[var(--dashboard-text)] leading-none truncate">
-														{review.artisanName}
-													</h4>
-													<span className="text-[10px] text-[var(--dashboard-muted)] font-bold uppercase shrink-0">
-														{review.artisanTrade}
-													</span>
-												</div>
+												<h4 className="font-syne font-extrabold text-[14px] text-[var(--dashboard-text)] leading-none truncate">
+													{artisanName}
+												</h4>
 												<span className="text-[10px] text-[var(--dashboard-muted)] mt-1.5 block leading-none font-bold">
-													{review.jobTitle}
+													{jobTitle}
 												</span>
 											</div>
 										</div>
 
-										{/* Rating Stars value display & actions */}
-										<div className="flex items-center gap-4 shrink-0">
-											<div className="text-right">
-												<div className="flex gap-0.5 justify-end mb-1">
-													{Array.from({ length: 5 }).map((_, i) => (
-														<Star
-															key={i}
-															size={11.5}
-															className={cn(
-																"stroke-[2.5]",
-																i < review.rating
-																	? "text-amber-500 fill-amber-500"
-																	: "text-[var(--dashboard-border)]"
-															)}
-														/>
-													))}
-												</div>
-												<span className="text-[9.5px] text-[var(--dashboard-muted)] font-semibold leading-none">
-													Reviewed {review.date}
-												</span>
+										<div className="text-right shrink-0">
+											<div className="flex gap-0.5 justify-end mb-1">
+												{Array.from({ length: 5 }).map((_, i) => (
+													<Star
+														// biome-ignore lint/suspicious/noArrayIndexKey: static fixed-length star row
+														key={`${review.id}-star-${i}`}
+														size={11.5}
+														className={cn(
+															"stroke-[2.5]",
+															i < review.rating
+																? "text-amber-500 fill-amber-500"
+																: "text-[var(--dashboard-border)]",
+														)}
+													/>
+												))}
 											</div>
-
-											{/* Action triggers */}
-											<div className="flex gap-1 relative opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-												<button
-													type="button"
-													onClick={() => handleOpenEditor(review)}
-													className="w-7 h-7 rounded-lg border border-[var(--dashboard-border)] hover:border-[var(--dashboard-orange-mid)] bg-[var(--dashboard-bg)] flex items-center justify-center text-[var(--dashboard-muted)] hover:text-[var(--dashboard-orange)] transition-colors cursor-pointer"
-													title="Edit feedback"
-												>
-													<Edit2 size={11} />
-												</button>
-												<button
-													type="button"
-													onClick={() => handleDeleteReview(review.id)}
-													className="w-7 h-7 rounded-lg border border-red-200 dark:border-red-950/40 bg-[var(--dashboard-bg)] flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-colors cursor-pointer"
-													title="Delete feedback"
-												>
-													<Trash2 size={11} />
-												</button>
-											</div>
+											<span className="text-[9.5px] text-[var(--dashboard-muted)] font-semibold leading-none">
+												Reviewed{" "}
+												{new Date(review.createdAt).toLocaleDateString([], {
+													month: "short",
+													day: "numeric",
+													year: "numeric",
+												})}
+											</span>
 										</div>
 									</div>
 
-									{/* Evaluation comment body text */}
 									<p className="text-[12.5px] text-[var(--dashboard-text)] leading-relaxed font-medium">
 										{review.comment}
 									</p>
-
-									{/* bottom tags indicators */}
-									<div className="flex justify-between items-center gap-3 pt-1 border-t border-[var(--dashboard-border)]/40 text-[11px] flex-wrap">
-										<div className="flex gap-1 flex-wrap">
-											{review.tags.map((tag) => (
-												<span
-													key={tag}
-													className="px-2 py-0.5 rounded-md bg-[var(--dashboard-bg)] border border-[var(--dashboard-border)] text-[9.5px] font-bold text-[var(--dashboard-muted)]"
-												>
-													{tag}
-												</span>
-											))}
-										</div>
-
-										{review.recommended && (
-											<div className="flex items-center gap-1 font-bold text-green-600 dark:text-green-400">
-												<ThumbsUp size={11} className="stroke-[2.5]" />
-												<span>Recommends to community</span>
-											</div>
-										)}
-									</div>
 								</motion.div>
 							))}
 						</motion.div>
 					)}
 				</div>
-
 			</div>
 
 			{/* ── Dialog modal reviewer component ─────────────────────────────────── */}
@@ -590,29 +471,26 @@ function ReviewsPage() {
 					<DialogHeader className="p-6 pb-2 border-b border-[var(--dashboard-border)]">
 						<DialogTitle className="font-syne font-extrabold text-[18px] text-[var(--dashboard-text)] leading-none flex items-center gap-2">
 							<Star size={18} className="text-[var(--dashboard-orange)]" />
-							{editingReview ? "Edit Feedback evaluation" : "Log Verified Evaluation"}
+							Log Verified Evaluation
 						</DialogTitle>
 					</DialogHeader>
 					<form onSubmit={handleSubmitReview} className="p-6 space-y-4">
-						
-						{/* Context artisan details */}
-						{(currentPending || editingReview) && (
+						{currentPending && (
 							<div className="bg-[var(--dashboard-bg)]/80 border border-[var(--dashboard-border)]/50 p-3 rounded-xl flex items-center gap-3 shrink-0">
-								<div className={cn("w-9 h-9 rounded-lg flex items-center justify-center font-black text-[12px] shrink-0 shadow-xs", currentPending?.avatarBgClass || editingReview?.avatarBgClass)}>
-									{currentPending?.avatarInitials || editingReview?.avatarInitials}
+								<div className="w-9 h-9 rounded-lg bg-[var(--dashboard-orange-light)] text-[var(--dashboard-orange)] flex items-center justify-center font-black text-[12px] shrink-0 shadow-xs">
+									{initialsOf(modalArtisanName)}
 								</div>
 								<div className="min-w-0">
 									<p className="text-[13px] font-bold text-[var(--dashboard-text)] leading-none mb-1">
-										{currentPending?.artisanName || editingReview?.artisanName}
+										{modalArtisanName}
 									</p>
 									<span className="text-[10px] text-[var(--dashboard-muted)] font-medium">
-										{currentPending?.artisanTrade || editingReview?.artisanTrade} · {currentPending?.jobTitle || editingReview?.jobTitle}
+										{currentPending.serviceTitle}
 									</span>
 								</div>
 							</div>
 						)}
 
-						{/* Interactive Rating picker segment */}
 						<div className="space-y-1.5 text-center py-2 bg-[var(--dashboard-bg)]/40 rounded-xl border border-[var(--dashboard-border)]/30">
 							<label className="text-[10px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block">
 								Tap Stars to Rate Artisan
@@ -620,11 +498,14 @@ function ReviewsPage() {
 							<div className="flex gap-2 justify-center items-center">
 								{Array.from({ length: 5 }).map((_, i) => {
 									const ratingVal = i + 1;
-									const isActive = formHoverRating !== null ? ratingVal <= formHoverRating : ratingVal <= formRating;
+									const isActive =
+										formHoverRating !== null
+											? ratingVal <= formHoverRating
+											: ratingVal <= formRating;
 
 									return (
 										<button
-											key={ratingVal}
+											key={`rate-star-${ratingVal}`}
 											type="button"
 											onClick={() => setFormRating(ratingVal)}
 											onMouseEnter={() => setFormHoverRating(ratingVal)}
@@ -637,7 +518,7 @@ function ReviewsPage() {
 													"stroke-[2.5] transition-colors duration-150",
 													isActive
 														? "text-amber-500 fill-amber-500 filter drop-shadow-[0_0_2px_rgba(245,158,11,0.25)]"
-														: "text-[var(--dashboard-border)]"
+														: "text-[var(--dashboard-border)]",
 												)}
 											/>
 										</button>
@@ -646,12 +527,15 @@ function ReviewsPage() {
 							</div>
 						</div>
 
-						{/* Text feedback description */}
 						<div className="space-y-1.5">
-							<label className="text-[11px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block">
+							<label
+								htmlFor="review-comment"
+								className="text-[11px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block"
+							>
 								Write Comment details
 							</label>
 							<textarea
+								id="review-comment"
 								required
 								rows={4}
 								value={formComment}
@@ -661,52 +545,6 @@ function ReviewsPage() {
 							/>
 						</div>
 
-						{/* Tags selector segment */}
-						<div className="space-y-1.5">
-							<label className="text-[11px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider block">
-								Review Tags (Select attributes)
-							</label>
-							<div className="flex flex-wrap gap-1">
-								{tagOptions.map((tag) => {
-									const isSelected = formTags.includes(tag);
-									return (
-										<button
-											key={tag}
-											type="button"
-											onClick={() => handleTagToggle(tag)}
-											className={cn(
-												"px-2.5 py-1 rounded-lg text-[9.5px] font-bold border transition-colors cursor-pointer",
-												isSelected
-													? "bg-[var(--dashboard-orange-light)] border-[var(--dashboard-orange-mid)] text-[var(--dashboard-orange)]"
-													: "bg-[var(--dashboard-bg)] border-[var(--dashboard-border)] text-[var(--dashboard-muted)] hover:border-[var(--dashboard-orange-mid)]"
-											)}
-										>
-											{tag}
-										</button>
-									);
-								})}
-							</div>
-						</div>
-
-						{/* Recommend to community toggle */}
-						<label className="flex items-center gap-2.5 p-3 rounded-xl bg-[var(--dashboard-bg)]/60 border border-[var(--dashboard-border)]/40 cursor-pointer">
-							<input
-								type="checkbox"
-								checked={formRecommended}
-								onChange={(e) => setFormRecommended(e.target.checked)}
-								className="accent-green-600 shrink-0"
-							/>
-							<div className="min-w-0 flex-1">
-								<p className="text-[12px] font-extrabold text-[var(--dashboard-text)] leading-none mb-0.5">
-									Recommend this Artisan
-								</p>
-								<span className="text-[9.5px] text-[var(--dashboard-muted)] font-medium">
-									Toggles recommendations tags in community listing grids
-								</span>
-							</div>
-						</label>
-
-						{/* Submit/cancel action triggers */}
 						<div className="flex gap-2.5 pt-3">
 							<button
 								type="button"
@@ -717,17 +555,15 @@ function ReviewsPage() {
 							</button>
 							<button
 								type="submit"
-								disabled={!formComment.trim()}
+								disabled={!formComment.trim() || createReview.isPending}
 								className="flex-1 py-2.5 bg-[var(--dashboard-orange)] hover:bg-blue-600 text-white disabled:bg-neutral-200 disabled:text-neutral-400 dark:disabled:bg-neutral-800 dark:disabled:text-neutral-600 rounded-xl text-xs font-extrabold cursor-pointer transition-colors"
 							>
-								{editingReview ? "Save Changes" : "Publish Evaluation"}
+								{createReview.isPending ? "Publishing…" : "Publish Evaluation"}
 							</button>
 						</div>
-
 					</form>
 				</DialogContent>
 			</Dialog>
-
 		</main>
 	);
 }

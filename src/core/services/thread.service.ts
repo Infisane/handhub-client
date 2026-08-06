@@ -4,10 +4,20 @@ import type {
 	SendMessagePayload,
 	ThreadDetail,
 	ThreadSummary,
+	UnreadCountResponse,
 } from "#/core/types/chat.types";
 
 export const getThreadsService = ({ signal }: { signal?: AbortSignal } = {}) =>
 	getRequestData<ThreadSummary[]>(request.get("/api/threads", { signal }));
+
+export const getUnreadCountService = ({
+	signal,
+}: {
+	signal?: AbortSignal;
+} = {}) =>
+	getRequestData<UnreadCountResponse>(
+		request.get("/api/threads/unread-count", { signal }),
+	);
 
 export const getThreadByIdService = ({
 	id,

@@ -114,11 +114,26 @@ export interface Invoice {
 }
 
 /* ── Booking ─────────────────────────────────────────────────── */
+export interface BookingCustomer {
+	id: string;
+	fullName: string;
+	phone: string;
+	avatar: string | null;
+}
+
+export interface BookingProvider {
+	id: string;
+	businessName: string | null;
+	averageRating: string;
+}
+
 export interface Booking {
 	id: string;
 	bookingRef: string;
 	customerId: string; // user id
+	customer?: BookingCustomer; // present on GET /api/bookings list items
 	providerId: string; // provider-profile id (NOT user id)
+	provider?: BookingProvider; // present on GET /api/bookings list items
 	categoryId: string | null;
 	serviceTitle: string;
 	status: BookingStatus;
@@ -133,7 +148,13 @@ export interface Booking {
 	address: string | null;
 	location: string | null;
 	urgency: UrgencyLevel;
+	completedAt?: string | null;
 	createdAt: string;
+}
+
+export interface GetBookingsParams {
+	status?: BookingStatus;
+	reviewed?: boolean;
 }
 
 /* ── Ticket ──────────────────────────────────────────────────── */
@@ -198,22 +219,70 @@ export interface CardPaymentInit {
 	authorizationUrl: string;
 }
 
+export type TxCategory =
+	| "deposit"
+	| "withdrawal"
+	| "payment"
+	| "release"
+	| "refund"
+	| "clawback";
+
 export interface WalletTransaction {
 	id: string;
 	walletId: string;
 	type: TxType;
+	category: TxCategory;
 	amount: string;
 	description: string;
 	reference: string;
 	balanceAfter: string;
 	createdAt: string;
+	bookingId: string | null;
+	ticketId: string | null; // only set if the booking has an associated chat ticket
+	artisanName: string | null;
+	avatar: string | null;
+}
+
+export interface GetWalletTransactionsParams {
+	limit?: number;
+	offset?: number;
+	type?: TxType;
+	category?: TxCategory;
+}
+
+export interface WalletTransactionsResponse {
+	data: WalletTransaction[];
+	meta: { total: number; limit: number; offset: number };
+}
+
+export interface HeldPayment {
+	paymentId: string;
+	bookingId: string;
+	serviceTitle: string;
+	amount: string;
 }
 
 export interface Wallet {
 	id: string;
 	userId: string;
 	balance: string; // decimal string
-	transactions: WalletTransaction[];
+	escrowBalance: string;
+	heldPayments: HeldPayment[];
+	monthlyTotals: { currentMonth: string; previousMonth: string };
+}
+
+/** POST /api/wallet/withdraw — `balance` here is a number, unlike every other
+ *  money field in this API (which are decimal strings). Kept as its own type
+ *  rather than reusing Wallet so this inconsistency isn't silently masked. */
+export interface WalletWithdrawResponse {
+	id: string;
+	userId: string;
+	balance: number;
+}
+
+/* ── Threads: unread count ───────────────────────────────────── */
+export interface UnreadCountResponse {
+	count: number;
 }
 
 /* ── Review ──────────────────────────────────────────────────── */
