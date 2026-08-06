@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { MessageSquare, Search, X } from "lucide-react";
 import { parseAsString, useQueryStates } from "nuqs";
@@ -62,6 +63,7 @@ function MessagesPage() {
 
 	const { data: threads = [], isLoading } = useGetThreadsQuery();
 	const viewerUserId = useAppSelector((s) => s.authStore.user?.id ?? null);
+	const queryClient = useQueryClient();
 
 	const filteredThreads = useMemo(() => {
 		if (!searchQuery.trim()) return threads;
@@ -201,7 +203,10 @@ function MessagesPage() {
 						threadId={params.thread}
 						providerId={params.provider}
 						onThreadResolved={(id) => setParams({ thread: id, provider: null })}
-						onBack={() => setParams({ thread: null, provider: null })}
+						onBack={() => {
+							setParams({ thread: null, provider: null });
+							queryClient.invalidateQueries({ queryKey: ["unread-count"] });
+						}}
 					/>
 				) : (
 					<div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-[var(--dashboard-card)]">
