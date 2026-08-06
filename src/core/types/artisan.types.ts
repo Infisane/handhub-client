@@ -114,6 +114,7 @@ export interface GetProvidersParams {
 	radius?: number;
 	verified?: boolean;
 	minRating?: number;
+	minRate?: number;
 	maxRate?: number;
 	sortBy?: string;
 	limit?: number;

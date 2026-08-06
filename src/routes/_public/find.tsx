@@ -1,5 +1,6 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
+	Check,
 	ChevronLeft,
 	ChevronRight,
 	Droplets,
@@ -19,45 +20,62 @@ import {
 	X,
 	Zap,
 } from "lucide-react";
-import { useMemo, useState } from "react";
-import { ArtisanCard } from "#/components/find/artisan-card";
-import { ArtisanModal } from "#/components/find/artisan-modal";
+import {
+	parseAsFloat,
+	parseAsString,
+	parseAsStringLiteral,
+	useQueryStates,
+} from "nuqs";
+import { useEffect, useMemo, useState } from "react";
+import { ProviderListCard } from "#/components/dashboard/provider-list-card";
+import { ProviderProfileModal } from "#/components/dashboard/provider-profile-modal";
 import { HHButton } from "#/components/hh/button";
 import { O } from "#/components/hh/primitives";
+import {
+	useGetCategoriesQuery,
+	useGetProvidersQuery,
+} from "#/core/queries/artisan.q";
+import { useGetLgasQuery, useGetStatesQuery } from "#/core/queries/location.q";
+import type { AiSearchProvider, Category } from "#/core/types/artisan.types";
 import { cn } from "#/lib/utils";
-import type { Artisan } from "#/types/artisan";
-import { ARTISANS } from "#/types/artisan";
 
 export const Route = createFileRoute("/_public/find")({ component: FindPage });
 
 // ─── Types & constants ────────────────────────────────────────────────────────
 
-interface Filters {
-	trades: Record<string, boolean>;
-	avail: Record<string, boolean>;
-	minRating: number;
-	minRate: number;
-	maxRate: number;
-	districts: Record<string, boolean>;
+type SortKey = "best" | "rating" | "rate_asc" | "reviews";
+const SORT_KEYS = ["best", "rating", "rate_asc", "reviews"] as const;
+const API_SORT_MAP: Partial<Record<SortKey, string>> = {
+	rating: "rating",
+	rate_asc: "price_asc",
+	reviews: "reviews",
+};
+const SORT_OPTIONS: { label: string; value: SortKey }[] = [
+	{ label: "Best match", value: "best" },
+	{ label: "Highest rated", value: "rating" },
+	{ label: "Lowest rate", value: "rate_asc" },
+	{ label: "Most reviews", value: "reviews" },
+];
+
+// No API param for availability — same known gap as the dashboard's Find
+// Artisans page. Derived client-side from whether the provider has any
+// scheduled availability slots set.
+const AVAIL_OPTS = [
+	{ key: "now", label: "Available now" },
+	{ key: "scheduled", label: "Scheduled only" },
+] as const;
+
+function getAvailKey(p: AiSearchProvider): "now" | "scheduled" {
+	return Object.keys(p.availability).length > 0 ? "scheduled" : "now";
 }
 
-const DEFAULT_FILTERS: Filters = {
-	trades: {},
-	avail: {},
-	minRating: 0,
-	minRate: 3000,
-	maxRate: 20000,
-	districts: {},
-};
-
-const CITIES = ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano", "Enugu"];
-const SORT_OPTIONS = [
-	"Best match",
-	"Highest rated",
-	"Nearest first",
-	"Lowest rate",
-	"Most reviews",
+const RATING_OPTS = [
+	{ value: 0, label: "Any" },
+	{ value: 4, label: "4+" },
+	{ value: 4.5, label: "4.5+" },
+	{ value: 5, label: "5.0" },
 ];
+
 const QUICK_PILLS = [
 	{ Icon: Zap, label: "Electrician" },
 	{ Icon: Droplets, label: "Plumber" },
@@ -68,48 +86,19 @@ const QUICK_PILLS = [
 	{ Icon: Flame, label: "Welder" },
 ];
 
-const TRADE_OPTS = [
-	{ label: "Electrician", count: 14 },
-	{ label: "Plumber", count: 11 },
-	{ label: "Carpenter", count: 9 },
-	{ label: "AC Technician", count: 7 },
-	{ label: "Painter", count: 6 },
-	{ label: "Tiler", count: 5 },
-	{ label: "Welder", count: 4 },
-	{ label: "Generator tech", count: 4 },
-];
-const AVAIL_OPTS = [
-	{ key: "now", label: "Available now", count: 28 },
-	{ key: "sched", label: "Scheduled only", count: 32 },
-	{ key: "emergency", label: "Emergency", count: 12 },
-];
-const DISTRICT_OPTS = [
-	{ label: "Ikeja", count: 18 },
-	{ label: "Lekki", count: 14 },
-	{ label: "Surulere", count: 9 },
-	{ label: "Yaba", count: 8 },
-	{ label: "VI", count: 7 },
-];
-const RATING_OPTS = [
-	{ value: 0, label: "Any" },
-	{ value: 4, label: "4+" },
-	{ value: 4.5, label: "4.5+" },
-	{ value: 5, label: "5.0" },
-];
-const TOTAL_PAGES = 8;
+const RESULTS_PER_PAGE = 12;
 
 // ─── Reused in filter loops ───────────────────────────────────────────────────
 
+/** True multi-select — used only for Availability, which is client-side only. */
 function CheckOpt({
 	id,
 	label,
-	count,
 	checked,
 	onChange,
 }: {
 	id: string;
 	label: string;
-	count: number;
 	checked: boolean;
 	onChange: (v: boolean) => void;
 }) {
@@ -128,78 +117,163 @@ function CheckOpt({
 			<span className="flex-1 text-[13px]" style={{ color: "var(--hh-txt2)" }}>
 				{label}
 			</span>
-			<span className="text-[11px]" style={{ color: "var(--hh-txt3)" }}>
-				{count}
-			</span>
 		</label>
+	);
+}
+
+/** Single-select row — used for Trade category and District, since the real
+ *  API only accepts one categoryId/lgaId at a time (not a multi-select). */
+function SelectOpt({
+	id,
+	label,
+	active,
+	onSelect,
+}: {
+	id: string;
+	label: string;
+	active: boolean;
+	onSelect: () => void;
+}) {
+	return (
+		<button
+			id={id}
+			type="button"
+			onClick={onSelect}
+			className="w-full flex items-center gap-2 py-[5px] cursor-pointer text-left"
+		>
+			<span
+				className="flex-1 text-[13px]"
+				style={{
+					color: active ? "var(--hh-or)" : "var(--hh-txt2)",
+					fontWeight: active ? 600 : 400,
+				}}
+			>
+				{label}
+			</span>
+			{active && (
+				<Check size={13} style={{ color: "var(--hh-or)" }} aria-hidden />
+			)}
+		</button>
 	);
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 function FindPage() {
-	const [query, setQuery] = useState("");
-	const [city, setCity] = useState("Lagos");
-	const [sortBy, setSortBy] = useState("Best match");
+	const navigate = useNavigate();
+
+	const [filters, setFilters] = useQueryStates({
+		q: parseAsString.withDefault(""),
+		categoryId: parseAsString.withDefault(""),
+		avail: parseAsString.withDefault("all"),
+		sortKey: parseAsStringLiteral(SORT_KEYS).withDefault("best"),
+		minRating: parseAsFloat.withDefault(0),
+		stateId: parseAsString.withDefault(""),
+		lgaId: parseAsString.withDefault(""),
+		minRate: parseAsFloat.withDefault(0),
+		maxRate: parseAsFloat.withDefault(0),
+	});
+	const {
+		q,
+		categoryId,
+		avail,
+		sortKey,
+		minRating,
+		stateId,
+		lgaId,
+		minRate,
+		maxRate,
+	} = filters;
+
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 	const [page, setPage] = useState(1);
-	const [activeArtisan, setActiveArtisan] = useState<Artisan | null>(null);
-	const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
+	const [selectedProviderId, setSelectedProviderId] = useState<string | null>(
+		null,
+	);
 	const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-	const filtered = useMemo(() => {
-		let r = [...ARTISANS];
-		const q = query.toLowerCase().trim();
-		if (q)
-			r = r.filter(
-				(a) =>
-					a.name.toLowerCase().includes(q) ||
-					a.role.toLowerCase().includes(q) ||
-					a.tags.some((t) => t.toLowerCase().includes(q)) ||
-					a.loc.toLowerCase().includes(q),
-			);
+	const [debouncedQ, setDebouncedQ] = useState(q);
+	useEffect(() => {
+		const id = setTimeout(() => setDebouncedQ(q), 400);
+		return () => clearTimeout(id);
+	}, [q]);
 
-		const trades = Object.entries(filters.trades)
-			.filter(([, v]) => v)
-			.map(([k]) => k);
-		if (trades.length)
-			r = r.filter((a) =>
-				trades.some((t) => a.role.toLowerCase().includes(t.toLowerCase())),
-			);
+	// Reset to page 1 whenever a filter changes, so we don't strand the user on
+	// an offset that no longer has results.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: reset-on-change trigger, values aren't read
+	useEffect(() => {
+		setPage(1);
+	}, [
+		debouncedQ,
+		categoryId,
+		avail,
+		sortKey,
+		minRating,
+		stateId,
+		lgaId,
+		minRate,
+		maxRate,
+	]);
 
-		const avails = Object.entries(filters.avail)
-			.filter(([, v]) => v)
-			.map(([k]) => k);
-		if (avails.length) r = r.filter((a) => avails.includes(a.avail));
+	const { data: categoriesData } = useGetCategoriesQuery();
+	const categories: Category[] = categoriesData ?? [];
 
-		if (filters.minRating > 0)
-			r = r.filter((a) => a.rating >= filters.minRating);
-		r = r.filter((a) => a.rate >= filters.minRate && a.rate <= filters.maxRate);
+	const { data: states = [] } = useGetStatesQuery();
+	const { data: lgas = [] } = useGetLgasQuery(stateId);
+	const selectedStateName =
+		states.find((s) => s.id === stateId)?.name ?? "Nigeria";
 
-		const districts = Object.entries(filters.districts)
-			.filter(([, v]) => v)
-			.map(([k]) => k);
-		if (districts.length)
-			r = r.filter((a) => districts.some((d) => a.loc.includes(d)));
+	const { data, isLoading } = useGetProvidersQuery({
+		limit: RESULTS_PER_PAGE,
+		offset: (page - 1) * RESULTS_PER_PAGE,
+		...(debouncedQ.trim() && { q: debouncedQ.trim() }),
+		...(categoryId && { categoryId }),
+		...(stateId && { stateId }),
+		...(lgaId && { lgaId }),
+		...(minRating > 0 && { minRating }),
+		...(minRate > 0 && { minRate }),
+		...(maxRate > 0 && { maxRate }),
+		...(API_SORT_MAP[sortKey] && { sortBy: API_SORT_MAP[sortKey] }),
+	});
+	const providers = data?.data ?? [];
+	const results = useMemo(
+		() =>
+			avail === "all"
+				? providers
+				: providers.filter((p) => getAvailKey(p) === avail),
+		[providers, avail],
+	);
+	const total = data?.meta.total ?? 0;
+	const totalPages = Math.max(1, Math.ceil(total / RESULTS_PER_PAGE));
 
-		if (sortBy === "Highest rated") r.sort((a, b) => b.rating - a.rating);
-		if (sortBy === "Nearest first")
-			r.sort((a, b) => parseFloat(a.dist) - parseFloat(b.dist));
-		if (sortBy === "Lowest rate") r.sort((a, b) => a.rate - b.rate);
-		if (sortBy === "Most reviews") r.sort((a, b) => b.jobs - a.jobs);
-		return r;
-	}, [query, filters, sortBy]);
-
-	function set<K extends keyof Filters>(key: K, val: Filters[K]) {
-		setFilters((f) => ({ ...f, [key]: val }));
+	function set<K extends keyof typeof filters>(
+		key: K,
+		val: (typeof filters)[K],
+	) {
+		setFilters({ [key]: val });
 	}
+
+	const resetFilters = () =>
+		setFilters({
+			q: "",
+			categoryId: "",
+			avail: "all",
+			sortKey: "best",
+			minRating: 0,
+			stateId: "",
+			lgaId: "",
+			minRate: 0,
+			maxRate: 0,
+		});
+
+	const goToSignup = () => navigate({ to: "/signup" });
 
 	const divider = (
 		<div className="my-5 h-px" style={{ background: "var(--hh-border)" }} />
 	);
 
 	return (
-		<>
+		<div className="hh-dashboard">
 			<div className="pt-15">
 				{/* ── Search hero ──────────────────────────────────────────────── */}
 				<div
@@ -251,16 +325,15 @@ function FindPage() {
 							<input
 								id="hero-search"
 								type="text"
-								value={query}
-								onChange={(e) => setQuery(e.target.value)}
-								onKeyDown={(e) => e.key === "Enter" && setQuery(query)}
+								value={q}
+								onChange={(e) => set("q", e.target.value)}
 								placeholder='Try "Emergency plumber in Ikeja" or "Carpenter Abuja"…'
 								className="hh-search-input flex-1 bg-transparent border-none outline-none text-[14px] py-[13px]"
 								style={{ color: "var(--hh-txt)", fontFamily: "var(--font-dm)" }}
 							/>
 						</div>
-						<label className="sr-only" htmlFor="city-sel">
-							Select city
+						<label className="sr-only" htmlFor="state-sel">
+							Select state
 						</label>
 						<div
 							className="flex items-center gap-2 rounded-[12px] border px-3.5 w-full sm:w-[180px] shrink-0 focus-within:border-[rgba(59,130,246,0.5)] transition-colors duration-150"
@@ -275,14 +348,20 @@ function FindPage() {
 								aria-hidden
 							/>
 							<select
-								id="city-sel"
-								value={city}
-								onChange={(e) => setCity(e.target.value)}
+								id="state-sel"
+								value={stateId}
+								onChange={(e) => {
+									set("stateId", e.target.value);
+									set("lgaId", "");
+								}}
 								className="hh-select flex-1 py-[13px] text-[13.5px]"
 								style={{ color: "var(--hh-txt2)" }}
 							>
-								{CITIES.map((c) => (
-									<option key={c}>{c}</option>
+								<option value="">All Nigeria</option>
+								{states.map((s) => (
+									<option key={s.id} value={s.id}>
+										{s.name}
+									</option>
 								))}
 							</select>
 						</div>
@@ -291,7 +370,10 @@ function FindPage() {
 						</HHButton>
 					</div>
 					<div className="flex items-center gap-2 mt-3.5 overflow-x-auto whitespace-nowrap pb-2 sm:pb-0 sm:flex-wrap scrollbar-none">
-						<span className="text-[11.5px] shrink-0" style={{ color: "var(--hh-txt3)" }}>
+						<span
+							className="text-[11.5px] shrink-0"
+							style={{ color: "var(--hh-txt3)" }}
+						>
 							Quick search:
 						</span>
 						<div className="flex items-center gap-2 overflow-x-auto sm:flex-wrap pb-1 sm:pb-0 scrollbar-none">
@@ -299,7 +381,7 @@ function FindPage() {
 								<button
 									key={label}
 									type="button"
-									onClick={() => setQuery(label)}
+									onClick={() => set("q", label)}
 									className="hh-spill inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[11.5px] cursor-pointer transition-all duration-150 shrink-0"
 									style={{
 										background: "rgba(255,255,255,0.05)",
@@ -315,7 +397,10 @@ function FindPage() {
 				</div>
 
 				{/* ── Page body ────────────────────────────────────────────────── */}
-				<div className="flex flex-col md:flex-row relative" style={{ minHeight: "calc(100dvh - 220px)" }}>
+				<div
+					className="flex flex-col md:flex-row relative"
+					style={{ minHeight: "calc(100dvh - 220px)" }}
+				>
 					{/* Mobile Filters Drawer Overlay */}
 					{mobileFiltersOpen && (
 						<div
@@ -328,7 +413,9 @@ function FindPage() {
 					<aside
 						className={cn(
 							"fixed inset-y-0 left-0 w-[280px] max-w-[85vw] z-50 bg-[var(--hh-bg2)] border-r flex flex-col p-5 shadow-2xl transition-transform duration-300 md:relative md:translate-x-0 md:shadow-none md:z-auto md:w-[240px] md:h-auto md:shrink-0 md:bg-transparent md:border-r md:px-5 md:py-6 md:flex",
-							mobileFiltersOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+							mobileFiltersOpen
+								? "translate-x-0"
+								: "-translate-x-full md:translate-x-0",
 						)}
 						style={{
 							background: "var(--hh-bg2)",
@@ -337,7 +424,9 @@ function FindPage() {
 					>
 						{/* Header for mobile filters drawer */}
 						<div className="flex items-center justify-between mb-4 md:hidden pb-3 border-b border-[var(--hh-border)]">
-							<span className="font-extrabold text-[12px] text-[var(--hh-txt)] uppercase tracking-wide">Filters</span>
+							<span className="font-extrabold text-[12px] text-[var(--hh-txt)] uppercase tracking-wide">
+								Filters
+							</span>
 							<button
 								type="button"
 								onClick={() => setMobileFiltersOpen(false)}
@@ -357,15 +446,20 @@ function FindPage() {
 								>
 									Trade category
 								</p>
-								{TRADE_OPTS.map((o) => (
-									<CheckOpt
-										key={o.label}
-										id={`t-${o.label}`}
-										label={o.label}
-										count={o.count}
-										checked={!!filters.trades[o.label]}
-										onChange={(v) =>
-											set("trades", { ...filters.trades, [o.label]: v })
+								<SelectOpt
+									id="cat-all"
+									label="All trades"
+									active={!categoryId}
+									onSelect={() => set("categoryId", "")}
+								/>
+								{categories.map((cat) => (
+									<SelectOpt
+										key={cat.id}
+										id={`cat-${cat.id}`}
+										label={cat.name}
+										active={categoryId === cat.id}
+										onSelect={() =>
+											set("categoryId", categoryId === cat.id ? "" : cat.id)
 										}
 									/>
 								))}
@@ -385,9 +479,10 @@ function FindPage() {
 										key={o.key}
 										id={`a-${o.key}`}
 										label={o.label}
-										count={o.count}
-										checked={!!filters.avail[o.key]}
-										onChange={(v) => set("avail", { ...filters.avail, [o.key]: v })}
+										checked={avail === o.key}
+										onChange={(checked) =>
+											set("avail", checked ? o.key : "all")
+										}
 									/>
 								))}
 							</div>
@@ -410,15 +505,15 @@ function FindPage() {
 											className="flex items-center gap-1 rounded-full border px-2.5 py-1 text-[12px] cursor-pointer transition-all duration-150"
 											style={{
 												background:
-													filters.minRating === r.value
+													minRating === r.value
 														? "rgba(59,130,246,0.1)"
 														: "transparent",
 												borderColor:
-													filters.minRating === r.value
+													minRating === r.value
 														? "rgba(59,130,246,0.35)"
 														: "var(--hh-border2)",
 												color:
-													filters.minRating === r.value
+													minRating === r.value
 														? "var(--hh-or)"
 														: "var(--hh-txt2)",
 											}}
@@ -447,25 +542,42 @@ function FindPage() {
 									Rate range (₦/hr)
 								</p>
 								<div className="flex items-center gap-2 mt-1">
-									{(["minRate", "maxRate"] as const).map((k, i) => (
-										<input
-											key={k}
-											type="number"
-											value={filters[k]}
-											onChange={(e) => set(k, Number(e.target.value))}
-											placeholder={i === 0 ? "Min" : "Max"}
-											className="hh-num rounded-[8px] border px-2.5 py-[7px] text-[12.5px] w-20 outline-none focus:border-[rgba(59,130,246,0.4)] transition-colors duration-150"
-											style={{
-												background: "var(--hh-card)",
-												borderColor: "var(--hh-border2)",
-												color: "var(--hh-txt)",
-												fontFamily: "var(--font-dm)",
-											}}
-										/>
-									))}
-									<span className="text-[12px]" style={{ color: "var(--hh-txt3)" }}>
+									<input
+										type="number"
+										value={minRate || ""}
+										onChange={(e) =>
+											set("minRate", Number(e.target.value) || 0)
+										}
+										placeholder="Min"
+										className="hh-num rounded-[8px] border px-2.5 py-[7px] text-[12.5px] w-20 outline-none focus:border-[rgba(59,130,246,0.4)] transition-colors duration-150"
+										style={{
+											background: "var(--hh-card)",
+											borderColor: "var(--hh-border2)",
+											color: "var(--hh-txt)",
+											fontFamily: "var(--font-dm)",
+										}}
+									/>
+									<span
+										className="text-[12px]"
+										style={{ color: "var(--hh-txt3)" }}
+									>
 										—
 									</span>
+									<input
+										type="number"
+										value={maxRate || ""}
+										onChange={(e) =>
+											set("maxRate", Number(e.target.value) || 0)
+										}
+										placeholder="Max"
+										className="hh-num rounded-[8px] border px-2.5 py-[7px] text-[12.5px] w-20 outline-none focus:border-[rgba(59,130,246,0.4)] transition-colors duration-150"
+										style={{
+											background: "var(--hh-card)",
+											borderColor: "var(--hh-border2)",
+											color: "var(--hh-txt)",
+											fontFamily: "var(--font-dm)",
+										}}
+									/>
 								</div>
 							</div>
 
@@ -476,18 +588,21 @@ function FindPage() {
 									className="text-[11px] uppercase tracking-[0.8px] font-medium mb-3"
 									style={{ color: "var(--hh-txt3)" }}
 								>
-									District
+									District {!stateId && "(pick a state first)"}
 								</p>
-								{DISTRICT_OPTS.map((o) => (
-									<CheckOpt
-										key={o.label}
-										id={`d-${o.label}`}
-										label={o.label}
-										count={o.count}
-										checked={!!filters.districts[o.label]}
-										onChange={(v) =>
-											set("districts", { ...filters.districts, [o.label]: v })
-										}
+								<SelectOpt
+									id="lga-all"
+									label="All districts"
+									active={!lgaId}
+									onSelect={() => set("lgaId", "")}
+								/>
+								{lgas.map((l) => (
+									<SelectOpt
+										key={l.id}
+										id={`lga-${l.id}`}
+										label={l.name}
+										active={lgaId === l.id}
+										onSelect={() => set("lgaId", lgaId === l.id ? "" : l.id)}
 									/>
 								))}
 							</div>
@@ -497,7 +612,7 @@ function FindPage() {
 						<div className="pt-3 border-t border-[var(--hh-border)] flex flex-col gap-2 mt-4 shrink-0">
 							<HHButton
 								onClick={() => {
-									setFilters(DEFAULT_FILTERS);
+									resetFilters();
 									setMobileFiltersOpen(false);
 								}}
 								variant="ghost"
@@ -532,7 +647,11 @@ function FindPage() {
 										borderColor: "rgba(59,130,246,0.2)",
 									}}
 								>
-									<Lock size={20} style={{ color: "var(--hh-or)" }} aria-hidden />
+									<Lock
+										size={20}
+										style={{ color: "var(--hh-or)" }}
+										aria-hidden
+									/>
 								</div>
 								<div className="flex-1">
 									<p
@@ -551,10 +670,15 @@ function FindPage() {
 								</div>
 							</div>
 							<div className="flex gap-2 w-full sm:w-auto justify-end shrink-0 border-t border-[var(--hh-border)] sm:border-none pt-3 sm:pt-0 mt-1 sm:mt-0">
-								<HHButton size="sm" pill>
+								<HHButton size="sm" pill onClick={goToSignup}>
 									Sign up free
 								</HHButton>
-								<HHButton variant="ghost" size="sm" pill>
+								<HHButton
+									variant="ghost"
+									size="sm"
+									pill
+									onClick={() => navigate({ to: "/signin" })}
+								>
 									Sign in
 								</HHButton>
 							</div>
@@ -563,10 +687,16 @@ function FindPage() {
 						{/* Sort / view controls */}
 						<div className="flex items-center justify-between flex-wrap gap-3 mb-4">
 							<p className="text-[13.5px]" style={{ color: "var(--hh-txt2)" }}>
-								<strong style={{ color: "var(--hh-txt)", fontWeight: 500 }}>
-									{filtered.length} artisans
-								</strong>{" "}
-								found in {city}
+								{isLoading ? (
+									"Loading artisans…"
+								) : (
+									<>
+										<strong style={{ color: "var(--hh-txt)", fontWeight: 500 }}>
+											{total}
+										</strong>{" "}
+										artisans found in {selectedStateName}
+									</>
+								)}
 							</p>
 							<div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
 								{/* Mobile Filters Toggle Button */}
@@ -596,8 +726,8 @@ function FindPage() {
 									</label>
 									<select
 										id="sort-sel"
-										value={sortBy}
-										onChange={(e) => setSortBy(e.target.value)}
+										value={sortKey}
+										onChange={(e) => set("sortKey", e.target.value as SortKey)}
 										className="hh-select rounded-[8px] border px-2.5 py-1.5 text-[12.5px]"
 										style={{
 											background: "var(--hh-card)",
@@ -607,7 +737,9 @@ function FindPage() {
 										}}
 									>
 										{SORT_OPTIONS.map((o) => (
-											<option key={o}>{o}</option>
+											<option key={o.value} value={o.value}>
+												{o.label}
+											</option>
 										))}
 									</select>
 									<div className="flex gap-1">
@@ -643,7 +775,28 @@ function FindPage() {
 						</div>
 
 						{/* Results grid */}
-						{filtered.length === 0 ? (
+						{isLoading ? (
+							<div
+								className="grid gap-3.5"
+								style={{
+									gridTemplateColumns:
+										viewMode === "grid"
+											? "repeat(auto-fill,minmax(220px,1fr))"
+											: "1fr",
+								}}
+							>
+								{["s1", "s2", "s3", "s4", "s5", "s6"].map((key) => (
+									<div
+										key={key}
+										className="rounded-2xl border h-[260px] animate-pulse"
+										style={{
+											borderColor: "var(--hh-border2)",
+											background: "var(--hh-card)",
+										}}
+									/>
+								))}
+							</div>
+						) : results.length === 0 ? (
 							<div className="py-16 text-center">
 								<p className="text-[15px]" style={{ color: "var(--hh-txt3)" }}>
 									No artisans match your filters.
@@ -667,97 +820,99 @@ function FindPage() {
 								role="list"
 								aria-label="Artisan results"
 							>
-								{filtered.map((a) => (
-									<div key={a.id} role="listitem">
-										<ArtisanCard artisan={a} onView={setActiveArtisan} />
+								{results.map((provider) => (
+									<div key={provider.id} role="listitem">
+										<ProviderListCard
+											provider={provider}
+											isHired={false}
+											onViewProfile={() => setSelectedProviderId(provider.id)}
+											onHire={goToSignup}
+										/>
 									</div>
 								))}
 							</div>
 						)}
 
 						{/* Pagination */}
-						<div
-							className="flex items-center justify-center gap-1.5 mt-7"
-							aria-label="Pagination"
-						>
-							<button
-								type="button"
-								onClick={() => setPage((p) => Math.max(1, p - 1))}
-								disabled={page === 1}
-								aria-label="Previous page"
-								className={cn(
-									"flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-[8px] border text-[16px] transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed",
-								)}
-								style={{
-									background: "transparent",
-									borderColor: "var(--hh-border)",
-									color: "var(--hh-txt2)",
-								}}
+						{totalPages > 1 && (
+							<div
+								className="flex items-center justify-center gap-1.5 mt-7"
+								aria-label="Pagination"
 							>
-								<ChevronLeft size={16} aria-hidden />
-							</button>
-							{[1, 2, 3].map((p) => (
 								<button
-									key={p}
 									type="button"
-									onClick={() => setPage(p)}
-									aria-current={page === p ? "page" : undefined}
-									className="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-[8px] border text-[13px] transition-all duration-150"
+									onClick={() => setPage((p) => Math.max(1, p - 1))}
+									disabled={page === 1}
+									aria-label="Previous page"
+									className="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-[8px] border text-[16px] transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
 									style={{
-										background: page === p ? "var(--hh-or)" : "transparent",
-										borderColor:
-											page === p ? "var(--hh-or)" : "var(--hh-border)",
-										color: page === p ? "#fff" : "var(--hh-txt2)",
-										fontFamily: "var(--font-dm)",
+										background: "transparent",
+										borderColor: "var(--hh-border)",
+										color: "var(--hh-txt2)",
 									}}
 								>
-									{p}
+									<ChevronLeft size={16} aria-hidden />
 								</button>
-							))}
-							<span
-								className="px-1 text-[13px]"
-								style={{ color: "var(--hh-txt3)" }}
-							>
-								…
-							</span>
-							<button
-								type="button"
-								onClick={() => setPage(TOTAL_PAGES)}
-								className="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-[8px] border text-[13px] transition-all duration-150"
-								style={{
-									background: "transparent",
-									borderColor: "var(--hh-border)",
-									color: "var(--hh-txt2)",
-									fontFamily: "var(--font-dm)",
-								}}
-							>
-								{TOTAL_PAGES}
-							</button>
-							<button
-								type="button"
-								onClick={() => setPage((p) => Math.min(TOTAL_PAGES, p + 1))}
-								disabled={page === TOTAL_PAGES}
-								aria-label="Next page"
-								className={cn(
-									"flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-[8px] border text-[16px] transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed",
-								)}
-								style={{
-									background: "transparent",
-									borderColor: "var(--hh-border)",
-									color: "var(--hh-txt2)",
-								}}
-							>
-								<ChevronRight size={16} aria-hidden />
-							</button>
-						</div>
+								{Array.from({ length: totalPages }, (_, i) => i + 1)
+									.filter(
+										(p) =>
+											p === 1 || p === totalPages || Math.abs(p - page) <= 1,
+									)
+									.map((p, i, arr) => (
+										<div key={p} className="flex items-center gap-1.5">
+											{i > 0 && arr[i - 1] !== p - 1 && (
+												<span
+													className="px-1 text-[13px]"
+													style={{ color: "var(--hh-txt3)" }}
+												>
+													…
+												</span>
+											)}
+											<button
+												type="button"
+												onClick={() => setPage(p)}
+												aria-current={page === p ? "page" : undefined}
+												className="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-[8px] border text-[13px] transition-all duration-150"
+												style={{
+													background:
+														page === p ? "var(--hh-or)" : "transparent",
+													borderColor:
+														page === p ? "var(--hh-or)" : "var(--hh-border)",
+													color: page === p ? "#fff" : "var(--hh-txt2)",
+													fontFamily: "var(--font-dm)",
+												}}
+											>
+												{p}
+											</button>
+										</div>
+									))}
+								<button
+									type="button"
+									onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+									disabled={page === totalPages}
+									aria-label="Next page"
+									className="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-[8px] border text-[16px] transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
+									style={{
+										background: "transparent",
+										borderColor: "var(--hh-border)",
+										color: "var(--hh-txt2)",
+									}}
+								>
+									<ChevronRight size={16} aria-hidden />
+								</button>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
 
-			<ArtisanModal
-				artisan={activeArtisan}
-				onClose={() => setActiveArtisan(null)}
+			<ProviderProfileModal
+				providerId={selectedProviderId}
+				isHired={false}
+				onClose={() => setSelectedProviderId(null)}
+				onHire={goToSignup}
+				onMessage={goToSignup}
 			/>
-		</>
+		</div>
 	);
 }
