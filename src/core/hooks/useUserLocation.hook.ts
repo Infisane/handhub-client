@@ -15,7 +15,12 @@ export const useUserLocation = () => {
 				enableHighAccuracy: false,
 				maximumAge: 1000 * 60 * 5,
 			},
-			watchPosition: true,
+			// One-shot getCurrentPosition, not watchPosition: Safari unreliably
+			// shows the native permission prompt at all when the first geolocation
+			// call a page makes is watchPosition() rather than getCurrentPosition().
+			// No consumer here needs continuously-updating live coords (stat tiles
+			// and search-radius params only), so this isn't a product regression.
+			watchPosition: false,
 			suppressLocationOnMount: false,
 		});
 
