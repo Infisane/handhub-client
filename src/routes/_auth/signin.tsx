@@ -13,6 +13,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { AuthLeftPanel } from "#/components/auth/auth-left-panel";
 import { formBoxMotion, itemVariants } from "#/components/auth/auth-motion";
+import { GoogleConfirmDialog } from "#/components/auth/google-confirm-dialog";
 import { SocialAuthButtons } from "#/components/auth/social-auth-buttons";
 import { VerifyEmailDialog } from "#/components/auth/verify-email-dialog";
 import { Nav } from "#/components/home/nav";
@@ -38,6 +39,8 @@ function SignInPage() {
 	});
 	const [rememberMe, setRememberMe] = useState(true);
 	const [showVerifyDialog, setShowVerifyDialog] = useState(false);
+	const [showGoogleConfirm, setShowGoogleConfirm] = useState(false);
+	const [googleIdToken, setGoogleIdToken] = useState<string | null>(null);
 
 	const { validate, revalidate, errors } = useValidator({
 		schema: SignInSchema,
@@ -264,6 +267,10 @@ function SignInPage() {
 							<SocialAuthButtons
 								verb="Sign in"
 								dividerLabel="or continue with"
+								onGoogleCredential={(idToken) => {
+									setGoogleIdToken(idToken);
+									setShowGoogleConfirm(true);
+								}}
 							/>
 							<p className="terms">
 								By signing in you agree to our{" "}
@@ -286,6 +293,23 @@ function SignInPage() {
 						userType: activeTab,
 					})
 				}
+			/>
+
+			<GoogleConfirmDialog
+				open={showGoogleConfirm}
+				idToken={googleIdToken ?? ""}
+				onClose={() => setShowGoogleConfirm(false)}
+				onSuccess={(response) => {
+					dispatch(
+						set_auth_session({ token: response.token, user: response.user }),
+					);
+					writeStoredSession({ token: response.token, user: response.user });
+					navigate({ to: "/dashboard" });
+					toast.success(
+						response.isNewAccount ? "Welcome to Handhub" : "Welcome back",
+					);
+					setShowGoogleConfirm(false);
+				}}
 			/>
 		</div>
 	);

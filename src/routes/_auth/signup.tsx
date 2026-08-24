@@ -15,8 +15,10 @@ import {
 	Users,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { AuthLeftPanel } from "#/components/auth/auth-left-panel";
 import { formBoxMotion } from "#/components/auth/auth-motion";
+import { GoogleConfirmDialog } from "#/components/auth/google-confirm-dialog";
 import { SocialAuthButtons } from "#/components/auth/social-auth-buttons";
 import { VerifyEmailDialog } from "#/components/auth/verify-email-dialog";
 import { Nav } from "#/components/home/nav";
@@ -42,6 +44,8 @@ function SignUpPage() {
 	const [step, setStep] = useState<1 | 2>(1);
 	const [showVerifyDialog, setShowVerifyDialog] = useState(false);
 	const [sessionStored, setSessionStored] = useState(false);
+	const [showGoogleConfirm, setShowGoogleConfirm] = useState(false);
+	const [googleIdToken, setGoogleIdToken] = useState<string | null>(null);
 
 	// Step 1 Form fields
 	const [step1Data, setStep1Data] = useState({
@@ -319,6 +323,10 @@ function SignUpPage() {
 										<SocialAuthButtons
 											verb="Sign up"
 											dividerLabel="or sign up with"
+											onGoogleCredential={(idToken) => {
+												setGoogleIdToken(idToken);
+												setShowGoogleConfirm(true);
+											}}
 										/>
 									</motion.form>
 								)}
@@ -498,6 +506,23 @@ function SignUpPage() {
 				onVerified={() =>
 					navigate({ to: sessionStored ? "/dashboard" : "/signin" })
 				}
+			/>
+
+			<GoogleConfirmDialog
+				open={showGoogleConfirm}
+				idToken={googleIdToken ?? ""}
+				onClose={() => setShowGoogleConfirm(false)}
+				onSuccess={(response) => {
+					dispatch(
+						set_auth_session({ token: response.token, user: response.user }),
+					);
+					writeStoredSession({ token: response.token, user: response.user });
+					navigate({ to: "/dashboard" });
+					toast.success(
+						response.isNewAccount ? "Welcome to Handhub" : "Welcome back",
+					);
+					setShowGoogleConfirm(false);
+				}}
 			/>
 		</div>
 	);
