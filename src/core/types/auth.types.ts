@@ -111,3 +111,15 @@ export interface VerifyOtpPayload {
 	email: string;
 	otp: string;
 }
+
+export interface GoogleAuthPayload {
+	idToken: string;
+	phone: string;
+	userType: UserType;
+}
+
+export interface GoogleAuthResponse {
+	token: string;
+	user: AuthUser;
+	isNewAccount: boolean;
+}

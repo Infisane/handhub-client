@@ -40,3 +40,11 @@ export const VerifyOtpSchema = z.object({
 	otp: z.string().length(6, "Enter the 6-digit code"),
 });
 export type VerifyOtp = z.infer<typeof VerifyOtpSchema>;
+
+export const GoogleConfirmSchema = z.object({
+	phone: z.string().min(7, "Enter a valid phone number"),
+	userType: z.enum(["customer", "provider"], {
+		message: "Select an account type",
+	}),
+});
+export type GoogleConfirm = z.infer<typeof GoogleConfirmSchema>;

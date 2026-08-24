@@ -3,6 +3,8 @@ import type {
 	AuthGateResponse,
 	AuthSession,
 	AuthUser,
+	GoogleAuthPayload,
+	GoogleAuthResponse,
 	LoginPayload,
 	RegisterPayload,
 	RequestOtpPayload,
@@ -56,4 +58,15 @@ export const verifyEmailService = ({
 }) =>
 	getRequestData<{ message: string }>(
 		request.post("/api/auth/email-verification/verify", payload, { signal }),
+	);
+
+export const googleAuthService = ({
+	payload,
+	signal,
+}: {
+	payload: GoogleAuthPayload;
+	signal?: AbortSignal;
+}) =>
+	getRequestData<GoogleAuthResponse>(
+		request.post("/api/auth/google", payload, { signal }),
 	);

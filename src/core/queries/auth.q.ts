@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
 import { set_auth_session } from "#/core/redux-store/slices/auth.slice";
 import {
 	getMeService,
+	googleAuthService,
 	loginService,
 	registerService,
 	resendEmailVerificationService,
@@ -11,6 +12,8 @@ import {
 } from "#/core/services/auth.service";
 import type {
 	AuthGateResponse,
+	GoogleAuthPayload,
+	GoogleAuthResponse,
 	LoginPayload,
 	RegisterPayload,
 	RequestOtpPayload,
@@ -66,6 +69,18 @@ export const useVerifyEmailQuery = ({
 		mutationFn: (payload: VerifyOtpPayload) =>
 			verifyEmailService({ payload, signal: abortController.signal }),
 		onSuccess: () => onSuccessCallback?.(),
+	});
+};
+
+export const useGoogleAuthQuery = ({
+	onSuccessCallback,
+}: {
+	onSuccessCallback?: (response: GoogleAuthResponse) => void;
+} = {}) => {
+	return useMutation({
+		mutationFn: (payload: GoogleAuthPayload) =>
+			googleAuthService({ payload, signal: abortController.signal }),
+		onSuccess: (response) => onSuccessCallback?.(response),
 	});
 };
 
