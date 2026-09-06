@@ -5,7 +5,7 @@
  * The ticket stays `booked` through delivery — the live delivery state
  * is carried by booking.status (accepted → in_progress → completed).
  * ────────────────────────────────────────────────────────────── */
-import type { Invoice, Ticket } from "#/core/types/chat.types";
+import type { Invoice, Payment, Ticket } from "#/core/types/chat.types";
 
 export type ChatSide = "initiator" | "provider" | "none";
 
@@ -26,8 +26,9 @@ export interface ChatActions {
 	canRecallInvoice: boolean; // provider
 	canAcceptInvoice: boolean; // customer
 	canRejectInvoice: boolean; // customer
+	canRequestAdditionalMaterials: boolean; // provider
 	canStartJob: boolean; // provider
-	canMarkCompleted: boolean; // provider
+	canMarkCompleted: boolean; // customer
 	canPay: boolean; // customer
 	canReview: boolean; // customer
 	canCancelTicket: boolean; // either
@@ -46,6 +47,7 @@ const NO_ACTIONS: ChatActions = {
 	canRecallInvoice: false,
 	canAcceptInvoice: false,
 	canRejectInvoice: false,
+	canRequestAdditionalMaterials: false,
 	canStartJob: false,
 	canMarkCompleted: false,
 	canPay: false,
@@ -66,7 +68,13 @@ function derivePhase(ticket: Ticket | null): ChatPhase {
 		case "invoiced":
 			return "invoice_offered";
 		default: {
-			// booked / in_progress / completed — drive off booking.status
+			// booked / in_progress / completed. A mid-job supplemental
+			// (additional-materials) invoice keeps ticket.status "booked"
+			// instead of reverting to "invoiced" — key off the newest
+			// invoice's own status before falling back to booking.status.
+			if (ticket.invoices.some((i) => i.status === "pending")) {
+				return "invoice_offered";
+			}
 			const bookingStatus = ticket.booking?.status;
 			if (bookingStatus === "in_progress") return "in_progress";
 			if (bookingStatus === "completed") {
@@ -81,15 +89,25 @@ function derivePhase(ticket: Ticket | null): ChatPhase {
 /** Pick the invoice relevant to the current phase for the interactive card. */
 function pickActiveInvoice(ticket: Ticket | null): Invoice | null {
 	if (!ticket || ticket.invoices.length === 0) return null;
+	// Sort by createdAt (don't assume array order) so a fresh supplemental
+	// invoice always outranks an earlier, already-settled one — otherwise an
+	// old "paid" invoice can shadow a newer "accepted" one and Pay never shows.
+	const newestFirst = [...ticket.invoices].sort(
+		(a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+	);
 	return (
-		ticket.invoices.find((i) => i.status === "pending") ??
-		ticket.invoices.find((i) => i.status === "paid") ??
-		ticket.invoices.find((i) => i.status === "accepted") ??
-		ticket.invoices[ticket.invoices.length - 1]
+		newestFirst.find((i) => i.status === "pending") ??
+		newestFirst.find((i) => i.status === "accepted") ??
+		newestFirst.find((i) => i.status === "paid") ??
+		newestFirst[0]
 	);
 }
 
-export function deriveChat(ticket: Ticket | null, side: ChatSide): DerivedChat {
+export function deriveChat(
+	ticket: Ticket | null,
+	side: ChatSide,
+	bookingPayments: Payment[] = [],
+): DerivedChat {
 	const phase = derivePhase(ticket);
 	const activeInvoice = pickActiveInvoice(ticket);
 
@@ -105,15 +123,25 @@ export function deriveChat(ticket: Ticket | null, side: ChatSide): DerivedChat {
 		phase === "awaiting_delivery" ||
 		phase === "in_progress";
 
+	// An invoice with labor items stays "accepted" (not "paid") all the way
+	// through job completion — status alone can't tell you whether the
+	// materials portion has already been paid. Check the booking's actual
+	// payment rows instead.
+	const alreadyPaid =
+		!!activeInvoice &&
+		bookingPayments.some((p) => p.invoiceId === activeInvoice.id);
+
 	const actions: ChatActions = {
 		canSendMessage: true,
 		canGenerateInvoice: isProvider && phase === "negotiating",
 		canRecallInvoice: isProvider && phase === "invoice_offered",
 		canAcceptInvoice: isCustomer && phase === "invoice_offered",
 		canRejectInvoice: isCustomer && phase === "invoice_offered",
+		canRequestAdditionalMaterials:
+			isProvider && (phase === "awaiting_delivery" || phase === "in_progress"),
 		canStartJob: isProvider && phase === "awaiting_delivery",
-		canMarkCompleted: isProvider && phase === "in_progress",
-		canPay: isCustomer && phase === "awaiting_payment",
+		canMarkCompleted: isCustomer && phase === "in_progress",
+		canPay: isCustomer && activeInvoice?.status === "accepted" && !alreadyPaid,
 		canReview: isCustomer && phase === "awaiting_review",
 		canCancelTicket: cancellable,
 	};

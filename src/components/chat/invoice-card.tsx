@@ -7,6 +7,7 @@ import {
 	useRejectInvoiceQuery,
 	useVoidInvoiceQuery,
 } from "#/core/queries/invoice.q";
+import { useGetPaymentByBookingQuery } from "#/core/queries/payment.q";
 import type { InvoiceStatus } from "#/core/types/chat.types";
 import { cn } from "#/lib/utils.ts";
 
@@ -35,16 +36,21 @@ const STATUS_PILL: Record<InvoiceStatus, { label: string; cls: string }> = {
 
 export function InvoiceCard({
 	invoiceId,
+	bookingId,
 	threadId,
 	ticketId,
 	side,
 }: {
 	invoiceId: string;
+	/** null before a booking exists (invoice not yet accepted) — no payment
+	 *  rows to fetch until then. */
+	bookingId: string | null;
 	threadId: string;
 	ticketId: string;
 	side: ChatSide;
 }) {
 	const { data: invoice, isLoading } = useGetInvoiceQuery(invoiceId);
+	const { data: bookingPayments = [] } = useGetPaymentByBookingQuery(bookingId);
 
 	const accept = useAcceptInvoiceQuery({ threadId, ticketId, invoiceId });
 	const reject = useRejectInvoiceQuery({ threadId, ticketId, invoiceId });
@@ -62,6 +68,16 @@ export function InvoiceCard({
 	const showCustomerActions = isPending && side === "initiator";
 	const showProviderActions = isPending && side === "provider";
 	const pill = STATUS_PILL[invoice.status];
+
+	const laborTotal = invoice.lineItems
+		.filter((i) => i.kind === "labor")
+		.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
+	const materialTotal = invoice.lineItems
+		.filter((i) => i.kind === "material")
+		.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
+	const showSplit = laborTotal > 0 && materialTotal > 0;
+
+	const invoiceRows = bookingPayments.filter((p) => p.invoiceId === invoice.id);
 
 	return (
 		<div className="my-2 mx-auto w-full max-w-sm rounded-2xl bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] shadow-xs p-4 space-y-3">
@@ -100,7 +116,53 @@ export function InvoiceCard({
 						</li>
 					))}
 				</ul>
+
+				{showSplit && (
+					<div className="mt-2 pt-2 border-t border-dashed border-[var(--dashboard-border)] space-y-0.5">
+						<div className="flex items-center justify-between text-[11px] text-[var(--dashboard-muted)]">
+							<span>Materials subtotal</span>
+							<span className="font-semibold">
+								{formatNaira(materialTotal)}
+							</span>
+						</div>
+						<div className="flex items-center justify-between text-[11px] text-[var(--dashboard-muted)]">
+							<span>Labor subtotal</span>
+							<span className="font-semibold">{formatNaira(laborTotal)}</span>
+						</div>
+					</div>
+				)}
 			</div>
+
+			{invoiceRows.length > 0 && (
+				<div className="space-y-1.5 border-t border-[var(--dashboard-border)] pt-3">
+					<div className="text-[10px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider">
+						Payment status
+					</div>
+					{invoiceRows.map((row) => (
+						<div
+							key={row.id}
+							className="flex items-center justify-between text-[11.5px]"
+						>
+							<span className="capitalize font-semibold text-[var(--dashboard-text)]">
+								{row.kind ?? "Payment"}
+							</span>
+							<span
+								className={cn(
+									"font-bold",
+									row.status === "released"
+										? "text-emerald-600"
+										: "text-amber-600",
+								)}
+							>
+								{formatNaira(row.amount)} ·{" "}
+								{row.status === "released"
+									? "Paid"
+									: "Held until job confirmed"}
+							</span>
+						</div>
+					))}
+				</div>
+			)}
 
 			<div className="flex items-center justify-between border-t border-[var(--dashboard-border)] pt-3">
 				<div>

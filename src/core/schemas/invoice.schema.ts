@@ -4,6 +4,7 @@ export const InvoiceLineItemSchema = z.object({
 	description: z.string().min(1, "Item description is required"),
 	quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
 	unitPrice: z.coerce.number().min(0, "Unit price cannot be negative"),
+	kind: z.enum(["labor", "material"], { message: "Select a kind" }),
 });
 export type InvoiceLineItemForm = z.infer<typeof InvoiceLineItemSchema>;
 

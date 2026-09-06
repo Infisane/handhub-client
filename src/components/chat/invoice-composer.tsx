@@ -3,30 +3,45 @@ import { useState } from "react";
 import { formatNaira } from "#/core/helpers/money.helper";
 import { useCreateInvoiceQuery } from "#/core/queries/ticket.q";
 import { InvoiceSchema } from "#/core/schemas/invoice.schema";
-import type { InvoiceLineItem } from "#/core/types/chat.types";
+import type { InvoiceLineItem, LineItemKind } from "#/core/types/chat.types";
 import { cn } from "#/lib/utils.ts";
 
 interface DraftItem {
 	description: string;
 	quantity: string;
 	unitPrice: string;
+	kind: LineItemKind;
 }
 
-const EMPTY_ITEM: DraftItem = { description: "", quantity: "1", unitPrice: "" };
 const inputCls =
 	"w-full px-3 py-2 rounded-lg bg-[var(--dashboard-bg)] border border-[var(--dashboard-border)] text-[12.5px] text-[var(--dashboard-text)] placeholder-[var(--dashboard-muted)] outline-none focus:border-[var(--dashboard-orange)] focus:ring-1 focus:ring-[var(--dashboard-orange)]/15 transition-all";
 
 export function InvoiceComposer({
 	ticketId,
 	threadId,
+	materialsOnly = false,
 	onClose,
 }: {
 	ticketId: string;
 	threadId: string;
+	/** Mid-job "request additional materials" (doc §5) — the backend only
+	 *  accepts material-kind line items once the ticket already has a
+	 *  booking, so this reuses the same composer with the kind toggle
+	 *  locked/hidden rather than building a second form. */
+	materialsOnly?: boolean;
 	onClose: () => void;
 }) {
-	const [description, setDescription] = useState("");
-	const [items, setItems] = useState<DraftItem[]>([{ ...EMPTY_ITEM }]);
+	const emptyItem = (): DraftItem => ({
+		description: "",
+		quantity: "1",
+		unitPrice: "",
+		kind: materialsOnly ? "material" : "labor",
+	});
+
+	const [description, setDescription] = useState(
+		materialsOnly ? "Additional materials" : "",
+	);
+	const [items, setItems] = useState<DraftItem[]>([emptyItem()]);
 	const [error, setError] = useState<string | null>(null);
 
 	const { mutate, isPending } = useCreateInvoiceQuery({
@@ -46,7 +61,7 @@ export function InvoiceComposer({
 			prev.map((it, i) => (i === index ? { ...it, ...patch } : it)),
 		);
 
-	const addItem = () => setItems((prev) => [...prev, { ...EMPTY_ITEM }]);
+	const addItem = () => setItems((prev) => [...prev, emptyItem()]);
 	const removeItem = (index: number) =>
 		setItems((prev) => prev.filter((_, i) => i !== index));
 
@@ -55,6 +70,7 @@ export function InvoiceComposer({
 			description: it.description.trim(),
 			quantity: Number.parseFloat(it.quantity),
 			unitPrice: Number.parseFloat(it.unitPrice),
+			kind: it.kind,
 		}));
 		const parsed = InvoiceSchema.safeParse({ description, lineItems });
 		if (!parsed.success) {
@@ -70,7 +86,7 @@ export function InvoiceComposer({
 			<div className="w-full sm:max-w-md bg-[var(--dashboard-card)] rounded-t-2xl sm:rounded-2xl border border-[var(--dashboard-border)] shadow-2xl max-h-[90vh] flex flex-col">
 				<div className="flex items-center justify-between p-4 border-b border-[var(--dashboard-border)]">
 					<h3 className="font-syne font-extrabold text-[15px] text-[var(--dashboard-text)]">
-						New Invoice
+						{materialsOnly ? "Request Additional Materials" : "New Invoice"}
 					</h3>
 					<button
 						type="button"
@@ -156,6 +172,25 @@ export function InvoiceComposer({
 										/>
 									</div>
 								</div>
+								{!materialsOnly && (
+									<div className="flex gap-1.5 pt-0.5">
+										{(["labor", "material"] as const).map((kind) => (
+											<button
+												key={kind}
+												type="button"
+												onClick={() => updateItem(index, { kind })}
+												className={cn(
+													"flex-1 py-1.5 rounded-lg text-[10.5px] font-bold capitalize border transition-all cursor-pointer",
+													item.kind === kind
+														? "border-[var(--dashboard-orange)] bg-[var(--dashboard-orange-light)] text-[var(--dashboard-orange)]"
+														: "border-[var(--dashboard-border)] text-[var(--dashboard-muted)] hover:border-[var(--dashboard-orange-mid)]",
+												)}
+											>
+												{kind}
+											</button>
+										))}
+									</div>
+								)}
 							</div>
 						))}
 
@@ -190,7 +225,11 @@ export function InvoiceComposer({
 							"px-5 py-2.5 rounded-xl bg-[var(--dashboard-orange)] hover:bg-blue-600 text-white font-extrabold text-[12.5px] shadow-md shadow-blue-500/10 active:scale-95 transition-all disabled:opacity-50",
 						)}
 					>
-						{isPending ? "Sending…" : "Send Invoice"}
+						{isPending
+							? "Sending…"
+							: materialsOnly
+								? "Request Materials"
+								: "Send Invoice"}
 					</button>
 				</div>
 			</div>

@@ -3,14 +3,18 @@ import {
 	CheckCircle2,
 	FileText,
 	PlayCircle,
+	Plus,
 	Star,
 	Zap,
 } from "lucide-react";
 import { useState } from "react";
 import type { ChatActions } from "#/core/helpers/chat-phase.helper";
-import { useUpdateBookingStatusQuery } from "#/core/queries/booking.q";
+import {
+	useConfirmBookingCompletionQuery,
+	useStartBookingQuery,
+} from "#/core/queries/booking.q";
 import { useCancelTicketQuery } from "#/core/queries/ticket.q";
-import type { Ticket } from "#/core/types/chat.types";
+import type { Invoice, Ticket } from "#/core/types/chat.types";
 import { InvoiceComposer } from "./invoice-composer";
 import { PaymentSheet } from "./payment-sheet";
 import { ReviewForm } from "./review-form";
@@ -29,22 +33,27 @@ export function TicketFooterActions({
 	threadId,
 	ticket,
 	actions,
+	activeInvoice,
 }: {
 	threadId: string;
 	ticket: Ticket | null;
 	actions: ChatActions;
+	activeInvoice: Invoice | null;
 }) {
-	const [modal, setModal] = useState<"invoice" | "payment" | "review" | null>(
-		null,
-	);
+	const [modal, setModal] = useState<
+		"invoice" | "materials" | "payment" | "review" | null
+	>(null);
 	const [confirmingCancel, setConfirmingCancel] = useState(false);
 
 	const ticketId = ticket?.id ?? "";
 	const booking = ticket?.booking ?? null;
-	const payableInvoice =
-		ticket?.invoices.find((i) => i.status === "accepted") ?? null;
 
-	const bookingStatus = useUpdateBookingStatusQuery({
+	const startJob = useStartBookingQuery({
+		bookingId: booking?.id ?? "",
+		threadId,
+		ticketId,
+	});
+	const confirmCompletion = useConfirmBookingCompletionQuery({
 		bookingId: booking?.id ?? "",
 		threadId,
 		ticketId,
@@ -53,6 +62,7 @@ export function TicketFooterActions({
 
 	const hasPrimary =
 		actions.canGenerateInvoice ||
+		actions.canRequestAdditionalMaterials ||
 		actions.canStartJob ||
 		actions.canMarkCompleted ||
 		actions.canPay ||
@@ -110,29 +120,41 @@ export function TicketFooterActions({
 					</button>
 				)}
 
+				{actions.canRequestAdditionalMaterials && (
+					<button
+						type="button"
+						onClick={() => setModal("materials")}
+						className={ghostBtn}
+					>
+						<Plus size={13} /> Request additional materials
+					</button>
+				)}
+
 				{actions.canStartJob && (
 					<button
 						type="button"
-						disabled={bookingStatus.isPending}
-						onClick={() => bookingStatus.mutate({ status: "in_progress" })}
+						disabled={startJob.isPending}
+						onClick={() => startJob.mutate()}
 						className={primaryBtn}
 					>
-						<PlayCircle size={14} /> Start job
+						<PlayCircle size={14} />
+						{startJob.isPending ? "Starting…" : "Start job"}
 					</button>
 				)}
 
 				{actions.canMarkCompleted && (
 					<button
 						type="button"
-						disabled={bookingStatus.isPending}
-						onClick={() => bookingStatus.mutate({ status: "completed" })}
+						disabled={confirmCompletion.isPending}
+						onClick={() => confirmCompletion.mutate()}
 						className={primaryBtn}
 					>
-						<CheckCircle2 size={14} /> Mark completed
+						<CheckCircle2 size={14} />
+						{confirmCompletion.isPending ? "Confirming…" : "Confirm job done"}
 					</button>
 				)}
 
-				{actions.canPay && booking && payableInvoice && (
+				{actions.canPay && booking && activeInvoice && (
 					<button
 						type="button"
 						onClick={() => setModal("payment")}
@@ -163,20 +185,21 @@ export function TicketFooterActions({
 				)}
 			</div>
 
-			{modal === "invoice" && (
+			{(modal === "invoice" || modal === "materials") && (
 				<InvoiceComposer
 					ticketId={ticketId}
 					threadId={threadId}
+					materialsOnly={modal === "materials"}
 					onClose={() => setModal(null)}
 				/>
 			)}
-			{modal === "payment" && booking && payableInvoice && (
+			{modal === "payment" && booking && activeInvoice && (
 				<PaymentSheet
 					bookingId={booking.id}
-					invoiceId={payableInvoice.id}
+					invoiceId={activeInvoice.id}
 					threadId={threadId}
 					ticketId={ticketId}
-					totalAmount={payableInvoice.totalAmount}
+					totalAmount={activeInvoice.totalAmount}
 					onClose={() => setModal(null)}
 				/>
 			)}

@@ -1,30 +1,30 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { abortController } from "#/core/helpers/axios.helper";
 import {
+	createOnlinePaymentService,
 	createPaymentService,
 	getPaymentByBookingService,
-	mockCompletePaymentService,
+	verifyOnlinePaymentService,
 } from "#/core/services/payment.service";
 import type {
-	CardPaymentInit,
+	CreateOnlinePaymentPayload,
 	CreatePaymentPayload,
 	Payment,
+	PaymentTransaction,
 } from "#/core/types/chat.types";
 
-/** Wallet responses have a `status`; card init responses have an
- *  `authorizationUrl`. Narrow on that. */
-export const isCardPaymentInit = (
-	result: Payment | CardPaymentInit,
-): result is CardPaymentInit =>
-	(result as CardPaymentInit).authorizationUrl !== undefined;
-
-export const useGetPaymentByBookingQuery = (bookingId: string | null) =>
+export const useGetPaymentByBookingQuery = (
+	bookingId: string | null,
+	/** Set while awaiting a webhook/verify to settle (payment-callback page). */
+	refetchInterval?: number,
+) =>
 	useQuery({
 		queryKey: ["payment", "booking", bookingId],
 		queryFn: ({ signal }) =>
 			getPaymentByBookingService({ bookingId: bookingId!, signal }),
 		enabled: !!bookingId,
 		staleTime: 1000 * 5,
+		refetchInterval,
 	});
 
 export const useCreatePaymentQuery = ({
@@ -34,7 +34,7 @@ export const useCreatePaymentQuery = ({
 }: {
 	threadId: string;
 	ticketId: string;
-	onSuccessCallback?: (result: Payment | CardPaymentInit) => void;
+	onSuccessCallback?: (result: Payment[] | Payment) => void;
 }) => {
 	const queryClient = useQueryClient();
 	return useMutation({
@@ -49,22 +49,38 @@ export const useCreatePaymentQuery = ({
 	});
 };
 
-/** Dev/mock only — simulate a card charge settling. */
-export const useMockCompletePaymentQuery = ({
+export const useCreateOnlinePaymentQuery = ({
+	threadId,
+	ticketId,
 	onSuccessCallback,
 }: {
-	onSuccessCallback?: (payment: Payment) => void;
-} = {}) => {
+	threadId: string;
+	ticketId: string;
+	onSuccessCallback?: (result: PaymentTransaction) => void;
+}) => {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: (reference: string) =>
-			mockCompletePaymentService({ reference, signal: abortController.signal }),
-		onSuccess: (payment) => {
-			queryClient.invalidateQueries({
-				queryKey: ["payment", "booking", payment.bookingId],
-			});
+		mutationFn: (payload: CreateOnlinePaymentPayload) =>
+			createOnlinePaymentService({ payload, signal: abortController.signal }),
+		onSuccess: (result) => {
+			queryClient.invalidateQueries({ queryKey: ["thread", threadId] });
+			queryClient.invalidateQueries({ queryKey: ["ticket", ticketId] });
 			queryClient.invalidateQueries({ queryKey: ["wallet"] });
-			onSuccessCallback?.(payment);
+			onSuccessCallback?.(result);
 		},
 	});
 };
+
+/** Available primitive — not directly invoked by the payment-callback page,
+ *  which polls getPaymentByBookingService instead to avoid depending on
+ *  unconfirmed gateway redirect param names. */
+export const useVerifyOnlinePaymentQuery = ({
+	onSuccessCallback,
+}: {
+	onSuccessCallback?: (result: PaymentTransaction) => void;
+} = {}) =>
+	useMutation({
+		mutationFn: (reference: string) =>
+			verifyOnlinePaymentService({ reference, signal: abortController.signal }),
+		onSuccess: (result) => onSuccessCallback?.(result),
+	});

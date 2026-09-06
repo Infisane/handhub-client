@@ -880,6 +880,79 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
   margin-top: 6px;
 }
 
+/* AppInput is also used inside Dialog (Radix portals to document.body, so
+   these elements render outside .hh-auth in the DOM even when triggered
+   from an .hh-auth page — the --bg2/--bdr2/etc. short names above only
+   exist inside .hh-auth's own scope, so this unscoped copy uses the root
+   --hh-* tokens directly instead. Higher-specificity ".hh-auth .inp" rules
+   above still win on the actual auth pages, so this only takes effect
+   where those don't reach. */
+.inp {
+  width: 100%;
+  background: var(--hh-bg2);
+  border: 1.5px solid var(--hh-border2);
+  border-radius: 8px;
+  padding: 11px 14px;
+  font-size: 14px;
+  color: var(--hh-txt);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  outline: none;
+  transition: border-color .15s;
+}
+
+.inp::placeholder {
+  color: var(--hh-txt3);
+}
+
+.inp:focus {
+  border-color: var(--hh-or-m);
+}
+
+.inp.has-icon {
+  padding-left: 40px;
+}
+
+.inp-wrap {
+  position: relative;
+}
+
+.inp-icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: var(--hh-txt3);
+  pointer-events: none;
+}
+
+.inp-trail {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 15px;
+  color: var(--hh-txt3);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.inp-trail:hover {
+  color: var(--hh-txt);
+}
+
+.inp.has-error {
+  border-color: #EF4444;
+}
+
+.field-error {
+  color: #EF4444;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
 .hh-auth .row2 {
   display: grid;
   grid-template-columns: 1fr 1fr;

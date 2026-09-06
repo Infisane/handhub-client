@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { type ChatSide, deriveChat } from "#/core/helpers/chat-phase.helper";
 import { useAppSelector } from "#/core/hooks/useStore.hook";
+import { useGetPaymentByBookingQuery } from "#/core/queries/payment.q";
 import {
 	useGetThreadByIdQuery,
 	useSendThreadMessageQuery,
@@ -59,9 +60,17 @@ export const useChatThread = ({
 		return "none";
 	}, [thread, user]);
 
+	// The invoice/booking payment split (materials released now, workmanship
+	// held until confirm-completion) — needed to know whether the active
+	// invoice has already been paid, since its own status stays "accepted"
+	// until the whole thing settles.
+	const { data: bookingPayments = [] } = useGetPaymentByBookingQuery(
+		activeTicket?.booking?.id ?? null,
+	);
+
 	const { phase, actions, activeInvoice } = useMemo(
-		() => deriveChat(activeTicket, side),
-		[activeTicket, side],
+		() => deriveChat(activeTicket, side, bookingPayments),
+		[activeTicket, side, bookingPayments],
 	);
 
 	// The other participant, from the viewer's perspective: a provider sees the
@@ -113,6 +122,7 @@ export const useChatThread = ({
 		counterpart,
 		activeTicket,
 		activeInvoice,
+		bookingPayments,
 		messages,
 		side,
 		phase,

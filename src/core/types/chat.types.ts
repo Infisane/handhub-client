@@ -14,7 +14,8 @@ export type SystemCardKind =
 	| "invoice_voided" // metadata: { invoiceId }
 	| "booking_confirmed" // metadata: { bookingRef }
 	| "intake_summary" // metadata: { intakeSummary }
-	| "ticket_cancelled"; // metadata: {}
+	| "ticket_cancelled" // metadata: {}
+	| "payment_received"; // metadata: { bookingId, amount, paymentIds }
 
 export type TicketStatus =
 	| "open"
@@ -62,6 +63,9 @@ export interface SystemMetadata {
 	invoiceId?: string;
 	bookingRef?: string;
 	intakeSummary?: IntakeSummary;
+	bookingId?: string;
+	amount?: string; // decimal string
+	paymentIds?: string[];
 }
 
 export interface Message {
@@ -94,10 +98,13 @@ export interface ThreadInitiator {
 }
 
 /* ── Invoice ─────────────────────────────────────────────────── */
+export type LineItemKind = "labor" | "material";
+
 export interface InvoiceLineItem {
 	quantity: number;
 	unitPrice: number;
 	description: string;
+	kind: LineItemKind;
 }
 
 export interface Invoice {
@@ -148,6 +155,7 @@ export interface Booking {
 	address: string | null;
 	location: string | null;
 	urgency: UrgencyLevel;
+	startedAt?: string | null;
 	completedAt?: string | null;
 	createdAt: string;
 }
@@ -202,6 +210,8 @@ export interface ThreadDetail {
 }
 
 /* ── Payment + Wallet ────────────────────────────────────────── */
+export type PaymentKind = "materials" | "workmanship";
+
 export interface Payment {
 	id: string;
 	bookingId: string;
@@ -212,11 +222,34 @@ export interface Payment {
 	status: PaymentStatus;
 	transactionReference: string;
 	createdAt: string;
+	/** null for a direct booking with no linked invoice. */
+	kind: PaymentKind | null;
+	invoiceId: string | null;
 }
 
-export interface CardPaymentInit {
-	paymentId: string;
-	authorizationUrl: string;
+/** POST /api/payments/online/initiate and GET /api/payments/online/:reference/verify
+ *  both return this — never an array, invoice-linked or not. The
+ *  materials/workmanship split only exists later, in GET /payments/booking/:id.
+ *  Also the shape POST /api/wallet/topup/initiate returns (same endpoint
+ *  family) — bookingId is null and customerId is present for a wallet
+ *  top-up, the reverse of a booking payment. */
+export interface PaymentTransaction {
+	id: string;
+	bookingId: string | null;
+	customerId?: string;
+	providerName: string;
+	reference: string;
+	amount: string; // decimal string — the invoice total, not booking.price
+	currency: string;
+	status: string;
+	paymentUrl: string;
+}
+
+export interface WalletTopupPayload {
+	amount: number;
+	callbackUrl?: string;
+	preferredProvider?: "paystack" | "flutterwave";
+	currency?: string;
 }
 
 export type TxCategory =
@@ -271,13 +304,55 @@ export interface Wallet {
 	monthlyTotals: { currentMonth: string; previousMonth: string };
 }
 
-/** POST /api/wallet/withdraw — `balance` here is a number, unlike every other
- *  money field in this API (which are decimal strings). Kept as its own type
- *  rather than reusing Wallet so this inconsistency isn't silently masked. */
-export interface WalletWithdrawResponse {
+export type WithdrawalStatus =
+	| "pending"
+	| "approved"
+	| "processing"
+	| "completed"
+	| "rejected"
+	| "failed";
+
+/** POST /api/wallet/withdraw response — a withdrawal request, not a wallet.
+ *  The wallet is debited immediately at request time; the payout itself only
+ *  happens once an admin approves it and a real gateway transfer settles. */
+export interface WithdrawalRequest {
 	id: string;
 	userId: string;
-	balance: number;
+	walletId: string;
+	amount: number; // raw number here, unlike Wallet.balance's decimal string
+	bankCode: string;
+	bankAccountNumber: string;
+	bankAccountName: string;
+	status: WithdrawalStatus;
+	requestedAt: string;
+	reviewedById: string | null;
+	reviewedAt: string | null;
+	rejectionReason: string | null;
+	providerName: string | null;
+	providerTransferReference: string | null;
+	completedAt: string | null;
+	failureReason: string | null;
+}
+
+export interface Bank {
+	code: string;
+	name: string;
+}
+
+/** GET/POST /api/wallet/bank-account — bankAccountNumber comes back masked
+ *  (e.g. "******0031"). bankAccountName is always gateway-resolved, never
+ *  taken from user input. */
+export interface BankAccount {
+	bankCode: string;
+	bankAccountNumber: string;
+	bankAccountName: string;
+	bankVerifiedAt: string;
+}
+
+export interface SaveBankAccountPayload {
+	bankCode: string;
+	accountNumber: string;
+	preferredProvider?: "paystack" | "flutterwave";
 }
 
 /* ── Threads: unread count ───────────────────────────────────── */
@@ -324,8 +399,10 @@ export interface CreatePaymentPayload {
 	invoiceId?: string;
 }
 
-export interface UpdateBookingStatusPayload {
-	status: Extract<BookingStatus, "in_progress" | "completed">;
+/** /online/initiate needs a callbackUrl the wallet path doesn't — Flutterwave
+ *  rejects the request without one. */
+export interface CreateOnlinePaymentPayload extends CreatePaymentPayload {
+	callbackUrl: string;
 }
 
 export interface CreateReviewPayload {
