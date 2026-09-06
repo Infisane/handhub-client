@@ -13,6 +13,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { AuthLeftPanel } from "#/components/auth/auth-left-panel";
 import { formBoxMotion, itemVariants } from "#/components/auth/auth-motion";
+import { ForgotPasswordDialog } from "#/components/auth/forgot-password-dialog";
 import { GoogleConfirmDialog } from "#/components/auth/google-confirm-dialog";
 import { SocialAuthButtons } from "#/components/auth/social-auth-buttons";
 import { VerifyEmailDialog } from "#/components/auth/verify-email-dialog";
@@ -41,6 +42,7 @@ function SignInPage() {
 	const [showVerifyDialog, setShowVerifyDialog] = useState(false);
 	const [showGoogleConfirm, setShowGoogleConfirm] = useState(false);
 	const [googleIdToken, setGoogleIdToken] = useState<string | null>(null);
+	const [showForgotPassword, setShowForgotPassword] = useState(false);
 
 	const { validate, revalidate, errors } = useValidator({
 		schema: SignInSchema,
@@ -212,9 +214,13 @@ function SignInPage() {
 								<div className="field">
 									<div className="forgot-row">
 										<label htmlFor="signin-pw">Password</label>
-										<a className="forgot-link" href="#forgot">
+										<button
+											type="button"
+											className="forgot-link"
+											onClick={() => setShowForgotPassword(true)}
+										>
 											Forgot password?
-										</a>
+										</button>
 									</div>
 									<AppInput
 										id="signin-pw"
@@ -309,6 +315,15 @@ function SignInPage() {
 						response.isNewAccount ? "Welcome to Handhub" : "Welcome back",
 					);
 					setShowGoogleConfirm(false);
+				}}
+			/>
+
+			<ForgotPasswordDialog
+				open={showForgotPassword}
+				onClose={() => setShowForgotPassword(false)}
+				onResetComplete={(email) => {
+					setLoginFormData((prev) => ({ ...prev, email }));
+					toast.success("Password reset — sign in with your new password");
 				}}
 			/>
 		</div>

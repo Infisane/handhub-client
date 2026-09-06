@@ -123,3 +123,13 @@ export interface GoogleAuthResponse {
 	user: AuthUser;
 	isNewAccount: boolean;
 }
+
+export interface RequestPasswordResetPayload {
+	email: string;
+}
+
+export interface CompletePasswordResetPayload {
+	email: string;
+	otp: string;
+	newPassword: string;
+}

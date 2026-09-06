@@ -48,3 +48,25 @@ export const GoogleConfirmSchema = z.object({
 	}),
 });
 export type GoogleConfirm = z.infer<typeof GoogleConfirmSchema>;
+
+export const ForgotPasswordEmailSchema = z.object({
+	email: z
+		.string()
+		.min(1, "Email is required")
+		.email("Enter a valid email address"),
+});
+export type ForgotPasswordEmail = z.infer<typeof ForgotPasswordEmailSchema>;
+
+export const SetPasswordSchema = z
+	.object({
+		otp: z.string().length(6, "Enter the 6-digit code"),
+		newPassword: z
+			.string()
+			.min(8, "New password must be at least 8 characters"),
+		confirmPassword: z.string().min(1, "Please confirm your new password"),
+	})
+	.refine((data) => data.newPassword === data.confirmPassword, {
+		message: "Passwords do not match",
+		path: ["confirmPassword"],
+	});
+export type SetPasswordForm = z.infer<typeof SetPasswordSchema>;

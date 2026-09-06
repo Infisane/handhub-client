@@ -1,5 +1,6 @@
 import { Hammer, Loader2, Phone, Search } from "lucide-react";
 import { useEffect, useState } from "react";
+import { AppButton } from "#/components/ui/app-button";
 import { AppInput } from "#/components/ui/app-input";
 import {
 	Dialog,
@@ -186,13 +187,13 @@ export function GoogleConfirmDialog({
 						)}
 					</div>
 
-					<button
+					<AppButton
 						type="submit"
-						disabled={googleAuthMutation.isPending}
-						className="w-full py-2.5 rounded-xl text-xs font-extrabold transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer shadow-xs bg-[var(--dashboard-orange)] text-white hover:opacity-90 disabled:opacity-60"
+						isLoading={googleAuthMutation.isPending}
+						loadingText="Continuing…"
 					>
-						{googleAuthMutation.isPending ? "Continuing…" : "Continue"}
-					</button>
+						Continue
+					</AppButton>
 				</form>
 			</DialogContent>
 		</Dialog>

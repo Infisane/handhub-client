@@ -1,4 +1,11 @@
-import { Ban, CalendarCheck, ChevronDown, FileText, Info } from "lucide-react";
+import {
+	Ban,
+	CalendarCheck,
+	ChevronDown,
+	FileText,
+	Info,
+	Wallet,
+} from "lucide-react";
 import { useState } from "react";
 import type { ChatSide } from "#/core/helpers/chat-phase.helper";
 import type { Message } from "#/core/types/chat.types";
@@ -51,6 +58,7 @@ export function SystemCard({
 			return meta.invoiceId ? (
 				<InvoiceCard
 					invoiceId={meta.invoiceId}
+					bookingId={message.bookingId}
 					threadId={threadId}
 					ticketId={ticketId}
 					side={side}
@@ -69,6 +77,15 @@ export function SystemCard({
 		case "invoice_rejected":
 		case "invoice_voided":
 			return <Notice icon={<FileText size={11} />} text={message.content} />;
+
+		case "payment_received":
+			return (
+				<Notice
+					tone="success"
+					icon={<Wallet size={11} className="stroke-[2.5]" />}
+					text={message.content}
+				/>
+			);
 
 		case "ticket_cancelled":
 			return (

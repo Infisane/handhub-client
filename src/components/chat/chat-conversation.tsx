@@ -131,6 +131,7 @@ export function ChatConversation({
 						threadId={chat.thread.id}
 						ticket={chat.activeTicket}
 						actions={chat.actions}
+						activeInvoice={chat.activeInvoice}
 					/>
 				)}
 				<MessageComposer

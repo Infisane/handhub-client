@@ -1,6 +1,7 @@
 import { Mail } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { AppButton } from "#/components/ui/app-button";
 import { AppInput } from "#/components/ui/app-input";
 import {
 	Dialog,
@@ -84,13 +85,13 @@ export function VerifyEmailDialog({
 							className="text-center tracking-[6px] text-[18px]"
 						/>
 					</div>
-					<button
+					<AppButton
 						type="submit"
-						disabled={verifyMutation.isPending}
-						className="w-full py-2.5 rounded-xl text-xs font-extrabold transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer shadow-xs bg-[var(--dashboard-orange)] text-white hover:opacity-90 disabled:opacity-60"
+						isLoading={verifyMutation.isPending}
+						loadingText="Verifying…"
 					>
-						{verifyMutation.isPending ? "Verifying…" : "Verify"}
-					</button>
+						Verify
+					</AppButton>
 					<p className="text-center text-[12px] text-[var(--dashboard-muted)]">
 						Didn't get a code?{" "}
 						<button

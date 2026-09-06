@@ -44,6 +44,7 @@ export interface SecurityStatus {
 	emailVerifiedAt: string | null;
 	lastLoginAt: string | null;
 	passwordChangedAt: string | null;
+	hasPassword: boolean;
 }
 
 /* ── Notification preferences ────────────────────────────────── */

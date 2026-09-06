@@ -14,9 +14,11 @@ import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as DashboardWalletCallbackRouteImport } from './routes/dashboard/wallet-callback'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
 import { Route as DashboardReviewsRouteImport } from './routes/dashboard/reviews'
 import { Route as DashboardPaymentsRouteImport } from './routes/dashboard/payments'
+import { Route as DashboardPaymentCallbackRouteImport } from './routes/dashboard/payment-callback'
 import { Route as DashboardMyAreaRouteImport } from './routes/dashboard/my-area'
 import { Route as DashboardMessagesRouteImport } from './routes/dashboard/messages'
 import { Route as DashboardBookingsRouteImport } from './routes/dashboard/bookings'
@@ -48,6 +50,11 @@ const PublicIndexRoute = PublicIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PublicRoute,
 } as any)
+const DashboardWalletCallbackRoute = DashboardWalletCallbackRouteImport.update({
+  id: '/wallet-callback',
+  path: '/wallet-callback',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -63,6 +70,12 @@ const DashboardPaymentsRoute = DashboardPaymentsRouteImport.update({
   path: '/payments',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const DashboardPaymentCallbackRoute =
+  DashboardPaymentCallbackRouteImport.update({
+    id: '/payment-callback',
+    path: '/payment-callback',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
 const DashboardMyAreaRoute = DashboardMyAreaRouteImport.update({
   id: '/my-area',
   path: '/my-area',
@@ -109,9 +122,11 @@ export interface FileRoutesByFullPath {
   '/dashboard/bookings': typeof DashboardBookingsRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/my-area': typeof DashboardMyAreaRoute
+  '/dashboard/payment-callback': typeof DashboardPaymentCallbackRoute
   '/dashboard/payments': typeof DashboardPaymentsRoute
   '/dashboard/reviews': typeof DashboardReviewsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/wallet-callback': typeof DashboardWalletCallbackRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
@@ -123,9 +138,11 @@ export interface FileRoutesByTo {
   '/dashboard/bookings': typeof DashboardBookingsRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/my-area': typeof DashboardMyAreaRoute
+  '/dashboard/payment-callback': typeof DashboardPaymentCallbackRoute
   '/dashboard/payments': typeof DashboardPaymentsRoute
   '/dashboard/reviews': typeof DashboardReviewsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/wallet-callback': typeof DashboardWalletCallbackRoute
   '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
@@ -140,9 +157,11 @@ export interface FileRoutesById {
   '/dashboard/bookings': typeof DashboardBookingsRoute
   '/dashboard/messages': typeof DashboardMessagesRoute
   '/dashboard/my-area': typeof DashboardMyAreaRoute
+  '/dashboard/payment-callback': typeof DashboardPaymentCallbackRoute
   '/dashboard/payments': typeof DashboardPaymentsRoute
   '/dashboard/reviews': typeof DashboardReviewsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/wallet-callback': typeof DashboardWalletCallbackRoute
   '/_public/': typeof PublicIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
@@ -158,9 +177,11 @@ export interface FileRouteTypes {
     | '/dashboard/bookings'
     | '/dashboard/messages'
     | '/dashboard/my-area'
+    | '/dashboard/payment-callback'
     | '/dashboard/payments'
     | '/dashboard/reviews'
     | '/dashboard/settings'
+    | '/dashboard/wallet-callback'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -172,9 +193,11 @@ export interface FileRouteTypes {
     | '/dashboard/bookings'
     | '/dashboard/messages'
     | '/dashboard/my-area'
+    | '/dashboard/payment-callback'
     | '/dashboard/payments'
     | '/dashboard/reviews'
     | '/dashboard/settings'
+    | '/dashboard/wallet-callback'
     | '/dashboard'
   id:
     | '__root__'
@@ -188,9 +211,11 @@ export interface FileRouteTypes {
     | '/dashboard/bookings'
     | '/dashboard/messages'
     | '/dashboard/my-area'
+    | '/dashboard/payment-callback'
     | '/dashboard/payments'
     | '/dashboard/reviews'
     | '/dashboard/settings'
+    | '/dashboard/wallet-callback'
     | '/_public/'
     | '/dashboard/'
   fileRoutesById: FileRoutesById
@@ -238,6 +263,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicIndexRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/dashboard/wallet-callback': {
+      id: '/dashboard/wallet-callback'
+      path: '/wallet-callback'
+      fullPath: '/dashboard/wallet-callback'
+      preLoaderRoute: typeof DashboardWalletCallbackRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
     '/dashboard/settings': {
       id: '/dashboard/settings'
       path: '/settings'
@@ -257,6 +289,13 @@ declare module '@tanstack/react-router' {
       path: '/payments'
       fullPath: '/dashboard/payments'
       preLoaderRoute: typeof DashboardPaymentsRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/payment-callback': {
+      id: '/dashboard/payment-callback'
+      path: '/payment-callback'
+      fullPath: '/dashboard/payment-callback'
+      preLoaderRoute: typeof DashboardPaymentCallbackRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/my-area': {
@@ -316,9 +355,11 @@ interface DashboardRouteRouteChildren {
   DashboardBookingsRoute: typeof DashboardBookingsRoute
   DashboardMessagesRoute: typeof DashboardMessagesRoute
   DashboardMyAreaRoute: typeof DashboardMyAreaRoute
+  DashboardPaymentCallbackRoute: typeof DashboardPaymentCallbackRoute
   DashboardPaymentsRoute: typeof DashboardPaymentsRoute
   DashboardReviewsRoute: typeof DashboardReviewsRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
+  DashboardWalletCallbackRoute: typeof DashboardWalletCallbackRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
@@ -327,9 +368,11 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardBookingsRoute: DashboardBookingsRoute,
   DashboardMessagesRoute: DashboardMessagesRoute,
   DashboardMyAreaRoute: DashboardMyAreaRoute,
+  DashboardPaymentCallbackRoute: DashboardPaymentCallbackRoute,
   DashboardPaymentsRoute: DashboardPaymentsRoute,
   DashboardReviewsRoute: DashboardReviewsRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
+  DashboardWalletCallbackRoute: DashboardWalletCallbackRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 

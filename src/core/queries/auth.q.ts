@@ -1,22 +1,26 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
 import { set_auth_session } from "#/core/redux-store/slices/auth.slice";
 import {
+	completePasswordResetService,
 	getMeService,
 	googleAuthService,
 	loginService,
 	registerService,
+	requestPasswordResetService,
 	resendEmailVerificationService,
 	verifyEmailService,
 } from "#/core/services/auth.service";
 import type {
 	AuthGateResponse,
+	CompletePasswordResetPayload,
 	GoogleAuthPayload,
 	GoogleAuthResponse,
 	LoginPayload,
 	RegisterPayload,
 	RequestOtpPayload,
+	RequestPasswordResetPayload,
 	VerifyOtpPayload,
 } from "#/core/types/auth.types";
 import { abortController } from "../helpers/axios.helper";
@@ -81,6 +85,33 @@ export const useGoogleAuthQuery = ({
 		mutationFn: (payload: GoogleAuthPayload) =>
 			googleAuthService({ payload, signal: abortController.signal }),
 		onSuccess: (response) => onSuccessCallback?.(response),
+	});
+};
+
+export const useRequestPasswordResetQuery = ({
+	onSuccessCallback,
+}: {
+	onSuccessCallback?: (result: { message: string }) => void;
+} = {}) =>
+	useMutation({
+		mutationFn: (payload: RequestPasswordResetPayload) =>
+			requestPasswordResetService({ payload, signal: abortController.signal }),
+		onSuccess: (result) => onSuccessCallback?.(result),
+	});
+
+export const useCompletePasswordResetQuery = ({
+	onSuccessCallback,
+}: {
+	onSuccessCallback?: (result: { message: string }) => void;
+} = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (payload: CompletePasswordResetPayload) =>
+			completePasswordResetService({ payload, signal: abortController.signal }),
+		onSuccess: (result) => {
+			queryClient.invalidateQueries({ queryKey: ["auth", "security-status"] });
+			onSuccessCallback?.(result);
+		},
 	});
 };
 

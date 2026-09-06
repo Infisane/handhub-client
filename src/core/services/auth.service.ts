@@ -3,11 +3,13 @@ import type {
 	AuthGateResponse,
 	AuthSession,
 	AuthUser,
+	CompletePasswordResetPayload,
 	GoogleAuthPayload,
 	GoogleAuthResponse,
 	LoginPayload,
 	RegisterPayload,
 	RequestOtpPayload,
+	RequestPasswordResetPayload,
 	VerifyOtpPayload,
 } from "#/core/types/auth.types";
 
@@ -69,4 +71,31 @@ export const googleAuthService = ({
 }) =>
 	getRequestData<GoogleAuthResponse>(
 		request.post("/api/auth/google", payload, { signal }),
+	);
+
+/** Forgot-password flow (logged out) and Settings' "Set a Password" flow
+ *  (logged in, hasPassword: false) both reuse these — same OTP endpoints
+ *  either way. `/verify` is deliberately not implemented: it's optional
+ *  when the UI collects the OTP and new password on one screen and submits
+ *  directly to `/complete`. */
+export const requestPasswordResetService = ({
+	payload,
+	signal,
+}: {
+	payload: RequestPasswordResetPayload;
+	signal?: AbortSignal;
+}) =>
+	getRequestData<{ message: string }>(
+		request.post("/api/auth/password-reset/request", payload, { signal }),
+	);
+
+export const completePasswordResetService = ({
+	payload,
+	signal,
+}: {
+	payload: CompletePasswordResetPayload;
+	signal?: AbortSignal;
+}) =>
+	getRequestData<{ message: string }>(
+		request.post("/api/auth/password-reset/complete", payload, { signal }),
 	);

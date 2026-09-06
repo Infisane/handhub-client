@@ -45,7 +45,13 @@ export function MessageBubble({
 					"max-w-[75%] rounded-2xl p-3.5 shadow-xs",
 					isMine
 						? "bg-[var(--dashboard-orange)] text-white rounded-br-none"
-						: "bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] text-[var(--dashboard-text)] rounded-bl-none",
+						: isAi
+							? // Neutral, not the orange-light/orange-mid pair — that combo is
+								// already the provider-facing "Intake summary" card's accent
+								// (system-card.tsx); reusing it here made AI chat bubbles and
+								// that system card blend together.
+								"bg-neutral-100 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700 text-[var(--dashboard-text)] rounded-bl-none"
+							: "bg-[var(--dashboard-card)] border border-[var(--dashboard-border)] text-[var(--dashboard-text)] rounded-bl-none",
 				)}
 			>
 				{isAi && (
