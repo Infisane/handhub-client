@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { abortController } from "#/core/helpers/axios.helper";
+import { useIdempotencyKey } from "#/core/hooks/useIdempotencyKey.hook";
 import {
 	getBankAccountService,
 	getBanksService,
@@ -41,13 +43,32 @@ export const useInitiateWalletTopupQuery = ({
 	onSuccessCallback?: (transaction: PaymentTransaction) => void;
 } = {}) => {
 	const queryClient = useQueryClient();
+	const idempotency = useIdempotencyKey();
 	return useMutation({
-		mutationFn: (payload: WalletTopupPayload) =>
-			initiateWalletTopupService({ payload, signal: abortController.signal }),
+		mutationFn: async (payload: WalletTopupPayload) => {
+			const transaction = await initiateWalletTopupService({
+				payload,
+				idempotencyKey: idempotency.keyFor(payload),
+				signal: abortController.signal,
+			});
+			// Callers redirect to paymentUrl — never let them navigate to "undefined".
+			if (!transaction.paymentUrl) throw new Error("Payment link unavailable");
+			return transaction;
+		},
 		onSuccess: (transaction) => {
+			idempotency.reset();
 			queryClient.invalidateQueries({ queryKey: ["wallet"] });
 			queryClient.invalidateQueries({ queryKey: ["wallet-transactions"] });
 			onSuccessCallback?.(transaction);
+		},
+		onError: (error) => {
+			// Keep the key only when the outcome is unknown (timeout / cancel /
+			// network — no response) or the first attempt is still running (409):
+			// a retry then replays it instead of creating a second transaction.
+			// Any other answer is definitive, so the next attempt starts fresh.
+			const unanswered = isAxiosError(error) && !error.response;
+			const inFlight = isAxiosError(error) && error.response?.status === 409;
+			if (!unanswered && !inFlight) idempotency.reset();
 		},
 	});
 };
