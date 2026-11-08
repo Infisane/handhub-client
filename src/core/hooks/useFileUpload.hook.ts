@@ -1,5 +1,6 @@
 import type { ChangeEvent } from "react";
 import { useState } from "react";
+import { getApiErrorMessage } from "#/core/helpers/error-handler.helper";
 import {
 	uploadFile,
 	validateFile,
@@ -30,8 +31,13 @@ export const useFileUpload = ({ folder, onSuccess }: UseFileUploadOptions) => {
 		try {
 			const publicUrl = await uploadFile(folder, file);
 			onSuccess(publicUrl, file);
-		} catch {
-			setUploadError("Upload failed. Please try again.");
+		} catch (err) {
+			// Presign errors carry the API's message; storage failures (CORS, bad
+			// signature) only show up here, so keep the real cause in the console.
+			console.error(`[upload:${folder}]`, err);
+			setUploadError(
+				getApiErrorMessage(err) ?? "Upload failed. Please try again.",
+			);
 		} finally {
 			setIsUploading(false);
 		}

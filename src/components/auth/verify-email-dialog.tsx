@@ -1,5 +1,5 @@
 import { Mail } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AppButton } from "#/components/ui/app-button";
 import { AppInput } from "#/components/ui/app-input";
@@ -9,7 +9,9 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "#/components/ui/dialog.tsx";
+import { OTP_RESEND_COOLDOWN_SECONDS } from "#/core/helpers/constants.helper";
 import { useValidator } from "#/core/helpers/useValidator.helper";
+import { useCooldown } from "#/core/hooks/useCooldown.hook";
 import {
 	useResendEmailVerificationQuery,
 	useVerifyEmailQuery,
@@ -42,9 +44,21 @@ export function VerifyEmailDialog({
 			onClose();
 		},
 	});
+	const { remaining, start: startCooldown } = useCooldown(
+		OTP_RESEND_COOLDOWN_SECONDS,
+	);
 	const resendMutation = useResendEmailVerificationQuery({
-		onSuccessCallback: () => toast.success("Code sent"),
+		onSuccessCallback: () => {
+			toast.success("Code sent");
+			startCooldown();
+		},
 	});
+
+	// The dialog only opens right after signup/login issued a code, so the
+	// API's resend window is already running — start ours with it.
+	useEffect(() => {
+		if (open) startCooldown();
+	}, [open, startCooldown]);
 
 	const handleVerify = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -96,11 +110,15 @@ export function VerifyEmailDialog({
 						Didn't get a code?{" "}
 						<button
 							type="button"
-							disabled={resendMutation.isPending}
+							disabled={resendMutation.isPending || remaining > 0}
 							onClick={() => resendMutation.mutate({ email })}
-							className="font-bold text-[var(--dashboard-orange)] hover:opacity-80 disabled:opacity-60 cursor-pointer"
+							className="font-bold text-[var(--dashboard-orange)] hover:opacity-80 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
 						>
-							{resendMutation.isPending ? "Sending…" : "Resend code"}
+							{resendMutation.isPending
+								? "Sending…"
+								: remaining > 0
+									? `Resend code in ${remaining}s`
+									: "Resend code"}
 						</button>
 					</p>
 				</form>

@@ -1,8 +1,10 @@
 import { Eye, EyeOff, KeyRound } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { OTP_RESEND_COOLDOWN_SECONDS } from "#/core/helpers/constants.helper";
 import { getApiErrorMessage } from "#/core/helpers/error-handler.helper";
 import { useValidator } from "#/core/helpers/useValidator.helper";
+import { useCooldown } from "#/core/hooks/useCooldown.hook";
 import { useAppSelector } from "#/core/hooks/useStore.hook";
 import {
 	useCompletePasswordResetQuery,
@@ -259,9 +261,13 @@ function SetPasswordForm() {
 		store: form,
 	});
 
+	const { remaining, start: startCooldown } = useCooldown(
+		OTP_RESEND_COOLDOWN_SECONDS,
+	);
 	const requestReset = useRequestPasswordResetQuery({
 		onSuccessCallback: () => {
 			setCodeSent(true);
+			startCooldown();
 			toast.success("Code sent — check your email");
 		},
 	});
@@ -349,11 +355,15 @@ function SetPasswordForm() {
 						)}
 						<button
 							type="button"
-							disabled={requestReset.isPending}
+							disabled={requestReset.isPending || remaining > 0}
 							onClick={() => requestReset.mutate({ email })}
-							className="text-[11px] font-bold text-[var(--dashboard-orange)] hover:opacity-80 disabled:opacity-60 cursor-pointer"
+							className="text-[11px] font-bold text-[var(--dashboard-orange)] hover:opacity-80 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
 						>
-							{requestReset.isPending ? "Sending…" : "Resend code"}
+							{requestReset.isPending
+								? "Sending…"
+								: remaining > 0
+									? `Resend code in ${remaining}s`
+									: "Resend code"}
 						</button>
 					</div>
 

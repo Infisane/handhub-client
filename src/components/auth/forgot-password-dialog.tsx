@@ -8,8 +8,10 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "#/components/ui/dialog.tsx";
+import { OTP_RESEND_COOLDOWN_SECONDS } from "#/core/helpers/constants.helper";
 import { getApiErrorMessage } from "#/core/helpers/error-handler.helper";
 import { useValidator } from "#/core/helpers/useValidator.helper";
+import { useCooldown } from "#/core/hooks/useCooldown.hook";
 import {
 	useCompletePasswordResetQuery,
 	useRequestPasswordResetQuery,
@@ -52,8 +54,14 @@ export function ForgotPasswordDialog({
 		store: { otp, newPassword, confirmPassword },
 	});
 
+	const { remaining, start: startCooldown } = useCooldown(
+		OTP_RESEND_COOLDOWN_SECONDS,
+	);
 	const requestReset = useRequestPasswordResetQuery({
-		onSuccessCallback: () => setCodeSent(true),
+		onSuccessCallback: () => {
+			setCodeSent(true);
+			startCooldown();
+		},
 	});
 	const completeReset = useCompletePasswordResetQuery({
 		onSuccessCallback: () => {
@@ -190,11 +198,15 @@ export function ForgotPasswordDialog({
 							Didn't get a code?{" "}
 							<button
 								type="button"
-								disabled={requestReset.isPending}
+								disabled={requestReset.isPending || remaining > 0}
 								onClick={() => requestReset.mutate({ email })}
-								className="font-bold text-[var(--dashboard-orange)] hover:opacity-80 disabled:opacity-60 cursor-pointer"
+								className="font-bold text-[var(--dashboard-orange)] hover:opacity-80 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
 							>
-								{requestReset.isPending ? "Sending…" : "Resend code"}
+								{requestReset.isPending
+									? "Sending…"
+									: remaining > 0
+										? `Resend code in ${remaining}s`
+										: "Resend code"}
 							</button>
 						</p>
 					</form>

@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { HHLogo } from "#/components/hh/logo";
 import { Nav } from "#/components/home/nav";
+import { FOOTER_COLS, SiteLink } from "#/components/home/site-links";
 import { Separator } from "#/components/ui/separator";
 import { readStoredSession } from "#/core/helpers/auth-storage.helper";
 
@@ -17,18 +18,6 @@ export const Route = createFileRoute("/_public")({
 	},
 	component: Layout,
 });
-
-const FOOTER_COLS = [
-	{
-		heading: "Product",
-		links: ["How it works", "AI search", "Pricing", "Cities"],
-	},
-	{
-		heading: "Artisans",
-		links: ["Join as artisan", "Verification", "Artisan app", "Payouts"],
-	},
-	{ heading: "Company", links: ["About", "Blog", "Careers", "Contact"] },
-];
 
 function Layout() {
 	const { pathname } = useLocation();
@@ -65,15 +54,13 @@ function Layout() {
 							>
 								{col.heading}
 							</h4>
-							{col.links.map((l) => (
-								<a
-									key={l}
-									href="#"
-									className="block text-[13px] mb-2.5 transition-colors duration-150 hover:text-(--hh-txt)"
+							{col.links.map((link) => (
+								<SiteLink
+									key={link.label}
+									link={link}
+									className="block text-[13px] mb-2.5"
 									style={{ color: "var(--hh-txt3)" }}
-								>
-									{l}
-								</a>
+								/>
 							))}
 						</div>
 					))}
