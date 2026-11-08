@@ -10,6 +10,7 @@ import {
 import { AiSearch } from "#/components/dashboard/ai-search";
 import { DashboardHeader } from "#/components/dashboard/dashboard-header";
 import { RecommendedArtisans } from "#/components/dashboard/recommended-artisans";
+import { NEARBY_RADIUS_KM } from "#/core/helpers/constants.helper";
 import { formatNaira, parseMoney } from "#/core/helpers/money.helper";
 import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
 import { useGetProvidersQuery } from "#/core/queries/artisan.q";
@@ -21,8 +22,6 @@ import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
 export const Route = createFileRoute("/dashboard/")({
 	component: DashboardPage,
 });
-
-const NEARBY_RADIUS_KM = 5;
 
 function DashboardPage() {
 	const dispatch = useAppDispatch();

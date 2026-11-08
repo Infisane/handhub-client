@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { HHButton } from "#/components/hh/button";
 import { HHLogo } from "#/components/hh/logo";
+import { NAV_LINKS, SiteLink } from "./site-links";
 
 interface NavProps {
 	showLinks?: boolean;
@@ -33,15 +34,13 @@ export function Nav({ showLinks = true, rightElement }: NavProps) {
 					className="hidden md:flex gap-7 ml-12"
 					aria-label="Main navigation"
 				>
-					{["How it works", "For artisans", "Pricing", "Cities"].map((l) => (
-						<a
-							key={l}
-							href="#"
-							className="text-[13.5px] transition-colors duration-150 hover:text-(--hh-txt)"
+					{NAV_LINKS.map((link) => (
+						<SiteLink
+							key={link.label}
+							link={link}
+							className="text-[13.5px]"
 							style={{ color: "var(--hh-txt2)" }}
-						>
-							{l}
-						</a>
+						/>
 					))}
 				</nav>
 			)}

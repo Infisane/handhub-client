@@ -4,6 +4,12 @@ import { toast } from "sonner";
 import { set_geolocation } from "#/core/redux-store/slices/geolocation.slice";
 import { useAppDispatch } from "./useStore.hook";
 
+// geolocationStore is persisted, so coordinates from a previous session survive
+// in localStorage. Whenever there's no live fix (permission pending, denied,
+// unavailable) drop them, or consumers treat the stale spot as the user's
+// location (e.g. "Artisans nearby: 0" before location was ever granted).
+const NO_COORDS = { latitude: null, longitude: null, accuracy: null };
+
 export const useUserLocation = () => {
 	const dispatch = useAppDispatch();
 	// Track whether we have ever received valid coords so transient watch-cycle
@@ -28,7 +34,7 @@ export const useUserLocation = () => {
 	useEffect(() => {
 		// Strict false: undefined means the hook hasn't resolved yet (SSR/hydration).
 		if (isGeolocationAvailable === false) {
-			dispatch(set_geolocation({ status: "unavailable" }));
+			dispatch(set_geolocation({ status: "unavailable", ...NO_COORDS }));
 			return;
 		}
 		if (coords) {
@@ -45,17 +51,17 @@ export const useUserLocation = () => {
 		}
 		if (positionError) {
 			if (positionError.code === positionError.PERMISSION_DENIED) {
-				dispatch(set_geolocation({ status: "denied" }));
+				dispatch(set_geolocation({ status: "denied", ...NO_COORDS }));
 			} else if (!hasCoords.current) {
 				// POSITION_UNAVAILABLE / TIMEOUT before we ever had a fix → keep loading.
 				// After a successful fix, ignore transient errors; the store already
 				// holds valid coordinates with status "granted".
-				dispatch(set_geolocation({ status: "loading" }));
+				dispatch(set_geolocation({ status: "loading", ...NO_COORDS }));
 			}
 			return;
 		}
 		if (!hasCoords.current) {
-			dispatch(set_geolocation({ status: "loading" }));
+			dispatch(set_geolocation({ status: "loading", ...NO_COORDS }));
 		}
 	}, [coords, isGeolocationAvailable, positionError, dispatch]);
 

@@ -41,7 +41,7 @@ const uploadToR2 = async (uploadUrl: string, file: File) => {
 		headers: { "Content-Type": file.type },
 		body: file,
 	});
-	if (!res.ok) throw new Error("Upload to storage failed");
+	if (!res.ok) throw new Error(`Upload to storage failed (HTTP ${res.status})`);
 };
 
 export const uploadFile = async (

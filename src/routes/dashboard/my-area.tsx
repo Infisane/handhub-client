@@ -868,7 +868,9 @@ function MyAreaPage() {
 	const [isAvailable, setIsAvailable] = useState(true);
 	const [radiusKm, setRadiusKm] = useState(5);
 	const [seeded, setSeeded] = useState(false);
-	if (providerProfile && !seeded) {
+	// Wait for a profile that carries isAvailable: one persisted before the API
+	// returned it would otherwise seed `undefined` and show "Offline".
+	if (providerProfile?.isAvailable !== undefined && !seeded) {
 		setSeeded(true);
 		setIsAvailable(providerProfile.isAvailable);
 		setRadiusKm(providerProfile.serviceRadius ?? 5);
