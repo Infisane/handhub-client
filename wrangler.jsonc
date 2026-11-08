@@ -2,12 +2,10 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "handhub-client",
   "compatibility_date": "2025-09-02",
-  "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry",
 
-  "env": {
-    "production": {
-      "name": "handhub-client"
-    }
+  // Static SPA: no Worker code. Unknown routes fall back to dist/client/index.html.
+  "assets": {
+    "directory": "./dist/client",
+    "not_found_handling": "single-page-application"
   }
 }
