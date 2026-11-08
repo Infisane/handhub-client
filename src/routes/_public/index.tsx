@@ -724,7 +724,11 @@ function Home() {
 							<HHButton size="lg" onClick={handleCTAFindArtisan}>
 								<Search size={17} aria-hidden /> Find help now
 							</HHButton>
-							<HHButton variant="ghost" size="lg">
+							<HHButton
+								variant="ghost"
+								size="lg"
+								onClick={() => navigate({ to: "/", hash: "how-it-works" })}
+							>
 								<Play size={17} aria-hidden /> See how it works
 							</HHButton>
 						</div>
@@ -896,7 +900,7 @@ function Home() {
 			</Reveal>
 
 			{/* ── How it works ───────────────────────────────────────────────── */}
-			<section className="py-[100px] px-[5%]">
+			<section id="how-it-works" className="py-[100px] px-[5%] scroll-mt-16">
 				<Eyebrow>How it works</Eyebrow>
 				<h2
 					className="font-extrabold tracking-[-1.5px] leading-[1.1] max-w-[560px] mb-14"
@@ -1133,7 +1137,7 @@ function Home() {
 			</section>
 
 			{/* ── Dual CTA ───────────────────────────────────────────────────── */}
-			<section className="px-[5%] pb-[100px]">
+			<section id="for-artisans" className="px-[5%] pb-[100px] scroll-mt-24">
 				<Eyebrow>Get started</Eyebrow>
 				<h2
 					className="font-extrabold tracking-[-1.5px] leading-[1.1] max-w-[560px] mb-10"

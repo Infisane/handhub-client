@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Check, Star } from "lucide-react";
 import { useState } from "react";
+import { NEARBY_RADIUS_KM } from "#/core/helpers/constants.helper";
 import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
 import { useGetRecommendationsQuery } from "#/core/queries/artisan.q";
 import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
@@ -55,7 +56,7 @@ export function RecommendedArtisans() {
 	const { data, isLoading } = useGetRecommendationsQuery({
 		lat: latitude ?? undefined,
 		lon: longitude ?? undefined,
-		radius: 50,
+		radius: NEARBY_RADIUS_KM,
 	});
 	const recommendations = data?.recommendations ?? [];
 

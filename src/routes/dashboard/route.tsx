@@ -41,7 +41,7 @@ import {
 	clearStoredSession,
 	readStoredSession,
 } from "#/core/helpers/auth-storage.helper";
-import { USER_TYPES } from "#/core/helpers/constants.helper";
+import { NEARBY_RADIUS_KM, USER_TYPES } from "#/core/helpers/constants.helper";
 import { useChatSocket } from "#/core/hooks/useChatSocket.hook";
 import { useEnrichedProviderProfile } from "#/core/hooks/useEnrichedProviderProfile.hook";
 import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
@@ -99,7 +99,11 @@ function DashboardLayout() {
 	const { latitude, longitude } = useAppSelector((s) => s.geolocationStore);
 	const hasCoords = latitude !== null && longitude !== null;
 	const { data: nearbyProviders } = useGetProvidersQuery(
-		{ lat: latitude ?? undefined, lon: longitude ?? undefined, radius: 5 },
+		{
+			lat: latitude ?? undefined,
+			lon: longitude ?? undefined,
+			radius: NEARBY_RADIUS_KM,
+		},
 		hasCoords,
 	);
 	const { data: activeBookings } = useGetBookingsQuery({
@@ -333,7 +337,7 @@ function DashboardLayout() {
 										/>
 
 										<span className="truncate">{item.name}</span>
-										{item.badge && (
+										{!!item.badge && (
 											<span
 												className={`ml-auto text-[9.5px] px-2 py-0.5 rounded-full font-bold leading-none ${
 													isActive
@@ -568,7 +572,7 @@ function DashboardLayout() {
 							<span className="text-[9px] font-semibold tracking-wide">
 								{item.name}
 							</span>
-							{"badge" in item && item.badge && (
+							{"badge" in item && !!item.badge && (
 								<span className="absolute top-1.5 w-4 h-4 bg-[var(--dashboard-orange)] rounded-full text-[8px] text-white font-bold flex items-center justify-center">
 									{item.badge}
 								</span>
