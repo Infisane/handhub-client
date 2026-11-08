@@ -1,12 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bell, CreditCard, Lock, Settings, User } from "lucide-react";
+import { Bell, Clock, CreditCard, Lock, Settings, User } from "lucide-react";
 import { useState } from "react";
 import { NotificationsTab } from "#/components/dashboard/settings/notifications-tab.tsx";
 import { PaymentsTab } from "#/components/dashboard/settings/payments-tab.tsx";
 import { ProfileTab } from "#/components/dashboard/settings/profile-tab.tsx";
+import { RatesTab } from "#/components/dashboard/settings/rates-tab.tsx";
 import { SecurityTab } from "#/components/dashboard/settings/security-tab.tsx";
-import { useAppDispatch } from "#/core/hooks/useStore.hook";
+import { USER_TYPES } from "#/core/helpers/constants.helper";
+import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
 import { set_dashboard_flags } from "#/core/redux-store/slices/dashboard.slice";
 import { cn } from "#/lib/utils.ts";
 
@@ -16,6 +18,7 @@ export const Route = createFileRoute("/dashboard/settings")({
 
 type SettingsTab =
 	| "profile"
+	| "rates"
 	| "security"
 	| "notifications"
 	| "payments_settings";
@@ -25,12 +28,21 @@ const TABS: {
 	label: string;
 	icon: typeof User;
 	desc: string;
+	/** Hidden for customer accounts. */
+	providerOnly?: boolean;
 }[] = [
 	{
 		id: "profile",
 		label: "Account Profile",
 		icon: User,
 		desc: "Edit personal details, bio, and avatar",
+	},
+	{
+		id: "rates",
+		label: "Rates & Hours",
+		icon: Clock,
+		desc: "Set your minimum charge and working hours",
+		providerOnly: true,
 	},
 	{
 		id: "security",
@@ -61,6 +73,10 @@ const motionProps = {
 
 function SettingsPage() {
 	const dispatch = useAppDispatch();
+	const userType = useAppSelector((s) => s.authStore.user?.userType);
+	const tabs = TABS.filter(
+		(t) => !t.providerOnly || userType === USER_TYPES.provider,
+	);
 	const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
 
 	return (
@@ -95,7 +111,7 @@ function SettingsPage() {
 					<span className="text-[9px] text-[var(--dashboard-muted)] font-bold uppercase tracking-wider px-3 mb-2 block">
 						Configuration Sections
 					</span>
-					{TABS.map((tab) => {
+					{tabs.map((tab) => {
 						const isSelected = activeTab === tab.id;
 						const IconComponent = tab.icon;
 						return (
@@ -142,7 +158,7 @@ function SettingsPage() {
 				{/* Content */}
 				<div className="flex-1 overflow-y-auto p-5 sm:p-8 scrollbar-none pb-24 sm:pb-8">
 					<div className="lg:hidden flex gap-1.5 overflow-x-auto scrollbar-none pb-2 border-b border-[var(--dashboard-border)]/40 mb-6 shrink-0">
-						{TABS.map((tab) => {
+						{tabs.map((tab) => {
 							const isSelected = activeTab === tab.id;
 							const IconComponent = tab.icon;
 							return (
@@ -169,6 +185,11 @@ function SettingsPage() {
 							{activeTab === "profile" && (
 								<motion.div key="profile" {...motionProps}>
 									<ProfileTab />
+								</motion.div>
+							)}
+							{activeTab === "rates" && userType === USER_TYPES.provider && (
+								<motion.div key="rates" {...motionProps}>
+									<RatesTab />
 								</motion.div>
 							)}
 							{activeTab === "security" && (
