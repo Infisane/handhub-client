@@ -9,7 +9,9 @@ const config = defineConfig({
 	plugins: [
 		devtools(),
 		tailwindcss(),
-		tanstackStart(),
+		// SPA build for static hosting (Cloudflare Pages): prerenders only the root
+		// shell to index.html, which Pages serves for every unmatched route.
+		tanstackStart({ spa: { enabled: true, prerender: { outputPath: "/index" } } }),
 		viteReact(),
 	],
 	server: {
