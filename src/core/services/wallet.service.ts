@@ -19,13 +19,25 @@ export const getWalletService = ({ signal }: { signal?: AbortSignal } = {}) =>
  *  this repo); this is the real customer-facing funding path. */
 export const initiateWalletTopupService = ({
 	payload,
+	idempotencyKey,
 	signal,
 }: {
 	payload: WalletTopupPayload;
+	/** Lets the API replay the first attempt if this request is retried. */
+	idempotencyKey?: string;
 	signal?: AbortSignal;
 }) =>
 	getRequestData<PaymentTransaction>(
-		request.post("/api/wallet/topup/initiate", payload, { signal }),
+		request.post("/api/wallet/topup/initiate", payload, {
+			signal,
+			headers: idempotencyKey
+				? { "Idempotency-Key": idempotencyKey }
+				: undefined,
+			// Gateway round-trip: the API bounds it, but a cold health probe plus
+			// the initialize call can exceed the global 15s. Stay under Heroku's
+			// 30s router cutoff.
+			timeout: 30_000,
+		}),
 	);
 
 /** Debits the wallet immediately and creates a pending withdrawal request —
