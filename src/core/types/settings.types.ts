@@ -24,6 +24,9 @@ export interface UpdateProfilePayload {
 	address?: string;
 	bio?: string;
 	avatar?: string;
+	/** Provider-only fields — the API applies whichever are sent. */
+	minCharge?: number;
+	availability?: Record<string, string[]>;
 }
 
 /** PUT /api/user/profile wraps the user in an envelope (GET is flat). */

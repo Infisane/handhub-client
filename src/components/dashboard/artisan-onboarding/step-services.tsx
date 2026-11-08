@@ -14,6 +14,7 @@ import {
 	Zap,
 } from "lucide-react";
 import { forwardRef, useImperativeHandle, useState } from "react";
+import { HelperMethods } from "#/core/helpers/methods.helper";
 import { useValidator } from "#/core/helpers/useValidator.helper";
 import { useAppDispatch, useAppSelector } from "#/core/hooks/useStore.hook";
 import {
@@ -50,14 +51,6 @@ const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
 
 const getCategoryIcon = (iconName: string): LucideIcon =>
 	CATEGORY_ICON_MAP[iconName.toLowerCase()] ?? Box;
-
-const formatTime = (t: string) => {
-	const h = Number(t.split(":")[0]);
-	if (h === 0) return "12:00 AM";
-	if (h < 12) return `${h}:00 AM`;
-	if (h === 12) return "12:00 PM";
-	return `${h - 12}:00 PM`;
-};
 
 export interface StepServicesHandle {
 	validate: () => boolean;
@@ -290,7 +283,7 @@ export const StepServices = forwardRef<StepServicesHandle, object>((_, ref) => {
 								<option value="">From</option>
 								{availOpts.timeSlots.map((t) => (
 									<option key={t} value={t}>
-										{formatTime(t)}
+										{HelperMethods.formatTime(t)}
 									</option>
 								))}
 							</select>
@@ -307,7 +300,7 @@ export const StepServices = forwardRef<StepServicesHandle, object>((_, ref) => {
 									.filter((t) => t > data.availabilityFrom)
 									.map((t) => (
 										<option key={t} value={t}>
-											{formatTime(t)}
+											{HelperMethods.formatTime(t)}
 										</option>
 									))}
 							</select>
