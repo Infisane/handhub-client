@@ -78,7 +78,7 @@ export const Route = createFileRoute("/dashboard")({
 
 function DashboardLayout() {
 	useMeQuery();
-	const { getPosition: retryLocation } = useUserLocation();
+	const { retry: retryLocation } = useUserLocation();
 	useChatSocket();
 	const { pathname } = useLocation();
 	const navigate = Route.useNavigate();

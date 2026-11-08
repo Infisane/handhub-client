@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useGeolocated } from "react-geolocated";
+import { toast } from "sonner";
 import { set_geolocation } from "#/core/redux-store/slices/geolocation.slice";
 import { useAppDispatch } from "./useStore.hook";
 
@@ -58,5 +59,24 @@ export const useUserLocation = () => {
 		}
 	}, [coords, isGeolocationAvailable, positionError, dispatch]);
 
-	return { getPosition };
+	// A blocked permission can't be re-prompted: getPosition() would fail instantly
+	// with the same error and the Retry button would look dead. Say so instead.
+	const retry = useCallback(async () => {
+		let state: PermissionState | undefined;
+		try {
+			state = (await navigator.permissions.query({ name: "geolocation" }))
+				.state;
+		} catch {
+			// Permissions API unsupported → just try again.
+		}
+		if (state === "denied") {
+			toast.error(
+				"Location is still blocked for this site. Allow it in your browser's site settings, then retry (you may need to reload the page).",
+			);
+			return;
+		}
+		getPosition();
+	}, [getPosition]);
+
+	return { retry };
 };
