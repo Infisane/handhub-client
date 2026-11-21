@@ -6,6 +6,7 @@ import {
 	useGetUserProfileQuery,
 	useUpdateUserProfileQuery,
 } from "#/core/queries/settings.q";
+import { PHONE_HINT } from "#/core/schemas/phone.schema";
 import { ProfileSchema } from "#/core/schemas/settings.schema";
 import { SettingsSaveBar, useSavedFlash } from "./settings-save-bar.tsx";
 
@@ -191,6 +192,15 @@ export function ProfileTab() {
 						placeholder="+234 812 345 6789"
 						className={inputCls}
 					/>
+					{errors.phone ? (
+						<p className="text-[10.5px] text-red-500 font-semibold">
+							{errors.phone}
+						</p>
+					) : (
+						<p className="text-[10px] text-[var(--dashboard-muted)]">
+							{PHONE_HINT}
+						</p>
+					)}
 				</div>
 
 				<div className="space-y-1.5">

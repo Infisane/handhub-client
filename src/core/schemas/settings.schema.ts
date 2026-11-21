@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { PhoneSchema } from "./phone.schema";
 
 export const ProfileSchema = z.object({
 	fullName: z.string().min(1, "Full name is required"),
-	phone: z.string().optional(),
+	phone: PhoneSchema,
 	address: z.string().optional(),
 	bio: z.string().optional(),
 });

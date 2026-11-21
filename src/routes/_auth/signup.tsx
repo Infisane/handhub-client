@@ -33,6 +33,7 @@ import {
 	SignUpStep1Schema,
 	SignUpStep2Schema,
 } from "#/core/schemas/auth.schema";
+import { PHONE_HINT } from "#/core/schemas/phone.schema";
 
 export const Route = createFileRoute("/_auth/signup")({
 	component: SignUpPage,
@@ -297,6 +298,7 @@ function SignUpPage() {
 												placeholder="+234 800 000 0000"
 												aria-label="Phone number"
 												error={step1Errors.phone}
+												hint={PHONE_HINT}
 											/>
 										</div>
 

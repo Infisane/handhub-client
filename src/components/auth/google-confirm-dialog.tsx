@@ -12,6 +12,7 @@ import { USER_TYPES, type UserType } from "#/core/helpers/constants.helper";
 import { useValidator } from "#/core/helpers/useValidator.helper";
 import { useGoogleAuthQuery } from "#/core/queries/auth.q";
 import { GoogleConfirmSchema } from "#/core/schemas/auth.schema";
+import { PHONE_HINT } from "#/core/schemas/phone.schema";
 import type { GoogleAuthResponse } from "#/core/types/auth.types";
 import { cn } from "#/lib/utils.ts";
 
@@ -141,6 +142,7 @@ export function GoogleConfirmDialog({
 							placeholder="+234 800 000 0000"
 							aria-label="Phone number"
 							error={errors.phone}
+							hint={PHONE_HINT}
 						/>
 					</div>
 
