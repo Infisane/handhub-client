@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PhoneSchema } from "./phone.schema";
 
 export const SignInSchema = z.object({
 	email: z
@@ -12,7 +13,7 @@ export type SignIn = z.infer<typeof SignInSchema>;
 export const SignUpStep1Schema = z.object({
 	firstName: z.string().min(1, "First name is required"),
 	lastName: z.string().min(1, "Last name is required"),
-	phone: z.string().min(7, "Enter a valid phone number"),
+	phone: PhoneSchema,
 	email: z
 		.string()
 		.min(1, "Email is required")
@@ -42,7 +43,7 @@ export const VerifyOtpSchema = z.object({
 export type VerifyOtp = z.infer<typeof VerifyOtpSchema>;
 
 export const GoogleConfirmSchema = z.object({
-	phone: z.string().min(7, "Enter a valid phone number"),
+	phone: PhoneSchema,
 	userType: z.enum(["customer", "provider"], {
 		message: "Select an account type",
 	}),

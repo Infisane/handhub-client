@@ -6,15 +6,17 @@ export interface AppInputProps
 	extends React.InputHTMLAttributes<HTMLInputElement> {
 	icon?: React.ReactNode;
 	error?: string;
+	/** Helper text under the field; replaced by `error` when there is one. */
+	hint?: string;
 }
 
 /**
  * Shared auth text input: optional leading icon, built-in password
- * show/hide toggle, and an error message rendered below the field.
+ * show/hide toggle, and an error message (or hint) rendered below the field.
  * Styled with the `.inp` / `.inp-wrap` classes from styles.css.
  */
 export const AppInput = React.forwardRef<HTMLInputElement, AppInputProps>(
-	({ className, type, icon, error, ...props }, ref) => {
+	({ className, type, icon, error, hint, ...props }, ref) => {
 		const [show, setShow] = React.useState(false);
 		const isPassword = type === "password";
 		const resolvedType = isPassword ? (show ? "text" : "password") : type;
@@ -50,7 +52,11 @@ export const AppInput = React.forwardRef<HTMLInputElement, AppInputProps>(
 						</button>
 					)}
 				</div>
-				{error && <p className="field-error">{error}</p>}
+				{error ? (
+					<p className="field-error">{error}</p>
+				) : (
+					hint && <p className="field-hint">{hint}</p>
+				)}
 			</div>
 		);
 	},
