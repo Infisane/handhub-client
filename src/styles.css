@@ -953,6 +953,12 @@ input[type='number'].hh-num::-webkit-inner-spin-button { -webkit-appearance: non
   margin-top: 6px;
 }
 
+.field-hint {
+  color: var(--hh-txt3);
+  font-size: 12px;
+  margin-top: 6px;
+}
+
 .hh-auth .row2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
