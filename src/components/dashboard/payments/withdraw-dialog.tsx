@@ -104,6 +104,12 @@ export function WithdrawDialog({
 									className="w-full pl-8.5 pr-3 py-2.5 rounded-xl bg-[var(--dashboard-bg)] border border-[var(--dashboard-border)] font-syne font-black text-[14px] text-[var(--dashboard-text)] placeholder-[var(--dashboard-muted)] outline-none focus:border-[var(--dashboard-orange)]"
 								/>
 							</div>
+							{parsed > balance && (
+								<p className="text-[10.5px] text-red-500 font-semibold">
+									Amount exceeds your withdrawable balance of{" "}
+									{formatNaira(balance)}.
+								</p>
+							)}
 						</div>
 
 						<div className="flex items-center justify-between text-[10px] font-semibold leading-none">
